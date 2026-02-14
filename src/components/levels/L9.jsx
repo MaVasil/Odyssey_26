@@ -1,209 +1,195 @@
-import React, { useState, useEffect, useRef } from 'react';
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
-import { useTheme } from "next-themes";
-import { motion, AnimatePresence } from "framer-motion";
-import { HelpCircle, ArrowRight, Volume2 } from "lucide-react";
+import { motion } from "framer-motion";
 import { useToast } from "../ui/use-toast";
 
-const MorseCodeLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
+// The Look-and-Say sequence
+const SEQUENCE = [
+  "1",
+  "11",
+  "21",
+  "1211",
+  "111221",
+];
+const ANSWER = "312211";
+
+const Level9 = ({ onComplete }) => {
   const [inputValue, setInputValue] = useState("");
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
-  const [message, setMessage] = useState("Listen to the Morse code and decode the message!");
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentSignalType, setCurrentSignalType] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
-  
-  const { theme, setTheme } = useTheme();
+  const [attempts, setAttempts] = useState([]);
   const { toast } = useToast();
-  
-  const audioContextRef = useRef(null);
-  const morseSequence = [
-    // C
-    { type: "dash", duration: 0.3 },
-    { type: "dot", duration: 0.1 },
-    { type: "dash", duration: 0.3 },
-    { type: "dot", duration: 0.1 },
-    // Pause between letters
-    { type: "pause", duration: 0.4 },
-    // O
-    { type: "dash", duration: 0.3 },
-    { type: "dash", duration: 0.3 },
-    { type: "dash", duration: 0.3 },
-    // Pause between letters
-    { type: "pause", duration: 0.4 },
-    // S
-    { type: "dot", duration: 0.1 },
-    { type: "dot", duration: 0.1 },
-    { type: "dot", duration: 0.1 },
-    // Pause between letters
-    { type: "pause", duration: 0.4 },
-    // C
-    { type: "dash", duration: 0.3 },
-    { type: "dot", duration: 0.1 },
-    { type: "dash", duration: 0.3 },
-    { type: "dot", duration: 0.1 }
-  ];
-
-  useEffect(() => {
-    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-    setTimeout(() => {
-      playMorseSequence();
-    }, 1500);
-    
-    return () => {
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-    };
-  }, []);
 
   useEffect(() => {
     if (isSuccess) {
       toast({
-        title: "Level Completed!",
-        description: "You've successfully decoded the code message!",
+        title: "Correct! 🧠",
+        description: "312211 — Three 1s, Two 2s, One 1. The Look-and-Say sequence!",
         variant: "success",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
       });
-      
       setTimeout(() => {
-        onComplete(nextLevelNumber);
+        onComplete(4);
       }, 2000);
     }
-  }, [isSuccess, nextLevelNumber, onComplete, toast]);
-
-  const playSound = (duration, frequency = 600) => {
-    if (!audioContextRef.current) return;
-    
-    const oscillator = audioContextRef.current.createOscillator();
-    const gainNode = audioContextRef.current.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContextRef.current.destination);
-    
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(frequency, audioContextRef.current.currentTime);
-    
-    gainNode.gain.setValueAtTime(0, audioContextRef.current.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.5, audioContextRef.current.currentTime + 0.01);
-    gainNode.gain.linearRampToValueAtTime(0, audioContextRef.current.currentTime + duration - 0.01);
-    
-    oscillator.start();
-    oscillator.stop(audioContextRef.current.currentTime + duration);
-  };
-
-  const playMorseSequence = async () => {
-    if (isPlaying) return;
-    
-    setIsPlaying(true);
-    setMessage("Playing code...");
-    
-    let totalDelay = 0;
-    
-    for (let i = 0; i < morseSequence.length; i++) {
-      const { type, duration } = morseSequence[i];
-      
-      setTimeout(() => {
-        setCurrentSignalType(type);
-        if (type !== "pause") {
-          playSound(duration);
-        }
-      }, totalDelay * 1000);
-      
-      setTimeout(() => {
-        setCurrentSignalType(null);
-      }, (totalDelay + duration) * 1000);
-      
-      totalDelay += duration + 0.1; 
-    }
-    
-    setTimeout(() => {
-      setIsPlaying(false);
-      setMessage("What's the decoded message?");
-    }, totalDelay * 1000);
-  };
-
-  const resetGame = () => {
-    setMessage("Listen to the code and decode the message!");
-    setCurrentSignalType(null);
-    setIsPlaying(false);
-    setIsSuccess(false);
-  };
+  }, [isSuccess, onComplete, toast]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
 
-  const handleKeyPress = (e) => {
+  const handleEnter = (e) => {
     if (e.key === "Enter") {
       handleCommandSubmit();
     }
   };
 
   const handleCommandSubmit = () => {
-    const resetMatch = inputValue.match(/^\/reset$/i);
-    const helpMatch = inputValue.match(/^\/help$/i);
-    const themeMatch = inputValue.match(/^\/theme\s+(dark|light)$/i);
-    const playMatch = inputValue.match(/^\/play$/i);
-    const decodeMatch = inputValue.match(/^\/decode\s+(.+)$/i);
-    
-    if (resetMatch) {
-      resetGame();
+    const cmd = inputValue.trim().toLowerCase();
+
+    const enterMatch = cmd.match(/^\/enter\s+(.+)$/i);
+    const resetMatch = cmd.match(/^\/reset$/i);
+    const helpMatch = cmd.match(/^\/help$/i);
+
+    if (enterMatch) {
+      const guess = enterMatch[1].trim().replace(/\s+/g, "");
+      setAttempts((prev) => [...prev, guess]);
+
+      if (guess === ANSWER) {
+        setIsSuccess(true);
+      } else {
+        toast({
+          title: "Incorrect ❌",
+          description: `"${guess}" is not the next number. Look at the pattern more carefully.`,
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+      }
+    } else if (resetMatch) {
+      setAttempts([]);
+      setIsSuccess(false);
       toast({
         title: "Level Reset",
-        description: "The game has been reset to its initial state",
+        description: "Try decoding the sequence again.",
         variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
-    } else if (themeMatch) {
-      const newTheme = themeMatch[1];
-      setTheme(newTheme);
-      toast({
-        title: "Theme Changed",
-        description: `Theme set to ${newTheme} mode`,
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-      });
-    } else if (playMatch) {
-      playMorseSequence();
-      toast({
-        title: "Playing Code",
-        description: "Listen carefully to decode the message",
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-      });
-    } else if (decodeMatch) {
-      const answer = decodeMatch[1].trim().toUpperCase();
-      
-      if (answer === "COSC") {
-        setMessage("Perfect! You've decoded the message correctly! 🎉");
-        setIsSuccess(true);
-      } else {
-        setMessage("Not quite right. Try listening again!");
-        toast({
-          title: "Incorrect Answer",
-          description: "The decoded message isn't right. Try again!",
-          variant: "destructive",
-          className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
-      }
     } else {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
         variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
       });
     }
-    
+
     setInputValue("");
+  };
+
+  const closeHelpModal = () => {
+    setHelpModalOpen(false);
+  };
+
+  // Render a single digit with styling
+  const renderDigit = (digit, x, color) => (
+    <text
+      x={x}
+      y={0}
+      fontSize="22"
+      fill={color}
+      fontWeight="bold"
+      fontFamily="monospace"
+      textAnchor="middle"
+    >
+      {digit}
+    </text>
+  );
+
+  // Render a row of the sequence
+  const renderRow = (str, rowIndex, isQuestion = false) => {
+    const digits = str.split("");
+    const totalWidth = digits.length * 22;
+    const startX = 190 - totalWidth / 2 + 11;
+    const y = 50 + rowIndex * 40;
+
+    return (
+      <motion.g
+        key={rowIndex}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4, delay: rowIndex * 0.15 }}
+      >
+        {/* Row number label */}
+        <text
+          x="25"
+          y={y}
+          fontSize="11"
+          fill="#555577"
+          fontFamily="monospace"
+          textAnchor="middle"
+        >
+          {rowIndex + 1}.
+        </text>
+
+        {/* Digits */}
+        {isQuestion ? (
+          <text
+            x="190"
+            y={y}
+            fontSize="26"
+            fill="#F9DC34"
+            fontWeight="bold"
+            fontFamily="monospace"
+            textAnchor="middle"
+          >
+            ?
+          </text>
+        ) : (
+          digits.map((digit, i) => (
+            <text
+              key={i}
+              x={startX + i * 22}
+              y={y}
+              fontSize="20"
+              fill={digit === "1" ? "#F9DC34" : digit === "2" ? "#A78BFA" : "#4ADE80"}
+              fontWeight="bold"
+              fontFamily="monospace"
+              textAnchor="middle"
+            >
+              {digit}
+            </text>
+          ))
+        )}
+
+        {/* Connecting line to next row */}
+        {rowIndex < SEQUENCE.length && (
+          <line
+            x1="190"
+            y1={y + 6}
+            x2="190"
+            y2={y + 26}
+            stroke="#333355"
+            strokeWidth="1"
+            strokeDasharray="2 3"
+          />
+        )}
+      </motion.g>
+    );
   };
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
-      <motion.h1 
+      {/* Level title badge */}
+      <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -211,66 +197,122 @@ const MorseCodeLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
       >
         Level 9
       </motion.h1>
-      
-      <motion.p 
+
+      {/* Question */}
+      <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
-        {message}
+        Enter the next number in the sequence.
       </motion.p>
 
+      {/* Terminal-style display */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.3 }}
-        className="bg-white dark:bg-[#2D1B4B]/40 rounded-2xl p-6 shadow-lg backdrop-blur-sm border border-purple-200 dark:border-purple-700/30 w-full max-w-md"
+        className="bg-[#0a0a1a] dark:bg-[#0a0a1a] rounded-2xl shadow-lg border border-purple-700/30 w-full max-w-md relative overflow-hidden"
       >
-        <div className="min-h-48 flex flex-col items-center justify-center">
-          <div className="flex justify-center gap-8 my-6">
-            <div className="flex flex-col items-center">
-              <motion.div
-                className="w-16 h-32 rounded-md"
-                animate={{
-                  scale: currentSignalType === "dot" ? 1.2 : 1,
-                  backgroundColor: currentSignalType === "dot" 
-                    ? "#8B5CF6" 
-                    : theme === 'dark' ? "#4B5563" : "#D1D5DB"
-                }}
+        {/* Terminal header */}
+        <div className="flex items-center gap-2 px-4 py-2 bg-[#1a1a2e] border-b border-purple-700/20">
+          <div className="w-3 h-3 rounded-full bg-red-500" />
+          <div className="w-3 h-3 rounded-full bg-yellow-500" />
+          <div className="w-3 h-3 rounded-full bg-green-500" />
+          <span className="ml-3 text-xs text-gray-500 font-mono">sequence_decoder.exe</span>
+        </div>
+
+        <div className="p-4">
+          <svg viewBox="0 0 380 310" className="w-full">
+            {/* Scanline effect */}
+            {[...Array(30)].map((_, i) => (
+              <line
+                key={`sl${i}`}
+                x1={0}
+                y1={i * 10}
+                x2={380}
+                y2={i * 10}
+                stroke="#0f0f2f"
+                strokeWidth="0.5"
+                opacity="0.3"
               />
-              <span className="mt-2 text-sm text-purple-700 dark:text-purple-300">Short</span>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              <motion.div
-                className="w-16 h-32 rounded-md"
-                animate={{
-                  scale: currentSignalType === "dash" ? 1.2 : 1,
-                  backgroundColor: currentSignalType === "dash" 
-                    ? "#8B5CF6" 
-                    : theme === 'dark' ? "#4B5563" : "#D1D5DB"
-                }}
-              />
-              <span className="mt-2 text-sm text-purple-700 dark:text-purple-300">Long</span>
-            </div>
-          </div>
-          
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={playMorseSequence}
-            disabled={isPlaying}
-            className={`px-6 py-3 rounded-lg bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] text-[#2D1B4B] flex items-center gap-2 shadow-md ${
-              isPlaying ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-          >
-            <Volume2 className="w-5 h-5" />
-            Play Code
-          </motion.button>
+            ))}
+
+            {/* Title */}
+            <text
+              x="190"
+              y="25"
+              textAnchor="middle"
+              fontSize="12"
+              fill="#4ADE80"
+              fontFamily="monospace"
+            >
+              &gt; SEQUENCE ANALYSIS
+            </text>
+
+            {/* Sequence rows */}
+            {SEQUENCE.map((row, i) => renderRow(row, i))}
+
+            {/* Question mark row */}
+            {renderRow("?", SEQUENCE.length, true)}
+
+            {/* Blinking cursor */}
+            <motion.rect
+              x="202"
+              y={50 + SEQUENCE.length * 40 - 18}
+              width="12"
+              height="2"
+              fill="#F9DC34"
+              animate={{ opacity: [1, 0, 1] }}
+              transition={{ repeat: Infinity, duration: 1 }}
+            />
+
+            {/* Decorative binary data in corners */}
+            <text x="10" y="290" fontSize="8" fill="#222244" fontFamily="monospace">
+              01001100 01101111 01101111
+            </text>
+            <text x="250" y="290" fontSize="8" fill="#222244" fontFamily="monospace">
+              01101011 00100000 01010011
+            </text>
+
+            {/* Bottom prompt */}
+            <text
+              x="190"
+              y="305"
+              textAnchor="middle"
+              fontSize="10"
+              fill="#555577"
+              fontFamily="monospace"
+            >
+              Use /enter [number] to submit your answer
+            </text>
+          </svg>
         </div>
       </motion.div>
-      
+
+      {/* Attempts display */}
+      {attempts.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="w-full max-w-md mt-3 flex flex-wrap gap-2 justify-center"
+        >
+          {attempts.slice(-5).map((attempt, i) => (
+            <span
+              key={i}
+              className={`text-xs px-3 py-1 rounded-full border font-mono ${attempt === ANSWER
+                  ? "bg-green-500/20 text-green-400 border-green-500/40"
+                  : "bg-red-500/20 text-red-400 border-red-500/40 line-through"
+                }`}
+            >
+              {attempt}
+            </span>
+          ))}
+        </motion.div>
+      )}
+
+      {/* Help prompt */}
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -278,9 +320,15 @@ const MorseCodeLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
         className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
         onClick={() => setHelpModalOpen(true)}
       >
-        Type <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">/help</span> to get commands and hints
+        Type{" "}
+        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+          /help
+        </span>{" "}
+        to get commands and hints
       </motion.span>
-      <motion.div 
+
+      {/* Command input */}
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.6 }}
@@ -290,87 +338,99 @@ const MorseCodeLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
+          onKeyPress={handleEnter}
           placeholder="Enter command..."
           className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
         />
-        <button 
+        <button
           onClick={handleCommandSubmit}
           className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
         >
-          <div className="w-5 h-5 flex items-center justify-center">
-            <ArrowRight className="w-5 h-5 text-purple-900" />
-          </div>
+          <Image
+            src="/runcode.png"
+            alt="Run"
+            height={20}
+            width={20}
+            className="rounded-sm"
+          />
         </button>
       </motion.div>
 
-      <AnimatePresence>
-        {isHelpModalOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
+      {/* Help Modal */}
+      {isHelpModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4"
           >
-            <motion.div 
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col"
-            >
-              <div className="p-6 overflow-y-auto flex-grow">
-                <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">Available Commands:</h2>
-                <div className="space-y-1 mb-6">
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/play</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Play the code sequence again.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/decode</span>{" "}
-                    <span className="text-blue-600 dark:text-blue-300">[word]</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Submit your answer (e.g., /decode HELLO).</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/reset</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Reset the level to its initial state.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/theme</span>{" "}
-                    <span className="text-blue-600 dark:text-blue-300">[dark|light]</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Change the theme to dark or light.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/help</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Show this help menu.</p>
-                  </div>
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">
+                Available Commands:
+              </h2>
+              <div className="space-y-1 mb-6">
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /enter
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-300">[number]</span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Enter the next number in the sequence.
+                  </p>
                 </div>
-                
-              
-                
-                <h3 className="text-xl font-bold mt-4 mb-2 text-purple-800 dark:text-[#F9DC34]">Hint:</h3>
-                <p className="text-gray-600 dark:text-gray-300 italic">
-                Listen carefully—two distinct beeps, one long and one short. Patterns matter, but so do the silences in between.
-                </p>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /reset
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Reset the level.
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /help
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Show commands and hints.
+                  </p>
+                </div>
               </div>
-              
-              <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
-                <button
-                  onClick={() => setHelpModalOpen(false)}
-                  className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
-                >
-                  Close
-                </button>
+
+              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
+                The Sequence:
+              </h3>
+              <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 font-mono text-center text-lg">
+                {SEQUENCE.map((row, i) => (
+                  <p key={i}>
+                    {row.split("").join(" ")}
+                  </p>
+                ))}
+                <p className="text-[#F9DC34] text-2xl">?</p>
               </div>
-            </motion.div>
+
+              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
+                Hint:
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 italic">
+                Read the previous number out loud. (e.g., "One 1" → 11, "Two 1s" → 21). This is the "Look-and-Say" sequence.
+              </p>
+            </div>
+
+            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
+              <button
+                onClick={closeHelpModal}
+                className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
+              >
+                Close
+              </button>
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };
 
-export default MorseCodeLevel;
+export default Level9;

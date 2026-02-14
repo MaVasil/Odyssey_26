@@ -1,503 +1,505 @@
-import React, { useState, useEffect, useRef } from 'react';
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
-import { useTheme } from "next-themes";
-import { motion, AnimatePresence } from "framer-motion";
-import { HelpCircle, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { useToast } from "../ui/use-toast";
 
-const Level4 = ({ levelNumber, onComplete, nextLevelNumber }) => {
+const GRID_SIZE = 3;
+const START = { x: 1, y: 1 };
+const TARGET = { x: 3, y: 3 };
+
+// Valid L-shaped knight moves
+const KNIGHT_DELTAS = [
+  { dx: 2, dy: 1 },
+  { dx: 2, dy: -1 },
+  { dx: -2, dy: 1 },
+  { dx: -2, dy: -1 },
+  { dx: 1, dy: 2 },
+  { dx: 1, dy: -2 },
+  { dx: -1, dy: 2 },
+  { dx: -1, dy: -2 },
+];
+
+const isValidKnightMove = (from, to) => {
+  return KNIGHT_DELTAS.some(
+    (d) => from.x + d.dx === to.x && from.y + d.dy === to.y
+  );
+};
+
+const isInBounds = (pos) => {
+  return pos.x >= 1 && pos.x <= GRID_SIZE && pos.y >= 1 && pos.y <= GRID_SIZE;
+};
+
+const Level4 = ({ onComplete }) => {
   const [inputValue, setInputValue] = useState("");
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
-  const [message, setMessage] = useState("Use angles to hit all three targets!");
-  const [showProtractor, setShowProtractor] = useState(false);
-  const protractorTimerRef = useRef(null);
-  const [gameState, setGameState] = useState({
-    targets: [
-      { x: 150, y: 60, hit: false, radius: 15 },
-      { x: 50, y: 100, hit: false, radius: 15 },
-      { x: 220, y: 150, hit: false, radius: 15 }
-    ],
-    shooterX: 140,
-    shooterY: 220,
-    projectiles: [],
-    targetCount: 3,
-    hitsRequired: 3
-  });
   const [isSuccess, setIsSuccess] = useState(false);
-  const [viewportSize, setViewportSize] = useState({
-    width: 280,
-    height: 240
-  });
-  
-  const { theme, setTheme } = useTheme();
+  const [knightPos, setKnightPos] = useState({ ...START });
+  const [moveHistory, setMoveHistory] = useState([{ ...START }]);
+  const [visitedCells, setVisitedCells] = useState(new Set(["1,1"]));
   const { toast } = useToast();
-
-  useEffect(() => {
-    function handleResize() {
-      const container = document.querySelector('.game-container');
-      if (container) {
-        let width = Math.min(400, container.clientWidth - 32);
-        let height = Math.floor(width * 0.8);
-        
-        setViewportSize({
-          width,
-          height
-        });
-        
-        const scaleX = width / 280;
-        const scaleY = height / 240;
-        
-        setGameState(prevState => ({
-          ...prevState,
-          shooterX: 140 * scaleX,
-          shooterY: 220 * scaleY,
-          targets: [
-            { x: 150 * scaleX, y: 60 * scaleY, hit: prevState.targets[0].hit, radius: 15 * scaleX },
-            { x: 50 * scaleX, y: 100 * scaleY, hit: prevState.targets[1].hit, radius: 15 * scaleX },
-            { x: 220 * scaleX, y: 150 * scaleY, hit: prevState.targets[2].hit, radius: 15 * scaleX }
-          ]
-        }));
-      }
-    }
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    if (showProtractor) {
-      if (protractorTimerRef.current) {
-        clearTimeout(protractorTimerRef.current);
-      }
-      
-      protractorTimerRef.current = setTimeout(() => {
-        setShowProtractor(false);
-        toast({
-          title: "Protractor Hidden",
-          description: "Protractor automatically hidden after 5 seconds",
-          variant: "default",
-          className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-        });
-      }, 5000);
-    }
-    
-    return () => {
-      if (protractorTimerRef.current) {
-        clearTimeout(protractorTimerRef.current);
-      }
-    };
-  }, [showProtractor, toast]);
 
   useEffect(() => {
     if (isSuccess) {
       toast({
-        title: "Level Completed!",
-        description: "You've successfully hit all targets!",
+        title: "Level Completed! ♞",
+        description: "The knight has reached the target!",
         variant: "success",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
       });
-      
+
       setTimeout(() => {
-        onComplete(nextLevelNumber);
+        onComplete(4);
       }, 2000);
     }
-  }, [isSuccess, nextLevelNumber, onComplete, toast]);
+  }, [isSuccess, onComplete, toast]);
 
-  const checkWinCondition = () => {
-    const allTargetsHit = gameState.targets.every(target => target.hit);
-    if (allTargetsHit) {
+  // Check win
+  useEffect(() => {
+    if (knightPos.x === TARGET.x && knightPos.y === TARGET.y && !isSuccess) {
       setIsSuccess(true);
     }
-  };
-
-  const resetGame = () => {
-    const scaleX = viewportSize.width / 280;
-    const scaleY = viewportSize.height / 240;
-    
-    setGameState({
-      targets: [
-        { x: 150 * scaleX, y: 60 * scaleY, hit: false, radius: 15 * scaleX },
-        { x: 50 * scaleX, y: 100 * scaleY, hit: false, radius: 15 * scaleX },
-        { x: 220 * scaleX, y: 150 * scaleY, hit: false, radius: 15 * scaleX }
-      ],
-      shooterX: 140 * scaleX,
-      shooterY: 220 * scaleY,
-      projectiles: [],
-      targetCount: 3,
-      hitsRequired: 3
-    });
-    setMessage("Use angles to hit all three targets!");
-    setShowProtractor(false);
-  };
+  }, [knightPos, isSuccess]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
 
-  const handleKeyPress = (e) => {
+  const handleEnter = (e) => {
     if (e.key === "Enter") {
       handleCommandSubmit();
     }
   };
 
-  const shootAtAngle = (angle) => {
-    const radians = angle * (Math.PI / 180);
-    const newProjectile = {
-      startX: gameState.shooterX,
-      startY: gameState.shooterY,
-      angle: angle,
-      path: calculateProjectilePath(gameState.shooterX, gameState.shooterY, radians)
-    };
-    
-    const updatedTargets = [...gameState.targets];
-    let hitCount = 0;
-    
-    newProjectile.path.forEach(point => {
-      updatedTargets.forEach((target, index) => {
-        if (!target.hit) {
-          const distance = Math.sqrt(
-            Math.pow(point.x - target.x, 2) + 
-            Math.pow(point.y - target.y, 2)
-          );
-          
-          if (distance <= target.radius) {
-            updatedTargets[index].hit = true;
-            hitCount++;
-          }
-        }
-      });
-    });
-    
-    setGameState(prevState => ({
-      ...prevState,
-      projectiles: [...prevState.projectiles, newProjectile],
-      targets: updatedTargets
-    }));
-    
-    if (hitCount > 0) {
-      toast({
-        title: "Target Hit!",
-        description: `You hit ${hitCount} target${hitCount > 1 ? 's' : ''}!`,
-        variant: "success",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
-      });
-      
-      setTimeout(checkWinCondition, 100);
-    } else {
-      toast({
-        title: "Missed All Targets!",
-        description: "Level reset - try again with a different angle",
-        variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-      });
-      
-      setTimeout(() => {
-        resetGame();
-      }, 1500);
-    }
-  };
-
-  const calculateProjectilePath = (startX, startY, angleRadians) => {
-    const path = [];
-    const velocity = viewportSize.width / 40; 
-    const maxDistance = viewportSize.width * 2;
-    let totalDistance = 0;
-    let x = startX;
-    let y = startY;
-    
-    while (totalDistance < maxDistance && x >= 0 && x <= viewportSize.width && y >= 0 && y <= viewportSize.height) {
-      x += Math.cos(angleRadians) * velocity;
-      y -= Math.sin(angleRadians) * velocity;
-      path.push({ x, y });
-      totalDistance += velocity;
-    }
-    
-    return path;
-  };
-
   const handleCommandSubmit = () => {
-    const resetMatch = inputValue.match(/^\/reset$/i);
-    const helpMatch = inputValue.match(/^\/help$/i);
-    const themeMatch = inputValue.match(/^\/theme\s+(dark|light)$/i);
-    const showScaleMatch = inputValue.match(/^\/show\s+scale$/i);
-    const shootMatch = inputValue.match(/^\/shoot\s+(\-?\d+\.?\d*)$/i);
-    
-    if (resetMatch) {
-      resetGame();
+    const cmd = inputValue.trim().toLowerCase();
+
+    const moveMatch = cmd.match(/^\/move\s*(\d)\s*,\s*(\d)$/i);
+    const resetMatch = cmd.match(/^\/reset$/i);
+    const helpMatch = cmd.match(/^\/help$/i);
+    const undoMatch = cmd.match(/^\/undo$/i);
+
+    if (moveMatch) {
+      const targetX = parseInt(moveMatch[1]);
+      const targetY = parseInt(moveMatch[2]);
+      const to = { x: targetX, y: targetY };
+
+      if (!isInBounds(to)) {
+        toast({
+          title: "Out of Bounds",
+          description: `(${targetX},${targetY}) is outside the ${GRID_SIZE}×${GRID_SIZE} grid.`,
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+      } else if (!isValidKnightMove(knightPos, to)) {
+        toast({
+          title: "Invalid Move ❌",
+          description: `A knight can't move from (${knightPos.x},${knightPos.y}) to (${targetX},${targetY}). Knights move in an L-shape: 2+1 squares.`,
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+      } else {
+        setKnightPos(to);
+        setMoveHistory((prev) => [...prev, to]);
+        setVisitedCells((prev) => new Set([...prev, `${to.x},${to.y}`]));
+        toast({
+          title: `Moved to (${targetX},${targetY})`,
+          description:
+            to.x === TARGET.x && to.y === TARGET.y
+              ? "You reached the target! 🎉"
+              : `Knight is now at (${targetX},${targetY}).`,
+          variant: "default",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        });
+      }
+    } else if (undoMatch) {
+      if (moveHistory.length > 1) {
+        const newHistory = moveHistory.slice(0, -1);
+        const prevPos = newHistory[newHistory.length - 1];
+        setMoveHistory(newHistory);
+        setKnightPos(prevPos);
+        toast({
+          title: "Move Undone",
+          description: `Knight returned to (${prevPos.x},${prevPos.y}).`,
+          variant: "default",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        });
+      } else {
+        toast({
+          title: "Nothing to Undo",
+          description: "You're at the starting position.",
+          variant: "default",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        });
+      }
+    } else if (resetMatch) {
+      setKnightPos({ ...START });
+      setMoveHistory([{ ...START }]);
+      setVisitedCells(new Set(["1,1"]));
+      setIsSuccess(false);
       toast({
         title: "Level Reset",
-        description: "The game has been reset to its initial state",
+        description: "Knight returned to (1,1).",
         variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
-    } else if (themeMatch) {
-      const newTheme = themeMatch[1];
-      setTheme(newTheme);
-      toast({
-        title: "Theme Changed",
-        description: `Theme set to ${newTheme} mode`,
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-      });
-    } else if (showScaleMatch) {
-      setShowProtractor(true);
-      toast({
-        title: "Protractor Shown",
-        description: "Protractor will be visible for 5 seconds",
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-      });
-    } else if (shootMatch) {
-      const angle = parseFloat(shootMatch[1]);
-      if (angle >= -180 && angle <= 180) {
-        shootAtAngle(angle);
-      } else {
-        toast({
-          title: "Invalid Angle",
-          description: "Angle must be between -180 and 180 degrees",
-          variant: "destructive",
-          className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
-      }
     } else {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
         variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
       });
     }
-    
+
     setInputValue("");
   };
 
-  const drawProtractor = () => {
-    const centerX = gameState.shooterX;
-    const centerY = gameState.shooterY;
-    const radius = viewportSize.width / 3;
-    
-    const protractorLines = [];
-    for (let angle = 0; angle <= 180; angle += 10) {
-      const radians = angle * (Math.PI / 180);
-      const x2 = centerX + Math.cos(radians) * radius;
-      const y2 = centerY - Math.sin(radians) * radius;
-      
-      protractorLines.push(
-        <g key={`angle-${angle}`}>
-          <line
-            x1={centerX}
-            y1={centerY}
-            x2={x2}
-            y2={y2}
-            stroke={angle % 30 === 0 ? "#F5A623" : "#a855f7"}
-            strokeWidth={angle % 30 === 0 ? 2 : 1}
-            opacity={0.7}
-          />
-          {angle % 30 === 0 && (
-            <text
-              x={centerX + Math.cos(radians) * (radius + 15)}
-              y={centerY - Math.sin(radians) * (radius + 15)}
-              fill="#F5A623"
-              fontSize={Math.max(10, viewportSize.width / 30)}
-              textAnchor="middle"
-            >
-              {angle}°
-            </text>
-          )}
-        </g>
-      );
-    }
-    
-    return (
-      <g className="protractor">
-        {protractorLines}
-        <circle
-          cx={centerX}
-          cy={centerY}
-          r={radius}
-          fill="transparent"
-          stroke="#F5A623"
-          strokeWidth="1"
-          strokeDasharray="5,5"
-          opacity="0.5"
-        />
-      </g>
-    );
+  const closeHelpModal = () => {
+    setHelpModalOpen(false);
   };
 
+  // Compute valid moves from current position for highlighting
+  const validMoves = KNIGHT_DELTAS.map((d) => ({
+    x: knightPos.x + d.dx,
+    y: knightPos.y + d.dy,
+  })).filter(isInBounds);
+
+  // Grid rendering
+  const CELL_SIZE = 90;
+  const PADDING = 30;
+  const SVG_SIZE = GRID_SIZE * CELL_SIZE + PADDING * 2;
+
+  const cellToPixel = (gx, gy) => ({
+    px: PADDING + (gx - 1) * CELL_SIZE + CELL_SIZE / 2,
+    py: PADDING + (gy - 1) * CELL_SIZE + CELL_SIZE / 2,
+  });
+
   return (
-    <div className="flex flex-col items-center mt-4 md:mt-8 max-w-4xl mx-auto px-2 md:px-4">
-      <motion.h1 
+    <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
+      {/* Level title badge */}
+      <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="px-4 md:px-6 py-2 md:py-3 text-xl md:text-2xl font-bold text-[#2D1B4B] dark:text-[#1A0F2E] bg-gradient-to-r from-[#F9DC34] to-[#F5A623] rounded-full shadow-lg"
+        className="px-6 py-3 text-2xl font-bold text-[#2D1B4B] dark:text-[#1A0F2E] bg-gradient-to-r from-[#F9DC34] to-[#F5A623] rounded-full shadow-lg"
       >
         Level 4
       </motion.h1>
-      
-      <motion.p 
+
+      {/* Question */}
+      <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="mt-4 md:mt-8 text-lg md:text-xl font-semibold mb-3 md:mb-4 text-center text-purple-900 dark:text-[#F9DC34] px-2"
+        className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
-        {message}
+        The Knight's Path — Move the knight from (1,1) to (3,3).
       </motion.p>
 
+      {/* Board */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.3 }}
-        className="game-container bg-white dark:bg-[#2D1B4B]/40 rounded-2xl p-4 shadow-lg backdrop-blur-sm border border-purple-200 dark:border-purple-700/30 w-full max-w-md"
+        className="bg-[#1a1a2e] dark:bg-[#1a1a2e] rounded-2xl p-2 shadow-lg border border-purple-700/30 w-full max-w-sm relative"
       >
-        <div className="relative flex justify-center">
-          <svg 
-            width={viewportSize.width} 
-            height={viewportSize.height} 
-            viewBox={`0 0 ${viewportSize.width} ${viewportSize.height}`} 
-            className="mx-auto"
-          >
-            {gameState.targets.map((target, index) => (
-              <circle
-                key={`target-${index}`}
-                cx={target.x}
-                cy={target.y}
-                r={target.radius}
-                fill={target.hit ? "#4ade80" : "#f87171"}
-                stroke="#000"
-                strokeWidth="2"
-              />
-            ))}
-            
-            {gameState.projectiles.map((projectile, pIndex) => (
-              <g key={`projectile-${pIndex}`}>
-                <path
-                  d={`M ${projectile.path.map(p => `${p.x},${p.y}`).join(' L ')}`}
-                  stroke="#F5A623"
+        <svg
+          viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`}
+          className="w-full"
+        >
+          {/* Grid cells */}
+          {Array.from({ length: GRID_SIZE }, (_, row) =>
+            Array.from({ length: GRID_SIZE }, (_, col) => {
+              const gx = col + 1;
+              const gy = row + 1;
+              const { px, py } = cellToPixel(gx, gy);
+              const isStart = gx === START.x && gy === START.y;
+              const isTarget = gx === TARGET.x && gy === TARGET.y;
+              const isKnight = gx === knightPos.x && gy === knightPos.y;
+              const isValid = validMoves.some((m) => m.x === gx && m.y === gy);
+              const wasVisited = visitedCells.has(`${gx},${gy}`);
+              const isDark = (row + col) % 2 === 1;
+
+              let fillColor = isDark ? "#2D1B4B" : "#3D2060";
+              if (isTarget && isKnight) fillColor = "#22c55e";
+              else if (isTarget) fillColor = "#7C3AED";
+              else if (isKnight) fillColor = isDark ? "#2D1B4B" : "#3D2060";
+              else if (isValid) fillColor = isDark ? "#3a2060" : "#4a2878";
+
+              return (
+                <g key={`${gx}-${gy}`}>
+                  {/* Cell background */}
+                  <rect
+                    x={PADDING + col * CELL_SIZE}
+                    y={PADDING + row * CELL_SIZE}
+                    width={CELL_SIZE}
+                    height={CELL_SIZE}
+                    fill={fillColor}
+                    stroke="#6B21A8"
+                    strokeWidth="1.5"
+                    rx="4"
+                  />
+
+                  {/* Valid move indicator */}
+                  {isValid && !isKnight && (
+                    <circle
+                      cx={px}
+                      cy={py}
+                      r="8"
+                      fill="#F9DC34"
+                      opacity="0.4"
+                    >
+                      <animate
+                        attributeName="opacity"
+                        values="0.3;0.6;0.3"
+                        dur="1.5s"
+                        repeatCount="indefinite"
+                      />
+                    </circle>
+                  )}
+
+                  {/* Start marker */}
+                  {isStart && !isKnight && (
+                    <text
+                      x={px}
+                      y={py + 4}
+                      textAnchor="middle"
+                      fontSize="12"
+                      fill="#888"
+                      fontWeight="bold"
+                    >
+                      START
+                    </text>
+                  )}
+
+                  {/* Target marker */}
+                  {isTarget && !isKnight && (
+                    <>
+                      <text
+                        x={px}
+                        y={py - 5}
+                        textAnchor="middle"
+                        fontSize="22"
+                      >
+                        ⭐
+                      </text>
+                      <text
+                        x={px}
+                        y={py + 20}
+                        textAnchor="middle"
+                        fontSize="10"
+                        fill="#F9DC34"
+                        fontWeight="bold"
+                      >
+                        GOAL
+                      </text>
+                    </>
+                  )}
+
+                  {/* Coordinate label */}
+                  <text
+                    x={PADDING + col * CELL_SIZE + 8}
+                    y={PADDING + row * CELL_SIZE + 14}
+                    fontSize="9"
+                    fill="#8888BB"
+                    opacity="0.6"
+                  >
+                    {gx},{gy}
+                  </text>
+                </g>
+              );
+            })
+          )}
+
+          {/* Move trail */}
+          {moveHistory.length > 1 &&
+            moveHistory.slice(0, -1).map((pos, i) => {
+              const next = moveHistory[i + 1];
+              const from = cellToPixel(pos.x, pos.y);
+              const to = cellToPixel(next.x, next.y);
+              return (
+                <line
+                  key={`trail-${i}`}
+                  x1={from.px}
+                  y1={from.py}
+                  x2={to.px}
+                  y2={to.py}
+                  stroke="#F9DC34"
                   strokeWidth="2"
-                  fill="none"
-                  opacity="0.7"
+                  strokeDasharray="4 3"
+                  opacity="0.4"
                 />
-              </g>
-            ))}
-            
-            {showProtractor && drawProtractor()}
-            
-            <circle
-              cx={gameState.shooterX}
-              cy={gameState.shooterY}
-              r={viewportSize.width / 30}
-              fill="#1d4ed8"
-              stroke="#000"
-              strokeWidth="2"
+              );
+            })}
+
+          {/* Knight piece */}
+          <motion.g
+            animate={{
+              x: cellToPixel(knightPos.x, knightPos.y).px - cellToPixel(1, 1).px,
+              y: cellToPixel(knightPos.x, knightPos.y).py - cellToPixel(1, 1).py,
+            }}
+            transition={{ type: "spring", stiffness: 200, damping: 25 }}
+          >
+            {/* Knight shadow */}
+            <ellipse
+              cx={cellToPixel(1, 1).px}
+              cy={cellToPixel(1, 1).py + 20}
+              rx="16"
+              ry="6"
+              fill="black"
+              opacity="0.3"
             />
-          </svg>
+            {/* Knight body/symbol */}
+            <text
+              x={cellToPixel(1, 1).px}
+              y={cellToPixel(1, 1).py + 10}
+              textAnchor="middle"
+              fontSize="40"
+              className="select-none"
+            >
+              ♞
+            </text>
+          </motion.g>
+        </svg>
+
+        {/* Move counter */}
+        <div className="flex justify-between px-4 pb-2 text-sm">
+          <span className="text-purple-300">
+            Moves: <span className="text-[#F9DC34] font-bold">{moveHistory.length - 1}</span>
+          </span>
+          <span className="text-purple-300">
+            Position: <span className="text-[#F9DC34] font-bold">({knightPos.x},{knightPos.y})</span>
+          </span>
         </div>
       </motion.div>
-      
+
+      {/* Help prompt */}
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.5 }}
-        className="mx-4 md:mx-10 my-3 md:my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors text-sm md:text-base"
+        className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
         onClick={() => setHelpModalOpen(true)}
       >
-        Type <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">/help</span> to get commands and hints
+        Type{" "}
+        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+          /help
+        </span>{" "}
+        to get commands and hints
       </motion.span>
 
-      <motion.div 
+      {/* Command input */}
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.6 }}
-        className="flex gap-2 w-full max-w-md px-2 md:px-0"
+        className="flex gap-2 w-full max-w-md"
       >
         <Input
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
+          onKeyPress={handleEnter}
           placeholder="Enter command..."
           className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
         />
-        <button 
+        <button
           onClick={handleCommandSubmit}
           className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
         >
-          <div className="w-5 h-5 flex items-center justify-center">
-            <ArrowRight className="w-5 h-5 text-purple-900" />
-          </div>
+          <Image
+            src="/runcode.png"
+            alt="Run"
+            height={20}
+            width={20}
+            className="rounded-sm"
+          />
         </button>
       </motion.div>
 
-      <AnimatePresence>
-        {isHelpModalOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
+      {/* Help Modal */}
+      {isHelpModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4"
           >
-            <motion.div 
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col"
-            >
-              <div className="p-4 md:p-6 overflow-y-auto flex-grow">
-                <h2 className="text-xl md:text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">Available Commands:</h2>
-                <div className="space-y-1 mb-6">
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/reset</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300 text-sm md:text-base">Reset the level to its initial state.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/show scale</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300 text-sm md:text-base">Show the protractor for 5 seconds.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/shoot</span>{" "}
-                    <span className="text-blue-600 dark:text-blue-300">[angle]</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300 text-sm md:text-base">Shoot a projectile at the specified angle.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/theme</span>{" "}
-                    <span className="text-blue-600 dark:text-blue-300">[dark|light]</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300 text-sm md:text-base">Change the theme to dark or light.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/help</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300 text-sm md:text-base">Show this help menu.</p>
-                  </div>
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">
+                Available Commands:
+              </h2>
+              <div className="space-y-1 mb-6">
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /move
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-300">[x],[y]</span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Move the knight to position (x,y). Must be a valid L-shaped move (2 squares + 1 square perpendicular).
+                  </p>
                 </div>
-                
-                
-                
-                <h3 className="text-lg md:text-xl font-bold mt-4 mb-2 text-purple-800 dark:text-[#F9DC34]">Hint:</h3>
-                <p className="text-gray-600 dark:text-gray-300 italic text-sm md:text-base">
-                  The angle 0° points to the right, 90° points straight up, and 180° points to the left.
-                </p>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /undo
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Undo the last move.
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /reset
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Reset the knight to the starting position.
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /help
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Show available commands and hints.
+                  </p>
+                </div>
               </div>
-              
-              <div className="bg-purple-50 dark:bg-purple-900/30 px-4 md:px-6 py-3 md:py-4 text-center">
-                <button
-                  onClick={() => setHelpModalOpen(false)}
-                  className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-4 md:px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105 text-sm md:text-base"
-                >
-                  Close
-                </button>
-              </div>
-            </motion.div>
+
+              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
+                Hint:
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 italic">
+                If you cannot jump to the center, you must use the edges.
+              </p>
+            </div>
+
+            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
+              <button
+                onClick={closeHelpModal}
+                className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
+              >
+                Close
+              </button>
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };

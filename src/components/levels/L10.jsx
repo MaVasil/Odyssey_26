@@ -1,233 +1,254 @@
-import React, { useState, useEffect } from 'react';
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
-import { useTheme } from "next-themes";
-import { motion, AnimatePresence } from "framer-motion";
-import { HelpCircle, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { useToast } from "../ui/use-toast";
 
-const EightPuzzleLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
-  const goalState = [1, 2, 3, 4, 5, 6, 7, 8, 0];
-  
+// The COSC logo is a 2×2 layout:
+// Top-Left: C (purple)   | Top-Right: O (blue-purple)
+// Bottom-Left: S (magenta) | Bottom-Right: C (pink)
+const TILES = [
+  { id: 0, letter: "C", gradient: ["#6B2FA0", "#8B3FA0"], label: "C (purple)" },
+  { id: 1, letter: "O", gradient: ["#7B3DAA", "#9B4AB5"], label: "O (blue-purple)" },
+  { id: 2, letter: "S", gradient: ["#C04480", "#D85090"], label: "S (magenta)" },
+  { id: 3, letter: "C", gradient: ["#E04888", "#F05898"], label: "C (pink)" },
+];
+
+// Solved order: [0, 1, 2, 3]
+const SOLVED = [0, 1, 2, 3];
+
+const createInitialGrid = () => {
+  let grid;
+  do {
+    grid = [...SOLVED];
+    // Fisher-Yates shuffle
+    for (let i = grid.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [grid[i], grid[j]] = [grid[j], grid[i]];
+    }
+  } while (grid.every((id, i) => id === SOLVED[i]));
+  return grid;
+};
+
+const Level10 = ({ onComplete }) => {
   const [inputValue, setInputValue] = useState("");
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
-  const [message, setMessage] = useState("It's 8 piece puzzle time!!");
-  const [moveCount, setMoveCount] = useState(0);
-  const [gameState, setGameState] = useState({
-    board: [1, 8, 2, 0, 4, 3, 7, 6, 5],
-    emptyPos: 0, 
-  });
   const [isSuccess, setIsSuccess] = useState(false);
-  
-  useEffect(() => {
-    const emptyIndex = gameState.board.findIndex(tile => tile === 0);
-    setGameState(prev => ({
-      ...prev,
-      emptyPos: emptyIndex
-    }));
-  }, []);
-  
-  const { theme, setTheme } = useTheme();
+  const [grid, setGrid] = useState(() => createInitialGrid());
+  const [moveCount, setMoveCount] = useState(0);
   const { toast } = useToast();
+
+  // Check win
+  useEffect(() => {
+    if (grid.every((id, i) => id === SOLVED[i]) && !isSuccess) {
+      setIsSuccess(true);
+    }
+  }, [grid, isSuccess]);
 
   useEffect(() => {
     if (isSuccess) {
       toast({
-        title: "Level Completed!",
-        description: `You solved the puzzle in ${moveCount} moves!`,
+        title: "COSC Logo Restored! 🎨",
+        description: `Puzzle solved in ${moveCount} swaps!`,
         variant: "success",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
       });
-      
       setTimeout(() => {
-        onComplete(nextLevelNumber);
+        onComplete(4);
       }, 2000);
     }
-  }, [isSuccess, nextLevelNumber, onComplete, toast, moveCount]);
-
-  function shuffle(array) {
-    let currentIndex = array.length;
-    let temporaryValue, randomIndex;
-    const newArray = [...array];
-    
-    while (0 !== currentIndex) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex -= 1;
-      
-      temporaryValue = newArray[currentIndex];
-      newArray[currentIndex] = newArray[randomIndex];
-      newArray[randomIndex] = temporaryValue;
-    }
-    
-    if (isSolvable(newArray)) {
-      return newArray;
-    } else {
-      [newArray[0], newArray[1]] = [newArray[1], newArray[0]];
-      return newArray;
-    }
-  }
-  
-  function isSolvable(board) {
-    let inversions = 0;
-    const boardWithoutEmpty = board.filter(tile => tile !== 0);
-    
-    for (let i = 0; i < boardWithoutEmpty.length; i++) {
-      for (let j = i + 1; j < boardWithoutEmpty.length; j++) {
-        if (boardWithoutEmpty[i] > boardWithoutEmpty[j]) {
-          inversions++;
-        }
-      }
-    }
-    
-    return inversions % 2 === 0;
-  }
-
-  const checkWinCondition = (board) => {
-    if (board.toString() === goalState.toString()) {
-      setIsSuccess(true);
-    }
-  };
-
-  const resetGame = () => {
-    const shuffledBoard = [1, 8, 2, 0, 4, 3, 7, 6, 5];
-    const emptyIndex = shuffledBoard.findIndex(tile => tile === 0);
-    
-    setGameState({
-      board: shuffledBoard,
-      emptyPos: emptyIndex
-    });
-    setMoveCount(0);
-    setMessage("Arrange the tiles in order from 1-8. The space should be in the bottom right.");
-    setIsSuccess(false);
-  };
-
-  const handleMove = (tileNumber) => {
-    const { board, emptyPos } = gameState;
-    const tilePos = board.indexOf(parseInt(tileNumber));
-    
-    if (tilePos === -1) {
-      toast({
-        title: "Invalid Move",
-        description: `Tile ${tileNumber} does not exist on the board`,
-        variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-      });
-      return;
-    }
-    
-    const row = Math.floor(tilePos / 3);
-    const col = tilePos % 3;
-    const emptyRow = Math.floor(emptyPos / 3);
-    const emptyCol = emptyPos % 3;
-    
-    const isAdjacent = (
-      (row === emptyRow && Math.abs(col - emptyCol) === 1) || 
-      (col === emptyCol && Math.abs(row - emptyRow) === 1)
-    );
-    
-    if (!isAdjacent) {
-      toast({
-        title: "Invalid Move",
-        description: `Tile ${tileNumber} is not adjacent to the empty space`,
-        variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-      });
-      return;
-    }
-    const newBoard = [...board];
-    newBoard[emptyPos] = parseInt(tileNumber);
-    newBoard[tilePos] = 0;
-    
-    setGameState({
-      board: newBoard,
-      emptyPos: tilePos
-    });
-    
-    setMoveCount(prev => prev + 1);
-    
-    setTimeout(() => {
-      checkWinCondition(newBoard);
-    }, 100);
-  };
+  }, [isSuccess, onComplete, toast, moveCount]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
 
-  const handleKeyPress = (e) => {
+  const handleEnter = (e) => {
     if (e.key === "Enter") {
       handleCommandSubmit();
     }
   };
 
+  // Position names for the 2×2 grid
+  const POS_MAP = {
+    "top-left": 0, "tl": 0, "1": 0,
+    "top-right": 0, "tr": 1, "2": 1,
+    "bottom-left": 2, "bl": 2, "3": 2,
+    "bottom-right": 3, "br": 3, "4": 3,
+  };
+
+  const POS_LABELS = ["Top-Left", "Top-Right", "Bottom-Left", "Bottom-Right"];
+
+  const parsePos = (str) => {
+    const cleaned = str.trim().toLowerCase();
+    if (cleaned in POS_MAP) return POS_MAP[cleaned];
+    return null;
+  };
+
   const handleCommandSubmit = () => {
-    const resetMatch = inputValue.match(/^\/reset$/i);
-    const helpMatch = inputValue.match(/^\/help$/i);
-    const themeMatch = inputValue.match(/^\/theme\s+(dark|light)$/i);
-    const moveMatch = inputValue.match(/^\/move\s+([1-8])$/i);
-    
-    if (resetMatch) {
-      resetGame();
+    const cmd = inputValue.trim().toLowerCase();
+
+    const swapMatch = cmd.match(/^\/swap\s+(\S+)\s+(\S+)$/i);
+    const resetMatch = cmd.match(/^\/reset$/i);
+    const helpMatch = cmd.match(/^\/help$/i);
+
+    if (swapMatch) {
+      const pos1 = parsePos(swapMatch[1]);
+      const pos2 = parsePos(swapMatch[2]);
+
+      if (pos1 === null || pos2 === null) {
+        toast({
+          title: "Invalid Position",
+          description: "Use: TL (Top-Left), TR (Top-Right), BL (Bottom-Left), BR (Bottom-Right), or 1-4.",
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+      } else if (pos1 === pos2) {
+        toast({
+          title: "Same Position",
+          description: "Pick two different tiles to swap.",
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+      } else {
+        const newGrid = [...grid];
+        [newGrid[pos1], newGrid[pos2]] = [newGrid[pos2], newGrid[pos1]];
+        setGrid(newGrid);
+        setMoveCount((p) => p + 1);
+
+        toast({
+          title: `Swapped ${POS_LABELS[pos1]} ↔ ${POS_LABELS[pos2]}`,
+          description: `Moves: ${moveCount + 1}`,
+          variant: "default",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        });
+      }
+    } else if (resetMatch) {
+      setGrid(createInitialGrid());
+      setMoveCount(0);
+      setIsSuccess(false);
       toast({
         title: "Level Reset",
-        description: "The puzzle has been reset to a new configuration",
+        description: "Tiles scrambled again.",
         variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
-    } else if (themeMatch) {
-      const newTheme = themeMatch[1];
-      setTheme(newTheme);
-      toast({
-        title: "Theme Changed",
-        description: `Theme set to ${newTheme} mode`,
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-      });
-    } else if (moveMatch) {
-      const tileNumber = moveMatch[1];
-      handleMove(tileNumber);
     } else {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
         variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
       });
     }
-    
+
     setInputValue("");
   };
 
-  const renderTile = (value, index) => {
-    if (value === 0) {
-      return (
-        <div 
-          key={index} 
-          className="bg-purple-100 dark:bg-purple-900/20 aspect-square rounded-lg"
-        />
-      );
-    }
-    
+  const closeHelpModal = () => {
+    setHelpModalOpen(false);
+  };
+
+  const TILE_SIZE = 140;
+  const GAP = 8;
+  const PADDING = 20;
+  const GRID_W = TILE_SIZE * 2 + GAP + PADDING * 2;
+
+  const renderTile = (gridIndex) => {
+    const tileId = grid[gridIndex];
+    const tile = TILES[tileId];
+    const row = Math.floor(gridIndex / 2);
+    const col = gridIndex % 2;
+    const x = PADDING + col * (TILE_SIZE + GAP);
+    const y = PADDING + 25 + row * (TILE_SIZE + GAP);
+    const isCorrect = tileId === gridIndex;
+    const gradId = `grad-${gridIndex}`;
+
     return (
-      <div 
-        key={index} 
-        className="bg-gradient-to-br from-[#F9DC34] to-[#F5A623] aspect-square rounded-lg flex items-center justify-center font-bold text-2xl text-purple-900 shadow-md cursor-pointer hover:scale-105 transition-transform"
-        onClick={() => {
-          setInputValue(`/move ${value}`);
-          setTimeout(() => {
-            handleCommandSubmit();
-          }, 100);
-        }}
+      <motion.g
+        key={`tile-${gridIndex}`}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, delay: gridIndex * 0.1 }}
       >
-        {value}
-      </div>
+        {/* Gradient definition */}
+        <defs>
+          <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor={tile.gradient[0]} />
+            <stop offset="100%" stopColor={tile.gradient[1]} />
+          </linearGradient>
+        </defs>
+
+        {/* Tile background */}
+        <rect
+          x={x}
+          y={y}
+          width={TILE_SIZE}
+          height={TILE_SIZE}
+          rx="16"
+          fill={`url(#${gradId})`}
+          stroke={isCorrect ? "#22c55e" : "#ffffff15"}
+          strokeWidth={isCorrect ? "3" : "1"}
+        />
+
+        {/* Letter */}
+        <text
+          x={x + TILE_SIZE / 2}
+          y={y + TILE_SIZE / 2 + 28}
+          textAnchor="middle"
+          fontSize="80"
+          fill="white"
+          fontWeight="bold"
+          fontFamily="'Arial Rounded MT Bold', Arial, sans-serif"
+          opacity="0.95"
+        >
+          {tile.letter}
+        </text>
+
+        {/* Position label */}
+        <text
+          x={x + 12}
+          y={y + 18}
+          fontSize="10"
+          fill="rgba(255,255,255,0.4)"
+          fontFamily="monospace"
+        >
+          {POS_LABELS[gridIndex]}
+        </text>
+
+        {/* Correct indicator */}
+        {isCorrect && (
+          <g>
+            <circle cx={x + TILE_SIZE - 16} cy={y + 16} r="8" fill="#22c55e" opacity="0.9" />
+            <text
+              x={x + TILE_SIZE - 16}
+              y={y + 20}
+              textAnchor="middle"
+              fontSize="10"
+              fill="white"
+            >
+              ✓
+            </text>
+          </g>
+        )}
+      </motion.g>
     );
   };
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
-      <motion.h1 
+      {/* Level title badge */}
+      <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -235,39 +256,70 @@ const EightPuzzleLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
       >
         Level 10
       </motion.h1>
-      
-      <motion.p 
+
+      {/* Question */}
+      <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
-        {message}
+        The COSC Scramble — Restore the logo.
       </motion.p>
 
+      {/* Puzzle grid */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.3 }}
-        className="bg-white dark:bg-[#2D1B4B]/40 rounded-2xl p-6 shadow-lg backdrop-blur-sm border border-purple-200 dark:border-purple-700/30 w-full max-w-md"
+        className="bg-[#0a0a1a] dark:bg-[#0a0a1a] rounded-2xl p-2 shadow-lg border border-purple-700/30 w-full max-w-sm relative overflow-hidden"
       >
-        <div className="mb-4 flex justify-between items-center">
-          <div className="font-semibold text-purple-700 dark:text-purple-300">
-            Moves: {moveCount}
-          </div>
-          <button 
-            onClick={resetGame}
-            className="text-sm px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded hover:bg-purple-200 dark:hover:bg-purple-800/40 transition-colors"
+        <svg viewBox={`0 0 ${GRID_W} ${GRID_W + 15}`} className="w-full">
+          {/* Title */}
+          <text
+            x={GRID_W / 2}
+            y={18}
+            textAnchor="middle"
+            fontSize="11"
+            fill="#8888BB"
+            fontWeight="bold"
           >
-            New Puzzle
-          </button>
-        </div>
-        
-        <div className="grid grid-cols-3 gap-2">
-          {gameState.board.map((tile, index) => renderTile(tile, index))}
-        </div>
+            REARRANGE TO FORM THE COSC LOGO
+          </text>
+
+          {/* Tiles */}
+          {[0, 1, 2, 3].map((i) => renderTile(i))}
+
+          {/* Move counter */}
+          <text
+            x={GRID_W / 2}
+            y={GRID_W + 8}
+            textAnchor="middle"
+            fontSize="11"
+            fill="#8888BB"
+          >
+            Swaps: {moveCount} | ✅ {grid.filter((id, i) => id === i).length}/4
+          </text>
+        </svg>
       </motion.div>
-      
+
+      {/* Gradient hint */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        className="w-full max-w-sm mt-3 flex items-center justify-center"
+      >
+        <div className="h-4 w-48 rounded-full overflow-hidden flex">
+          <div className="flex-1" style={{ background: "#6B2FA0" }} />
+          <div className="flex-1" style={{ background: "#8B3FA0" }} />
+          <div className="flex-1" style={{ background: "#C04480" }} />
+          <div className="flex-1" style={{ background: "#E04888" }} />
+        </div>
+        <span className="text-xs text-purple-400 ml-2">Purple → Pink</span>
+      </motion.div>
+
+      {/* Help prompt */}
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -275,10 +327,15 @@ const EightPuzzleLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
         className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
         onClick={() => setHelpModalOpen(true)}
       >
-        Type <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">/help</span> to get commands and hints
+        Type{" "}
+        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+          /help
+        </span>{" "}
+        to get commands and hints
       </motion.span>
 
-      <motion.div 
+      {/* Command input */}
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.6 }}
@@ -288,85 +345,107 @@ const EightPuzzleLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
+          onKeyPress={handleEnter}
           placeholder="Enter command..."
           className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
         />
-        <button 
+        <button
           onClick={handleCommandSubmit}
           className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
         >
-          <div className="w-6 h-6 flex items-center justify-center">
-            <ArrowRight className="w-5 h-5 text-purple-900" />
-          </div>
+          <Image
+            src="/runcode.png"
+            alt="Run"
+            height={20}
+            width={20}
+            className="rounded-sm"
+          />
         </button>
       </motion.div>
 
-      <AnimatePresence>
-        {isHelpModalOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
+      {/* Help Modal */}
+      {isHelpModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4"
           >
-            <motion.div 
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col"
-            >
-              <div className="p-6 overflow-y-auto flex-grow">
-                <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">Available Commands:</h2>
-                <div className="space-y-1 mb-6">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">
+                Available Commands:
+              </h2>
+              <div className="space-y-1 mb-6">
                 <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/move</span>{" "}
-                    <span className="text-blue-600 dark:text-blue-300">[1-8]</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Move the specified tile to the empty space.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/reset</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Reset the level to a new random solvable puzzle.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/theme</span>{" "}
-                    <span className="text-blue-600 dark:text-blue-300">[dark|light]</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Change the theme to dark or light.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/help</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Show this help menu.</p>
-                  </div>
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /swap
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-300">[pos1] [pos2]</span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Swap two tiles. Positions:
+                    <br />
+                    <code>TL</code> = Top-Left, <code>TR</code> = Top-Right
+                    <br />
+                    <code>BL</code> = Bottom-Left, <code>BR</code> = Bottom-Right
+                    <br />
+                    Or use numbers: <code>1</code>=TL, <code>2</code>=TR, <code>3</code>=BL, <code>4</code>=BR
+                  </p>
                 </div>
-                
-                <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">How to Play:</h3>
-                <ul className="list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-300">
-                  <li>Objective: Arrange the numbered tiles in ascending order (1-8) with the empty space in the bottom right.</li>
-                  <li>You can only move tiles that are adjacent to the empty space.</li>
-                  <li>Use the command <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-1 rounded">/move [number]</span> to move a tile into the empty space.</li>
-                  <li>You can also click on a tile to move it (if it's adjacent to the empty space).</li>
-                </ul>
-                
-                
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /reset
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Scramble the tiles again.
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /help
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Show commands and hints.
+                  </p>
+                </div>
               </div>
-              
-              <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
-                <button
-                  onClick={() => setHelpModalOpen(false)}
-                  className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
-                >
-                  Close
-                </button>
+
+              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
+                Goal:
+              </h3>
+              <div className="mb-4 text-gray-600 dark:text-gray-300 text-sm">
+                <p className="mb-2">Arrange the 4 tiles to match the COSC logo:</p>
+                <div className="grid grid-cols-2 gap-1 w-40 mx-auto my-2">
+                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#6B2FA0" }}>C</div>
+                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#8B3FA0" }}>O</div>
+                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#C04480" }}>S</div>
+                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#E04888" }}>C</div>
+                </div>
+                <p>• ✅ Green check = tile is in the correct position</p>
               </div>
-            </motion.div>
+
+              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
+                Hint:
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 italic">
+                Use the color gradient to sort. Deep Purple belongs at the top (C, O); Bright Pink belongs at the bottom (S, C).
+              </p>
+            </div>
+
+            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
+              <button
+                onClick={closeHelpModal}
+                className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
+              >
+                Close
+              </button>
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };
 
-export default EightPuzzleLevel;
+export default Level10;

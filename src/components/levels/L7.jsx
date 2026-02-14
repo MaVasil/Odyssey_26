@@ -1,225 +1,381 @@
-import React, { useState, useEffect } from 'react';
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
-import { useTheme } from "next-themes";
-import { motion, AnimatePresence } from "framer-motion";
-import { HelpCircle, ArrowRight, Book, RotateCcw } from "lucide-react";
+import { motion } from "framer-motion";
 import { useToast } from "../ui/use-toast";
 
+const JUG_5_MAX = 5;
+const JUG_3_MAX = 3;
+const TARGET = 4;
+
 const Level7 = ({ onComplete }) => {
-  const startWord = "COLD";
-  const targetWord = "WARM";
-  const nextLevelNumber = 8;
-  
   const [inputValue, setInputValue] = useState("");
-  const [currentWord, setCurrentWord] = useState(startWord);
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
-  const [message, setMessage] = useState("Transform COLD into WARM, one letter at a time!");
-  const [moveHistory, setMoveHistory] = useState([startWord]);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [dictionary] = useState(new Set([
-    "ABLE", "ACID", "AGED", "ALSO", "AREA", "ARMY", "AWAY", "BABY", "BACK", "BALD", "BALL",
-    "BAND", "BANK", "BASE", "BATH", "BEAR", "BEAT", "BEEN", "BEER", "BELL", "BELT",
-    "BEND", "BENT", "BEST", "BILL", "BIRD", "BLOW", "BLUE", "BOAT", "BODY", "BOLD", "BOND",
-    "BONE", "BOOK", "BOOM", "BORN", "BOSS", "BOTH", "BOWL", "BULK", "BURN", "BUSH", "BALM",
-    "BUSY", "CALL", "CALM", "CAME", "CAMP", "CARD", "CARE", "CASE", "CASH", "CAST",
-    "CELL", "CHAT", "CHIP", "CITY", "CLUB", "COAL", "COAT", "CODE", "COLD", "COME",
-    "COOK", "COOL", "COPE", "COPY", "CORD", "CORE", "COST", "CREW", "CROP", "CUTE", "DARK",
-    "DATA", "DATE", "DAWN", "DAYS", "DEAD", "DEAL", "DEAN", "DEAR", "DEBT", "DEEP",
-    "DENY", "DESK", "DIAL", "DICE", "DIET", "DISC", "DISK", "DOES", "DONE", "DOOR",
-    "DOSE", "DOWN", "DRAW", "DREW", "DROP", "DRUG", "DUAL", "DUKE", "DUST", "DUTY",
-    "EACH", "EARL", "EARN", "EASE", "EAST", "EASY", "EDGE", "ELSE", "EVEN", "EVER",
-    "FACE", "FACT", "FAIL", "FAIR", "FALL", "FAME", "FARM", "FAST", "FATE", "FEAR",
-    "FEED", "FEEL", "FEET", "FELL", "FELT", "FILE", "FILL", "FILM", "FIND", "FINE",
-    "FIRE", "FIRM", "FISH", "FIVE", "FLAT", "FLOW", "FOOD", "FOOT", "FORM", "FORT",
-    "FOUR", "FREE", "FROM", "FUEL", "FULL", "FUND", "GAIN", "GAME", "GATE", "GAVE",
-    "GEAR", "GENE", "GIFT", "GIRL", "GIVE", "GLAD", "GOAL", "GOES", "GOLD", "GOLF",
-    "GONE", "GOOD", "GRAY", "GREW", "GREY", "GROW", "GULF", "HAIR", "HALF", "HALL",
-    "HAND", "HANG", "HARD", "HARM", "HATE", "HAVE", "HEAD", "HEAR", "HEAT", "HELD",
-    "HELL", "HELP", "HERE", "HERO", "HIGH", "HILL", "HIRE", "HOLD", "HOLE", "HOME",
-    "HOPE", "HOST", "HOUR", "HUGE", "HUNG", "HUNT", "HURT", "IDEA", "IDLE", "INCH",
-    "INTO", "IRON", "ITEM", "JACK", "JANE", "JEAN", "JOHN", "JOIN", "JUMP", "JURY",
-    "JUST", "KEEN", "KEEP", "KENT", "KEpt", "KICK", "KIND", "KING", "KIRK", "KNEE",
-    "KNEW", "KNOW", "LACK", "LADY", "LAID", "LAKE", "LAND", "LANE", "LAST", "LATE",
-    "LEAD", "LEFT", "LESS", "LIFE", "LIFT", "LIKE", "LINE", "LINK", "LIST", "LIVE",
-    "LOAD", "LOAN", "LOCK", "LONG", "LOOK", "LORD", "LOSE", "LOSS", "LOST", "LOVE",
-    "LUCK", "MADE", "MAIL", "MAIN", "MAKE", "MALE", "MANY", "MARE", "MARK", "MASS",
-    "MATT", "MEAL", "MEAN", "MEAT", "MEET", "MENU", "MILE", "MILK", "MIND", "MINE",
-    "MISS", "MODE", "MOOD", "MOON", "MORE", "MOST", "MOVE", "MUCH", "MUST", "NAME",
-    "NEAR", "NECK", "NEED", "NEWS", "NEXT", "NICE", "NINE", "NONE", "NOSE", "NOTE",
-    "OKAY", "ONCE", "ONLY", "OPEN", "ORAL", "OVER", "PACK", "PAGE", "PAID", "PAIN",
-    "PAIR", "PALE", "PALM", "PARK", "PART", "PASS", "PAST", "PATH", "PEAK", "PEAR",
-    "PEEL", "PEEP", "PEER", "PICK", "PILE", "PILL", "PINE", "PINK", "PIPE", "PLAN",
-    "PLAY", "PLOT", "PLUG", "PLUS", "POLL", "POOL", "POOR", "PORT", "POST", "POUR",
-    "PRAY", "PULL", "PURE", "PUSH", "RACE", "RAIL", "RAIN", "RANK", "RARE", "RATE",
-    "READ", "REAL", "REAR", "RELY", "RENT", "REST", "RICE", "RICH", "RIDE", "RING",
-    "RIPE", "RISE", "RISK", "ROAD", "ROCK", "ROLE", "ROLL", "ROOF", "ROOM", "ROOT",
-    "ROPE", "ROSE", "RULE", "RUSH", "SAFE", "SAID", "SAIL", "SALE", "SALT", "SAME",
-    "SAND", "SAVE", "SEAT", "SEED", "SEEK", "SEEM", "SELL", "SEND", "SENT", "SHIP",
-    "SHOE", "SHOP", "SHOT", "SHOW", "SHUT", "SICK", "SIDE", "SIGN", "SING", "SINK",
-    "SITE", "SIZE", "SKIN", "SLIP", "SLOW", "SNOW", "SOAP", "SOFT", "SOIL", "SOLD",
-    "SOLE", "SOME", "SONG", "SOON", "SORE", "SORT", "SOUL", "SOUP", "SPOT", "STAR",
-    "STAY", "STEP", "STOP", "SUCH", "SUIT", "SURE", "TAKE", "TALE", "TALK", "TALL",
-    "TANK", "TAPE", "TASK", "TEAM", "TEAR", "TELL", "TEND", "TERM", "TEST", "THAN",
-    "THAT", "THEM", "THEN", "THEY", "THIN", "THIS", "THOU", "THUS", "TIDE", "TIDY",
-    "TILE", "TILL", "TIME", "TINY", "TIPS", "TIRE", "TOIL", "TOLL", "TONE", "TOOK",
-    "TOOL", "TOUR", "TOWN", "TRAP", "TRAY", "TREE", "TRIP", "TRUE", "TUBE", "TUNE",
-    "TURN", "TWIN", "TYPE", "UNIT", "UPON", "USED", "USER", "VAST", "VERY", "VICE",
-    "VIEW", "VOTE", "WAGE", "WAIT", "WAKE", "WALK", "WALL", "WANT", "WARD", "WARM",
-    "WASH", "WAVE", "WAYS", "WEAK", "WEAR", "WEEK", "WELL", "WENT", "WERE", "WEST",
-    "WHAT", "WHEN", "WHOM", "WIDE", "WIFE", "WILD", "WILL", "WIND", "WINE", "WING",
-    "WIRE", "WISH", "WITH", "WOLF", "WOOD", "WORD", "WORK", "WORM", "WORN", "WRAP",
-    "YARD", "YARN", "YEAR", "YELL", "YOGA", "YOUR", "ZERO", "ZONE"
-  ]));
-
-  const { theme, setTheme } = useTheme();
+  const [jug5, setJug5] = useState(0);
+  const [jug3, setJug3] = useState(0);
+  const [scaleValue, setScaleValue] = useState(null); // which jug is on scale, null = none
+  const [moveCount, setMoveCount] = useState(0);
   const { toast } = useToast();
-
-  const isValidWord = (word) => {
-    return dictionary.has(word.toUpperCase());
-  };
-
-  const isDifferentByOneLetter = (word1, word2) => {
-    if (word1.length !== word2.length) return false;
-    let differences = 0;
-    for (let i = 0; i < word1.length; i++) {
-      if (word1[i] !== word2[i]) differences++;
-    }
-    return differences === 1;
-  };
 
   useEffect(() => {
     if (isSuccess) {
       toast({
-        title: "Level Completed!",
-        description: "You've successfully transformed COLD into WARM!",
+        title: "Door Unlocked! ⚖️",
+        description: `Exactly 4 liters on the scale in ${moveCount} moves!`,
         variant: "success",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
       });
-      
       setTimeout(() => {
-        onComplete(nextLevelNumber);
+        onComplete(4);
       }, 2000);
     }
-  }, [isSuccess, nextLevelNumber, onComplete, toast]);
+  }, [isSuccess, onComplete, toast, moveCount]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
 
-  const handleKeyPress = (e) => {
+  const handleEnter = (e) => {
     if (e.key === "Enter") {
       handleCommandSubmit();
     }
   };
 
-  const resetGame = () => {
-    setCurrentWord(startWord);
-    setMoveHistory([startWord]);
-    setMessage("Transform COLD into WARM, one letter at a time!");
-    setIsSuccess(false);
+  const parseJug = (s) => {
+    const cleaned = s.trim().toLowerCase();
+    if (cleaned === "5l" || cleaned === "5") return 5;
+    if (cleaned === "3l" || cleaned === "3") return 3;
+    return null;
   };
 
   const handleCommandSubmit = () => {
-    const changeMatch = inputValue.match(/^\/change\s+(\d+)\s+([a-zA-Z])$/i);
-    const resetMatch = inputValue.match(/^\/reset$/i);
-    const helpMatch = inputValue.match(/^\/help$/i);
-    const undoMatch = inputValue.match(/^\/undo$/i);
-    const themeMatch = inputValue.match(/^\/theme\s+(dark|light)$/i);
+    const cmd = inputValue.trim().toLowerCase();
 
-    if (changeMatch) {
-      const position = parseInt(changeMatch[1]) - 1;
-      const newLetter = changeMatch[2].toUpperCase();
-      
-      if (position < 0 || position >= currentWord.length) {
+    const fillMatch = cmd.match(/^\/fill\s+(.+)$/i);
+    const emptyMatch = cmd.match(/^\/empty\s+(.+)$/i);
+    const pourMatch = cmd.match(/^\/pour\s+(\S+)\s+(\S+)$/i);
+    const placeMatch = cmd.match(/^\/place\s+(.+)$/i);
+    const resetMatch = cmd.match(/^\/reset$/i);
+    const helpMatch = cmd.match(/^\/help$/i);
+
+    if (fillMatch) {
+      const jug = parseJug(fillMatch[1]);
+      if (jug === 5) {
+        setJug5(JUG_5_MAX);
+        setMoveCount((p) => p + 1);
         toast({
-          title: "Invalid Position",
-          description: "Use numbers 1-4 to specify the letter position.",
-          variant: "destructive",
-          className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+          title: "Filled 5L Jug 💧",
+          description: "The 5-liter jug is now full.",
+          variant: "default",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
         });
-        return;
-      }
-
-      const newWord = currentWord.split('');
-      newWord[position] = newLetter;
-      const newWordStr = newWord.join('');
-
-      if (!isDifferentByOneLetter(currentWord, newWordStr)) {
+      } else if (jug === 3) {
+        setJug3(JUG_3_MAX);
+        setMoveCount((p) => p + 1);
         toast({
-          title: "Invalid Change",
-          description: "You can only change one letter at a time!",
-          variant: "destructive",
-          className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
-      } else if (!isValidWord(newWordStr)) {
-        toast({
-          title: "Invalid Word",
-          description: "That's not a valid word in our dictionary!",
-          variant: "destructive",
-          className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+          title: "Filled 3L Jug 💧",
+          description: "The 3-liter jug is now full.",
+          variant: "default",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
         });
       } else {
-        setCurrentWord(newWordStr);
-        setMoveHistory([...moveHistory, newWordStr]);
-        
-        if (newWordStr === targetWord) {
-          setMessage("Congratulations! You've solved the puzzle! 🎉");
+        toast({
+          title: "Invalid Jug",
+          description: "Specify 5L or 3L.",
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+      }
+    } else if (emptyMatch) {
+      const jug = parseJug(emptyMatch[1]);
+      if (jug === 5) {
+        setJug5(0);
+        setMoveCount((p) => p + 1);
+        toast({
+          title: "Emptied 5L Jug",
+          description: "The 5-liter jug is now empty.",
+          variant: "default",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        });
+      } else if (jug === 3) {
+        setJug3(0);
+        setMoveCount((p) => p + 1);
+        toast({
+          title: "Emptied 3L Jug",
+          description: "The 3-liter jug is now empty.",
+          variant: "default",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        });
+      } else {
+        toast({
+          title: "Invalid Jug",
+          description: "Specify 5L or 3L.",
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+      }
+    } else if (pourMatch) {
+      const from = parseJug(pourMatch[1]);
+      const to = parseJug(pourMatch[2]);
+
+      if (!from || !to || from === to) {
+        toast({
+          title: "Invalid Pour",
+          description: "Use /pour 5L 3L or /pour 3L 5L",
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+      } else if (from === 5 && to === 3) {
+        const space = JUG_3_MAX - jug3;
+        const poured = Math.min(jug5, space);
+        setJug5((p) => p - poured);
+        setJug3((p) => p + poured);
+        setMoveCount((p) => p + 1);
+        toast({
+          title: `Poured ${poured}L → 3L Jug`,
+          description: `5L: ${jug5 - poured}L | 3L: ${jug3 + poured}L`,
+          variant: "default",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        });
+      } else if (from === 3 && to === 5) {
+        const space = JUG_5_MAX - jug5;
+        const poured = Math.min(jug3, space);
+        setJug3((p) => p - poured);
+        setJug5((p) => p + poured);
+        setMoveCount((p) => p + 1);
+        toast({
+          title: `Poured ${poured}L → 5L Jug`,
+          description: `5L: ${jug5 + poured}L | 3L: ${jug3 - poured}L`,
+          variant: "default",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        });
+      }
+    } else if (placeMatch) {
+      const jug = parseJug(placeMatch[1]);
+      if (jug === 5) {
+        setScaleValue(jug5);
+        setMoveCount((p) => p + 1);
+        if (jug5 === TARGET) {
           setIsSuccess(true);
         } else {
-          setMessage(`Changed to ${newWordStr}. Keep going!`);
           toast({
-            title: "Word Changed",
-            description: `Successfully changed to ${newWordStr}`,
-            variant: "default",
-            className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+            title: `Placed 5L Jug on Scale (${jug5}L)`,
+            description:
+              jug5 === 0
+                ? "The scale reads 0. That's too light!"
+                : `The scale reads ${jug5}kg. Need exactly ${TARGET}kg.`,
+            variant: "destructive",
+            className:
+              "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
           });
+          setScaleValue(null);
         }
+      } else if (jug === 3) {
+        setScaleValue(jug3);
+        setMoveCount((p) => p + 1);
+        if (jug3 === TARGET) {
+          setIsSuccess(true);
+        } else {
+          toast({
+            title: `Placed 3L Jug on Scale (${jug3}L)`,
+            description:
+              jug3 === 0
+                ? "The scale reads 0. That's too light!"
+                : `The scale reads ${jug3}kg. Need exactly ${TARGET}kg.`,
+            variant: "destructive",
+            className:
+              "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+          });
+          setScaleValue(null);
+        }
+      } else {
+        toast({
+          title: "Invalid Jug",
+          description: "Specify 5L or 3L.",
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
       }
     } else if (resetMatch) {
-      resetGame();
+      setJug5(0);
+      setJug3(0);
+      setScaleValue(null);
+      setIsSuccess(false);
+      setMoveCount(0);
       toast({
         title: "Level Reset",
-        description: "The game has been reset to its initial state",
+        description: "Both jugs emptied. Start fresh!",
         variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
-    } else if (undoMatch && moveHistory.length > 1) {
-      const newHistory = moveHistory.slice(0, -1);
-      setMoveHistory(newHistory);
-      setCurrentWord(newHistory[newHistory.length - 1]);
-      setMessage("Moved back one step.");
-      toast({
-        title: "Move Undone",
-        description: "Successfully went back one step",
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-      });
-    } else if (themeMatch) {
-      const newTheme = themeMatch[1];
-      setTheme(newTheme);
-      toast({
-        title: "Theme Changed",
-        description: `Theme set to ${newTheme} mode`,
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-      });
     } else {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
         variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
       });
     }
-    
+
     setInputValue("");
+  };
+
+  const closeHelpModal = () => {
+    setHelpModalOpen(false);
+  };
+
+  // Jug rendering helper
+  const renderJug = (x, label, capacity, current, color) => {
+    const jugWidth = 60;
+    const jugHeight = 100;
+    const jugY = 100;
+    const innerPad = 3;
+    const innerH = jugHeight - innerPad * 2;
+    const waterHeight = current > 0 ? (current / capacity) * innerH : 0;
+    const clipId = `jug-clip-${capacity}`;
+
+    return (
+      <g>
+        {/* Clip path to constrain water inside the jug */}
+        <defs>
+          <clipPath id={clipId}>
+            <rect
+              x={x + innerPad}
+              y={jugY + innerPad}
+              width={jugWidth - innerPad * 2}
+              height={innerH}
+              rx="3"
+            />
+          </clipPath>
+        </defs>
+        {/* Jug outline */}
+        <rect
+          x={x}
+          y={jugY}
+          width={jugWidth}
+          height={jugHeight}
+          rx="6"
+          fill="none"
+          stroke={color}
+          strokeWidth="2.5"
+        />
+        {/* Jug inner bg */}
+        <rect
+          x={x + 2}
+          y={jugY + 2}
+          width={jugWidth - 4}
+          height={jugHeight - 4}
+          rx="4"
+          fill="#0a0a1a"
+        />
+        {/* Water fill (clipped to jug interior) */}
+        <g clipPath={`url(#${clipId})`}>
+          <motion.rect
+            x={x + innerPad}
+            width={jugWidth - innerPad * 2}
+            rx="3"
+            fill="#2196F3"
+            initial={false}
+            animate={{
+              height: waterHeight,
+              y: jugY + jugHeight - innerPad - waterHeight,
+            }}
+            transition={{ type: "tween", duration: 0.4, ease: "easeOut" }}
+            opacity="0.8"
+          />
+          {/* Water surface shimmer */}
+          {current > 0 && (
+            <motion.line
+              x1={x + 8}
+              x2={x + jugWidth - 8}
+              stroke="#64B5F6"
+              strokeWidth="1.5"
+              opacity="0.6"
+              initial={false}
+              animate={{
+                y1: jugY + jugHeight - innerPad - waterHeight + 2,
+                y2: jugY + jugHeight - innerPad - waterHeight + 2,
+              }}
+              transition={{ type: "tween", duration: 0.4, ease: "easeOut" }}
+            />
+          )}
+        </g>
+        {/* Capacity markings */}
+        {Array.from({ length: capacity }, (_, i) => {
+          const markY = jugY + jugHeight - innerPad - ((i + 1) / capacity) * innerH;
+          return (
+            <g key={i}>
+              <line
+                x1={x + jugWidth - 8}
+                y1={markY}
+                x2={x + jugWidth - 2}
+                y2={markY}
+                stroke={color}
+                strokeWidth="1"
+                opacity="0.4"
+              />
+            </g>
+          );
+        })}
+        {/* Current amount */}
+        <text
+          x={x + jugWidth / 2}
+          y={jugY + jugHeight / 2 + 5}
+          textAnchor="middle"
+          fontSize="20"
+          fill="white"
+          fontWeight="bold"
+          opacity="0.9"
+        >
+          {current}L
+        </text>
+        {/* Label */}
+        <text
+          x={x + jugWidth / 2}
+          y={jugY - 8}
+          textAnchor="middle"
+          fontSize="12"
+          fill={color}
+          fontWeight="bold"
+        >
+          {label}
+        </text>
+        {/* Capacity label */}
+        <text
+          x={x + jugWidth / 2}
+          y={jugY + jugHeight + 18}
+          textAnchor="middle"
+          fontSize="10"
+          fill="#8888BB"
+        >
+          Max: {capacity}L
+        </text>
+      </g>
+    );
   };
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
-      <motion.h1 
+      {/* Level title badge */}
+      <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -227,85 +383,173 @@ const Level7 = ({ onComplete }) => {
       >
         Level 7
       </motion.h1>
-      
-      <motion.p 
+
+      {/* Question */}
+      <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
-        {message}
+        Place exactly 4 Liters on the scale.
       </motion.p>
 
+      {/* Scene */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.3 }}
-        className="bg-white dark:bg-[#2D1B4B]/40 rounded-2xl p-6 shadow-lg backdrop-blur-sm border border-purple-200 dark:border-purple-700/30 w-full max-w-md"
+        className="bg-[#0a0a1a] dark:bg-[#0a0a1a] rounded-2xl p-4 shadow-lg border border-purple-700/30 w-full max-w-md relative overflow-hidden"
       >
-        <div className="min-h-48 flex flex-col items-center justify-center gap-6">
-          <div className="flex items-center gap-4 mb-2">
-            <div className="text-lg font-bold text-purple-400 dark:text-purple-500">
-              {startWord}
-            </div>
-            <div className="text-xl">
-              →
-            </div>
-            <motion.div 
-              className="text-2xl font-bold text-purple-600 dark:text-[#F9DC34]"
-              animate={{ scale: currentWord === targetWord ? [1, 1.2, 1] : 1 }}
-              transition={{ duration: 0.5 }}
+        <svg viewBox="0 0 380 260" className="w-full">
+          {/* Grid background */}
+          {[...Array(16)].map((_, i) => (
+            <line
+              key={`vg${i}`}
+              x1={i * 25}
+              y1={0}
+              x2={i * 25}
+              y2={260}
+              stroke="#1a1a3a"
+              strokeWidth="0.5"
+            />
+          ))}
+          {[...Array(11)].map((_, i) => (
+            <line
+              key={`hg${i}`}
+              x1={0}
+              y1={i * 25}
+              x2={380}
+              y2={i * 25}
+              stroke="#1a1a3a"
+              strokeWidth="0.5"
+            />
+          ))}
+
+          {/* Water tap (top left) */}
+          <g>
+            <rect x="20" y="10" width="40" height="12" rx="3" fill="#78909C" />
+            <rect x="50" y="10" width="10" height="30" rx="2" fill="#607D8B" />
+            <text x="55" y="55" textAnchor="middle" fontSize="9" fill="#90A4AE">
+              TAP 🚰
+            </text>
+          </g>
+
+          {/* Drain (bottom left) */}
+          <g>
+            <circle cx="40" cy="235" r="12" fill="none" stroke="#5D4037" strokeWidth="2" />
+            <circle cx="40" cy="235" r="5" fill="#3E2723" />
+            <text x="40" y="255" textAnchor="middle" fontSize="9" fill="#8D6E63">
+              DRAIN
+            </text>
+          </g>
+
+          {/* 5L Jug */}
+          {renderJug(90, "5L JUG", JUG_5_MAX, jug5, "#F9DC34")}
+
+          {/* 3L Jug */}
+          {renderJug(190, "3L JUG", JUG_3_MAX, jug3, "#A78BFA")}
+
+          {/* Pour arrow between jugs */}
+          <g opacity="0.3">
+            <line x1="155" y1="140" x2="185" y2="140" stroke="#F9DC34" strokeWidth="1.5" />
+            <polygon points="183,136 190,140 183,144" fill="#F9DC34" />
+            <line x1="185" y1="155" x2="155" y2="155" stroke="#A78BFA" strokeWidth="1.5" />
+            <polygon points="157,151 150,155 157,159" fill="#A78BFA" />
+          </g>
+
+          {/* Scale */}
+          <g>
+            {/* Scale base */}
+            <rect x="280" y="210" width="80" height="8" rx="3" fill="#5D4037" />
+            <rect x="315" y="195" width="10" height="18" fill="#795548" />
+            {/* Scale platform */}
+            <rect
+              x="285"
+              y="185"
+              width="70"
+              height="12"
+              rx="3"
+              fill={isSuccess ? "#22c55e" : "#8D6E63"}
+              stroke={isSuccess ? "#16a34a" : "#6D4C41"}
+              strokeWidth="1.5"
+            />
+            {/* Scale display */}
+            <rect x="295" y="135" width="50" height="35" rx="5" fill="#1a1a2e" stroke="#6D4C41" strokeWidth="1.5" />
+            <text
+              x="320"
+              y="158"
+              textAnchor="middle"
+              fontSize="16"
+              fill={isSuccess ? "#22c55e" : "#FF6B6B"}
+              fontWeight="bold"
             >
-              {currentWord}
-            </motion.div>
-            <div className="text-xl">
-              →
-            </div>
-            <div className="text-lg font-bold text-purple-400 dark:text-purple-500">
-              {targetWord}
-            </div>
-          </div>
+              {scaleValue !== null ? `${scaleValue}kg` : "—"}
+            </text>
+            <text
+              x="320"
+              y="130"
+              textAnchor="middle"
+              fontSize="10"
+              fill="#8D6E63"
+              fontWeight="bold"
+            >
+              SCALE ⚖️
+            </text>
+            {/* Target indicator */}
+            <text
+              x="320"
+              y="245"
+              textAnchor="middle"
+              fontSize="10"
+              fill={isSuccess ? "#22c55e" : "#FF6B6B"}
+              fontWeight="bold"
+            >
+              Need: {TARGET}kg
+            </text>
+          </g>
 
-          <div className="flex gap-3 mt-2">
-            {currentWord.split('').map((letter, index) => (
-              <motion.div
-                key={index}
-                className="w-12 h-12 flex items-center justify-center rounded-lg shadow-md text-xl font-bold"
-                style={{
-                  backgroundColor: letter === targetWord[index] 
-                    ? theme === 'dark' ? '#C4B5FD' : '#DDD6FE' 
-                    : theme === 'dark' ? '#1A0F2E' : '#FFFFFF'
-                }}
-                animate={{ 
-                  backgroundColor: letter === targetWord[index] 
-                    ? theme === 'dark' ? '#C4B5FD' : '#DDD6FE' 
-                    : theme === 'dark' ? '#1A0F2E' : '#FFFFFF',
-                  color: letter === targetWord[index] 
-                    ? '#4C1D95' 
-                    : theme === 'dark' ? '#FFFFFF' : '#1F2937'
-                }}
-              >
-                {letter}
-              </motion.div>
-            ))}
-          </div>
+          {/* Title */}
+          <text
+            x="190"
+            y="22"
+            textAnchor="middle"
+            fontSize="12"
+            fill="#8888BB"
+            fontWeight="bold"
+          >
+            WATER JUG PUZZLE
+          </text>
 
-          <div className="mt-4 text-sm text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
-            <div className="font-semibold mb-1">Path:</div>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {moveHistory.map((word, idx) => (
-                <React.Fragment key={idx}>
-                  {idx > 0 && <span className="text-gray-400">→</span>}
-                  <span className="font-mono">{word}</span>
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
+          {/* Move counter */}
+          <text
+            x="190"
+            y="252"
+            textAnchor="middle"
+            fontSize="10"
+            fill="#8888BB"
+          >
+            Moves: {moveCount}
+          </text>
+        </svg>
+      </motion.div>
 
-          
+      {/* Jug status bar */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        className="w-full max-w-md mt-3 flex justify-center gap-4"
+      >
+        <div className="text-xs px-3 py-1 rounded-full border bg-[#F9DC34]/20 text-[#F9DC34] border-[#F9DC34]/40">
+          5L Jug: {jug5}/{JUG_5_MAX}L
+        </div>
+        <div className="text-xs px-3 py-1 rounded-full border bg-[#A78BFA]/20 text-[#A78BFA] border-[#A78BFA]/40">
+          3L Jug: {jug3}/{JUG_3_MAX}L
         </div>
       </motion.div>
-      
+
+      {/* Help prompt */}
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -313,10 +557,15 @@ const Level7 = ({ onComplete }) => {
         className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
         onClick={() => setHelpModalOpen(true)}
       >
-        Type <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">/help</span> to get commands and hints
+        Type{" "}
+        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+          /help
+        </span>{" "}
+        to get commands and hints
       </motion.span>
 
-      <motion.div 
+      {/* Command input */}
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.6 }}
@@ -326,88 +575,115 @@ const Level7 = ({ onComplete }) => {
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
+          onKeyPress={handleEnter}
           placeholder="Enter command..."
           className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
         />
-        <button 
+        <button
           onClick={handleCommandSubmit}
           className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
         >
-          <div className="w-5 h-5 flex items-center justify-center">
-            <ArrowRight className="w-5 h-5 text-purple-900" />
-          </div>
+          <Image
+            src="/runcode.png"
+            alt="Run"
+            height={20}
+            width={20}
+            className="rounded-sm"
+          />
         </button>
       </motion.div>
 
-      <AnimatePresence>
-        {isHelpModalOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
+      {/* Help Modal */}
+      {isHelpModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4"
           >
-            <motion.div 
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col"
-            >
-              <div className="p-6 overflow-y-auto flex-grow">
-                <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">Available Commands:</h2>
-                <div className="space-y-1 mb-6">
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/change</span>{" "}
-                    <span className="text-blue-600 dark:text-blue-300">[position] [letter]</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Change a letter at the given position (1-4).</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/undo</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Go back one move.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/reset</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Reset the level to its initial state.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/theme</span>{" "}
-                    <span className="text-blue-600 dark:text-blue-300">[dark|light]</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Change the theme to dark or light.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/help</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Show this help menu.</p>
-                  </div>
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">
+                Available Commands:
+              </h2>
+              <div className="space-y-1 mb-6">
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /fill
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-300">[5L or 3L]</span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Fill a jug completely from the tap.
+                  </p>
                 </div>
-                
-                <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">How to Play:</h3>
-                <ul className="list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-300">
-                  <li>Objective: Transform the word "COLD" into "WARM" one letter at a time.</li>
-                  <li>Each new word must be a valid 4-letter word in the dictionary.</li>
-                  <li>You can only change one letter at a time.</li>
-                  <li>Use the <span className="font-mono bg-purple-50 dark:bg-purple-900/30 px-1">/change</span> command to modify letters.</li>
-                </ul>
-                
-                
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /empty
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-300">[5L or 3L]</span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Empty a jug into the drain.
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /pour
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-300">[from] [to]</span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Pour water from one jug to another (e.g., /pour 5L 3L).
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /place
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-300">[5L or 3L]</span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Place a jug on the scale to check the weight.
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /reset
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Reset the level.
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /help
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Show available commands and hints.
+                  </p>
+                </div>
               </div>
-              
-              <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
-                <button
-                  onClick={() => setHelpModalOpen(false)}
-                  className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
-                >
-                  Close
-                </button>
-              </div>
-            </motion.div>
+
+              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
+                Hint:
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 italic">
+                You can't fill a jug "halfway." You have to transfer water between them to do the math.
+              </p>
+            </div>
+
+            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
+              <button
+                onClick={closeHelpModal}
+                className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
+              >
+                Close
+              </button>
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };

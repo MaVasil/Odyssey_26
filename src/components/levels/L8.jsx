@@ -1,299 +1,505 @@
-import React, { useState, useEffect, useRef } from 'react';
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
-import { useTheme } from "next-themes";
-import { motion, AnimatePresence } from "framer-motion";
-import { HelpCircle, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { useToast } from "../ui/use-toast";
 
-const Level8 = ({ levelNumber = 8, onComplete, nextLevelNumber = 9 }) => {
+const TOTAL_COINS = 12;
+const MAX_WEIGHINGS = 3;
+
+const Level8 = ({ onComplete }) => {
   const [inputValue, setInputValue] = useState("");
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
-  const [message, setMessage] = useState("Calibrate all three bars to complete the level");
-  const [gameState, setGameState] = useState({
-    bars: [
-      { position: 50, isCalibrated: false, direction: 1, speed: 1.2 },
-      { position: 30, isCalibrated: false, direction: -1, speed: 0.9 },
-      { position: 70, isCalibrated: false, direction: 1, speed: 1.5 }
-    ],
-    targetPositions: [50, 50, 50], 
-    tolerance: 3, 
-    allCalibrated: false
-  });
   const [isSuccess, setIsSuccess] = useState(false);
-  
-  const animationRef = useRef(null);
-  
-
-  const { theme, setTheme } = useTheme();
+  const [isFailed, setIsFailed] = useState(false);
+  const [fakeCoin, setFakeCoin] = useState(null);
+  const [weighingsLeft, setWeighingsLeft] = useState(MAX_WEIGHINGS);
+  const [weighHistory, setWeighHistory] = useState([]);
+  const [scaleState, setScaleState] = useState("balanced");
+  const [leftPan, setLeftPan] = useState([]); // coin IDs on left pan
+  const [rightPan, setRightPan] = useState([]); // coin IDs on right pan
   const { toast } = useToast();
-
-
-  useEffect(() => {
-    if (gameState.allCalibrated) return;
-    
-    const animate = () => {
-      setGameState(prevState => {
-        const newBars = [...prevState.bars];
-        
-        for (let i = 0; i < newBars.length; i++) {
-          if (!newBars[i].isCalibrated) {
-            newBars[i].position += newBars[i].direction * newBars[i].speed;
-            
-            if (newBars[i].position >= 100) {
-              newBars[i].position = 100;
-              newBars[i].direction = -1;
-            } else if (newBars[i].position <= 0) {
-              newBars[i].position = 0;
-              newBars[i].direction = 1;
-            }
-          }
-        }
-        
-        const anyUncalibrated = newBars.some((bar, idx) => {
-          if (bar.isCalibrated) {
-            const isStillCalibrated = Math.abs(bar.position - prevState.targetPositions[idx]) <= prevState.tolerance;
-            return !isStillCalibrated;
-          }
-          return false;
-        });
-        
-        if (anyUncalibrated) {
-          for (let i = 0; i < newBars.length; i++) {
-            newBars[i].isCalibrated = false;
-          }
-        }
-        
-        return {
-          ...prevState,
-          bars: newBars
-        };
-      });
-      
-      animationRef.current = requestAnimationFrame(animate);
-    };
-    
-    animationRef.current = requestAnimationFrame(animate);
-    
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [gameState.allCalibrated]);
+  const initialized = useRef(false);
 
   useEffect(() => {
-    const allCalibrated = gameState.bars.every((bar, idx) => 
-      bar.isCalibrated && Math.abs(bar.position - gameState.targetPositions[idx]) <= gameState.tolerance
-    );
-    
-    if (allCalibrated && !gameState.allCalibrated) {
-      setGameState(prev => ({...prev, allCalibrated: true}));
-      setIsSuccess(true);
+    if (!initialized.current) {
+      initialized.current = true;
+      setFakeCoin(9);
     }
-  }, [gameState]);
+  }, []);
 
   useEffect(() => {
     if (isSuccess) {
       toast({
-        title: "Level Completed!",
-        description: "You've successfully calibrated all the bars!",
+        title: "Correct! 🪙",
+        description: `Coin ${fakeCoin} was indeed the fake! Found in ${MAX_WEIGHINGS - weighingsLeft} weighing(s).`,
         variant: "success",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
       });
-      
       setTimeout(() => {
-        onComplete(nextLevelNumber);
+        onComplete(4);
       }, 2000);
     }
-  }, [isSuccess, nextLevelNumber, onComplete, toast]);
-
-  const resetGame = () => {
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-    }
-    
-    setGameState({
-      bars: [
-        { position: 50, isCalibrated: false, direction: 1, speed: 1.2 },
-        { position: 30, isCalibrated: false, direction: -1, speed: 0.9 },
-        { position: 70, isCalibrated: false, direction: 1, speed: 1.5 }
-      ],
-      targetPositions: [50, 50, 50],
-      tolerance: 3,
-      allCalibrated: false
-    });
-    setMessage("Calibrate all three bars to complete the level");
-    setIsSuccess(false);
-    
-    animationRef.current = requestAnimationFrame(() => {});
-  };
-
-  const calibrateBar = (barIndex) => {
-    if (barIndex < 0 || barIndex >= gameState.bars.length) {
-      toast({
-        title: "Invalid Bar",
-        description: `Valid bar numbers are 1-${gameState.bars.length}`,
-        variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-      });
-      return;
-    }
-    
-    setGameState(prevState => {
-      const newBars = [...prevState.bars];
-      const targetPos = prevState.targetPositions[barIndex];
-      const bar = newBars[barIndex];
-      
-      if (Math.abs(bar.position - targetPos) <= prevState.tolerance) {
-        // Calibrate the bar
-        newBars[barIndex] = {
-          ...bar,
-          isCalibrated: true,
-          position: targetPos // Snap to exact position
-        };
-        
-        toast({
-          title: "Bar Calibrated",
-          description: `Bar ${barIndex + 1} successfully calibrated!`,
-          variant: "default",
-          className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 shadow-lg",
-        });
-      } else {
-        toast({
-          title: "Calibration Failed",
-          description: `Bar ${barIndex + 1} is not in the target range!`,
-          variant: "destructive",
-          className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-yellow-500 text-white opacity-100 shadow-lg",
-        });
-      }
-      
-      return {
-        ...prevState,
-        bars: newBars
-      };
-    });
-  };
+  }, [isSuccess, onComplete, toast, fakeCoin, weighingsLeft]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
 
-  const handleKeyPress = (e) => {
+  const handleEnter = (e) => {
     if (e.key === "Enter") {
       handleCommandSubmit();
     }
   };
 
+  const parseCoins = (str) => {
+    const parts = str.split(",").map((s) => parseInt(s.trim()));
+    if (parts.some((n) => isNaN(n) || n < 1 || n > TOTAL_COINS)) return null;
+    if (new Set(parts).size !== parts.length) return null;
+    return parts;
+  };
+
   const handleCommandSubmit = () => {
-    const resetMatch = inputValue.match(/^\/reset$/i);
-    const helpMatch = inputValue.match(/^\/help$/i);
-    const themeMatch = inputValue.match(/^\/theme\s+(dark|light)$/i);
-    const stopMatch = inputValue.match(/^\/stop\s+([1-3])$/i);
-    
-    if (resetMatch) {
-      resetGame();
+    const cmd = inputValue.trim();
+
+    const weighMatch = cmd.match(/^\/weigh\s+(.+?)\s+(?:vs\s+)?(.+)$/i);
+    const guessMatch = cmd.match(/^\/guess\s+(\d+)$/i);
+    const resetMatch = cmd.match(/^\/reset$/i);
+    const helpMatch = cmd.match(/^\/help$/i);
+
+    if (isFailed && !resetMatch && !helpMatch) {
+      toast({
+        title: "No Weighings Left",
+        description: "Use /reset to try again.",
+        variant: "destructive",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+      });
+      setInputValue("");
+      return;
+    }
+
+    if (weighMatch) {
+      if (weighingsLeft <= 0) {
+        toast({
+          title: "No Weighings Left!",
+          description: "You've used all 3 weighings. Make your /guess now!",
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+        setInputValue("");
+        return;
+      }
+
+      const leftCoins = parseCoins(weighMatch[1]);
+      const rightCoins = parseCoins(weighMatch[2]);
+
+      if (!leftCoins || !rightCoins) {
+        toast({
+          title: "Invalid Coins",
+          description: "Use coin numbers 1-12 separated by commas. e.g., /weigh 1,2,3,4 5,6,7,8",
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+        setInputValue("");
+        return;
+      }
+
+      if (leftCoins.length !== rightCoins.length) {
+        toast({
+          title: "Uneven Groups",
+          description: "Both sides must have the same number of coins.",
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+        setInputValue("");
+        return;
+      }
+
+      const overlap = leftCoins.some((c) => rightCoins.includes(c));
+      if (overlap) {
+        toast({
+          title: "Duplicate Coins",
+          description: "A coin can't be on both sides of the scale!",
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+        setInputValue("");
+        return;
+      }
+
+      const fakeOnLeft = leftCoins.includes(fakeCoin);
+      const fakeOnRight = rightCoins.includes(fakeCoin);
+
+      let result;
+      if (fakeOnLeft) {
+        result = "left-lighter";
+        setScaleState("left-lighter");
+      } else if (fakeOnRight) {
+        result = "right-lighter";
+        setScaleState("right-lighter");
+      } else {
+        result = "equal";
+        setScaleState("balanced");
+      }
+
+      setLeftPan(leftCoins);
+      setRightPan(rightCoins);
+      setWeighingsLeft((p) => p - 1);
+      setWeighHistory((prev) => [
+        ...prev,
+        { left: leftCoins, right: rightCoins, result },
+      ]);
+
+      const resultText =
+        result === "equal"
+          ? "⚖️ Both sides are equal!"
+          : result === "left-lighter"
+            ? "⬅️ Left side is LIGHTER!"
+            : "➡️ Right side is LIGHTER!";
+
+      toast({
+        title: resultText,
+        description: `Weighings remaining: ${weighingsLeft - 1}`,
+        variant: "default",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+      });
+    } else if (guessMatch) {
+      const coinNum = parseInt(guessMatch[1]);
+      if (coinNum < 1 || coinNum > TOTAL_COINS) {
+        toast({
+          title: "Invalid Coin",
+          description: "Choose a coin from 1 to 12.",
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+      } else if (coinNum === fakeCoin) {
+        setIsSuccess(true);
+      } else {
+        setIsFailed(true);
+        toast({
+          title: "Wrong! 💀",
+          description: `Coin ${coinNum} is real. The fake was coin ${fakeCoin}.`,
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+      }
+    } else if (resetMatch) {
+      initialized.current = true;
+      setFakeCoin(9);
+      setWeighingsLeft(MAX_WEIGHINGS);
+      setWeighHistory([]);
+      setScaleState("balanced");
+      setLeftPan([]);
+      setRightPan([]);
+      setIsSuccess(false);
+      setIsFailed(false);
       toast({
         title: "Level Reset",
-        description: "The game has been reset to its initial state",
+        description: "A new fake coin has been placed. Good luck!",
         variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
-    } else if (themeMatch) {
-      const newTheme = themeMatch[1];
-      setTheme(newTheme);
-      toast({
-        title: "Theme Changed",
-        description: `Theme set to ${newTheme} mode`,
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-      });
-    } else if (stopMatch) {
-      const barNumber = parseInt(stopMatch[1], 10);
-      calibrateBar(barNumber - 1); // Convert to 0-indexed
     } else {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
         variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
       });
     }
-    
+
     setInputValue("");
   };
 
-  const renderBar = (bar, index) => {
-    const barHeight = 150; // Total bar height in pixels
-    const markerPosition = gameState.targetPositions[index];
-    
-    return (
-      <div className="relative w-16 h-40 mx-4" key={index}>
-        <div className="absolute -top-6 left-0 w-full text-center text-purple-700 dark:text-purple-300 font-bold">
-          {index + 1}
-        </div>
-        
-        <div className="absolute inset-0 rounded-lg bg-gray-200 dark:bg-gray-800 overflow-hidden">
-          <div 
-            className={`absolute left-0 w-full transition-colors rounded-lg ${
-              bar.isCalibrated ? 'bg-green-500' : 'bg-blue-500'
-            }`}
-            style={{
-              bottom: `${bar.position}%`,
-              height: '12px',
-            }}
-          />
-          
-          <div className="absolute left-0 w-full flex items-center justify-center" style={{ bottom: `${markerPosition}%` }}>
-            <div className="w-full h-0.5 bg-red-500" />
-            <div className="absolute left-0 text-xs text-red-500">|</div>
-            <div className="absolute right-0 text-xs text-red-500">|</div>
-          </div>
-        </div>
-        
-        <div className={`absolute -bottom-6 left-0 w-full text-center text-xs font-medium ${
-          bar.isCalibrated ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'
-        }`}>
-          {bar.isCalibrated ? 'CALIBRATED' : 'UNCALIBRATED'}
-        </div>
-      </div>
-    );
+  const closeHelpModal = () => {
+    setHelpModalOpen(false);
+  };
+
+  const tiltAngle =
+    scaleState === "left-lighter" ? -8 : scaleState === "right-lighter" ? 8 : 0;
+
+  // Determine where each coin should be rendered
+  const getCoinPosition = (coinNum) => {
+    const leftIdx = leftPan.indexOf(coinNum);
+    const rightIdx = rightPan.indexOf(coinNum);
+
+    if (leftIdx !== -1) {
+      // On left pan — arrange coins in a row on the pan
+      const perRow = 4;
+      const row = Math.floor(leftIdx / perRow);
+      const col = leftIdx % perRow;
+      const totalInRow = Math.min(perRow, leftPan.length - row * perRow);
+      const startX = 80 - (totalInRow * 22) / 2;
+      return { x: startX + col * 22, y: 115 + row * 22, onScale: true, side: "left" };
+    }
+
+    if (rightIdx !== -1) {
+      const perRow = 4;
+      const row = Math.floor(rightIdx / perRow);
+      const col = rightIdx % perRow;
+      const totalInRow = Math.min(perRow, rightPan.length - row * perRow);
+      const startX = 300 - (totalInRow * 22) / 2;
+      return { x: startX + col * 22, y: 115 + row * 22, onScale: true, side: "right" };
+    }
+
+    // On the ground — arrange coins not on scale across the bottom
+    const groundCoins = [];
+    for (let i = 1; i <= TOTAL_COINS; i++) {
+      if (!leftPan.includes(i) && !rightPan.includes(i)) {
+        groundCoins.push(i);
+      }
+    }
+    const groundIdx = groundCoins.indexOf(coinNum);
+    const perRow = 6;
+    const row = Math.floor(groundIdx / perRow);
+    const col = groundIdx % perRow;
+    const totalInRow = Math.min(perRow, groundCoins.length - row * perRow);
+    const startX = 190 - (totalInRow * 30) / 2;
+    return { x: startX + col * 30, y: 215 + row * 28, onScale: false, side: "ground" };
   };
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
-      <motion.h1 
+      {/* Level title badge */}
+      <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="px-6 py-3 text-2xl font-bold text-[#2D1B4B] dark:text-[#1A0F2E] bg-gradient-to-r from-[#F9DC34] to-[#F5A623] rounded-full shadow-lg"
       >
-        Level {levelNumber}
+        Level 8
       </motion.h1>
-      
-      <motion.p 
+
+      {/* Question */}
+      <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
-        {message}
+        The 12-Coin Balance — Find the fake coin.
       </motion.p>
 
+      {/* Scene */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.3 }}
-        className="bg-white dark:bg-[#2D1B4B]/40 rounded-2xl p-6 shadow-lg backdrop-blur-sm border border-purple-200 dark:border-purple-700/30 w-full max-w-md"
+        className="bg-[#0a0a1a] dark:bg-[#0a0a1a] rounded-2xl p-4 shadow-lg border border-purple-700/30 w-full max-w-md relative overflow-hidden"
       >
-        <div className="min-h-48 flex items-center justify-center">
-          <div className="flex justify-center items-end h-full w-full">
-            {gameState.bars.map((bar, index) => renderBar(bar, index))}
-          </div>
-        </div>
+        <svg viewBox="0 0 380 280" className="w-full">
+          {/* Grid */}
+          {[...Array(16)].map((_, i) => (
+            <line key={`v${i}`} x1={i * 25} y1={0} x2={i * 25} y2={280} stroke="#1a1a3a" strokeWidth="0.5" />
+          ))}
+          {[...Array(12)].map((_, i) => (
+            <line key={`h${i}`} x1={0} y1={i * 25} x2={380} y2={i * 25} stroke="#1a1a3a" strokeWidth="0.5" />
+          ))}
+
+          {/* Title */}
+          <text x="190" y="18" textAnchor="middle" fontSize="11" fill="#8888BB" fontWeight="bold">
+            12-COIN BALANCE PUZZLE
+          </text>
+
+          {/* === SCALE === */}
+          {/* Scale stand */}
+          <rect x="185" y="100" width="10" height="65" fill="#795548" rx="2" />
+          <rect x="170" y="160" width="40" height="8" rx="3" fill="#5D4037" />
+
+          {/* Fulcrum triangle */}
+          <polygon points="190,95 180,105 200,105" fill="#5D4037" />
+
+          {/* Scale beam (tilts) */}
+          <motion.g
+            animate={{ rotate: tiltAngle }}
+            transition={{ type: "spring", stiffness: 150, damping: 20 }}
+            style={{ originX: "190px", originY: "100px" }}
+          >
+            {/* Beam */}
+            <rect x="45" y="96" width="290" height="7" rx="3" fill="#8D6E63" />
+
+            {/* Left pan strings */}
+            <line x1="65" y1="103" x2="55" y2="130" stroke="#A1887F" strokeWidth="1.5" />
+            <line x1="95" y1="103" x2="105" y2="130" stroke="#A1887F" strokeWidth="1.5" />
+            {/* Left pan */}
+            <ellipse cx="80" cy="133" rx="35" ry="8" fill="#8D6E63" stroke="#6D4C41" strokeWidth="1" />
+            {/* Left label */}
+            <text x="80" y="148" textAnchor="middle" fontSize="9" fill="#BCAAA4">LEFT</text>
+
+            {/* Right pan strings */}
+            <line x1="285" y1="103" x2="275" y2="130" stroke="#A1887F" strokeWidth="1.5" />
+            <line x1="315" y1="103" x2="325" y2="130" stroke="#A1887F" strokeWidth="1.5" />
+            {/* Right pan */}
+            <ellipse cx="300" cy="133" rx="35" ry="8" fill="#8D6E63" stroke="#6D4C41" strokeWidth="1" />
+            {/* Right label */}
+            <text x="300" y="148" textAnchor="middle" fontSize="9" fill="#BCAAA4">RIGHT</text>
+
+            {/* Coins ON the scale pans */}
+            {leftPan.map((coinNum, i) => {
+              const pos = getCoinPosition(coinNum);
+              return (
+                <motion.g
+                  key={`scale-L-${coinNum}`}
+                  initial={{ y: 100, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.4, delay: i * 0.05 }}
+                >
+                  <circle
+                    cx={pos.x}
+                    cy={pos.y}
+                    r="9"
+                    fill={isSuccess && coinNum === fakeCoin ? "#ef4444" : isFailed && coinNum === fakeCoin ? "#ef4444" : "#F9DC34"}
+                    stroke={isSuccess && coinNum === fakeCoin ? "#dc2626" : isFailed && coinNum === fakeCoin ? "#dc2626" : "#F5A623"}
+                    strokeWidth="1.5"
+                  />
+                  <text x={pos.x} y={pos.y + 3.5} textAnchor="middle" fontSize="8" fill="#2D1B4B" fontWeight="bold">
+                    {coinNum}
+                  </text>
+                </motion.g>
+              );
+            })}
+
+            {rightPan.map((coinNum, i) => {
+              const pos = getCoinPosition(coinNum);
+              return (
+                <motion.g
+                  key={`scale-R-${coinNum}`}
+                  initial={{ y: 100, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.4, delay: i * 0.05 }}
+                >
+                  <circle
+                    cx={pos.x}
+                    cy={pos.y}
+                    r="9"
+                    fill={isSuccess && coinNum === fakeCoin ? "#ef4444" : isFailed && coinNum === fakeCoin ? "#ef4444" : "#F9DC34"}
+                    stroke={isSuccess && coinNum === fakeCoin ? "#dc2626" : isFailed && coinNum === fakeCoin ? "#dc2626" : "#F5A623"}
+                    strokeWidth="1.5"
+                  />
+                  <text x={pos.x} y={pos.y + 3.5} textAnchor="middle" fontSize="8" fill="#2D1B4B" fontWeight="bold">
+                    {coinNum}
+                  </text>
+                </motion.g>
+              );
+            })}
+          </motion.g>
+
+          {/* === GROUND AREA === */}
+          {/* Ground line */}
+          <line x1="30" y1="200" x2="350" y2="200" stroke="#333355" strokeWidth="1" strokeDasharray="4 4" />
+          <text x="190" y="195" textAnchor="middle" fontSize="8" fill="#555577">
+            COINS ON THE TABLE
+          </text>
+
+          {/* Coins on the ground */}
+          {Array.from({ length: TOTAL_COINS }, (_, i) => {
+            const coinNum = i + 1;
+            // Skip if on a pan
+            if (leftPan.includes(coinNum) || rightPan.includes(coinNum)) return null;
+            const pos = getCoinPosition(coinNum);
+
+            return (
+              <motion.g
+                key={`ground-${coinNum}`}
+                animate={{ x: 0, y: 0 }}
+                transition={{ type: "spring", stiffness: 200, damping: 25 }}
+              >
+                <circle
+                  cx={pos.x}
+                  cy={pos.y}
+                  r="11"
+                  fill={
+                    isSuccess && coinNum === fakeCoin
+                      ? "#ef4444"
+                      : isFailed && coinNum === fakeCoin
+                        ? "#ef4444"
+                        : "#F9DC34"
+                  }
+                  stroke={
+                    isSuccess && coinNum === fakeCoin
+                      ? "#dc2626"
+                      : isFailed && coinNum === fakeCoin
+                        ? "#dc2626"
+                        : "#F5A623"
+                  }
+                  strokeWidth="1.5"
+                  opacity={isFailed && coinNum !== fakeCoin ? 0.4 : 0.9}
+                />
+                <text
+                  x={pos.x}
+                  y={pos.y + 4}
+                  textAnchor="middle"
+                  fontSize="10"
+                  fill="#2D1B4B"
+                  fontWeight="bold"
+                >
+                  {coinNum}
+                </text>
+              </motion.g>
+            );
+          })}
+
+          {/* Weighings left */}
+          <text x="190" y="270" textAnchor="middle" fontSize="11" fill="#8888BB">
+            Weighings left:{" "}
+            <tspan fill={weighingsLeft === 0 ? "#ef4444" : "#F9DC34"} fontWeight="bold">
+              {weighingsLeft}
+            </tspan>
+            /3
+          </text>
+        </svg>
       </motion.div>
-      
+
+      {/* Weigh history */}
+      {weighHistory.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="w-full max-w-md mt-3 space-y-1"
+        >
+          {weighHistory.map((w, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between text-xs bg-purple-900/20 border border-purple-700/30 rounded-lg px-3 py-2"
+            >
+              <span className="text-purple-300">
+                #{i + 1}: [{w.left.join(",")}] vs [{w.right.join(",")}]
+              </span>
+              <span
+                className={`font-bold ${w.result === "equal"
+                  ? "text-[#F9DC34]"
+                  : w.result === "left-lighter"
+                    ? "text-blue-400"
+                    : "text-orange-400"
+                  }`}
+              >
+                {w.result === "equal"
+                  ? "⚖️ Equal"
+                  : w.result === "left-lighter"
+                    ? "⬅️ Left lighter"
+                    : "➡️ Right lighter"}
+              </span>
+            </div>
+          ))}
+        </motion.div>
+      )}
+
+      {/* Help prompt */}
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -301,10 +507,15 @@ const Level8 = ({ levelNumber = 8, onComplete, nextLevelNumber = 9 }) => {
         className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
         onClick={() => setHelpModalOpen(true)}
       >
-        Type <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">/help</span> to get commands and hints
+        Type{" "}
+        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+          /help
+        </span>{" "}
+        to get commands and hints
       </motion.span>
 
-      <motion.div 
+      {/* Command input */}
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.6 }}
@@ -314,80 +525,109 @@ const Level8 = ({ levelNumber = 8, onComplete, nextLevelNumber = 9 }) => {
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
+          onKeyPress={handleEnter}
           placeholder="Enter command..."
           className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
         />
-        <button 
+        <button
           onClick={handleCommandSubmit}
           className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
         >
-          <div className="w-5 h-5 flex items-center justify-center">
-            <ArrowRight className="w-5 h-5 text-purple-900" />
-          </div>
+          <Image
+            src="/runcode.png"
+            alt="Run"
+            height={20}
+            width={20}
+            className="rounded-sm"
+          />
         </button>
       </motion.div>
 
-      <AnimatePresence>
-        {isHelpModalOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
+      {/* Help Modal */}
+      {isHelpModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4"
           >
-            <motion.div 
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col"
-            >
-              <div className="p-6 overflow-y-auto flex-grow">
-                <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">Available Commands:</h2>
-                <div className="space-y-1 mb-6">
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/stop</span>{" "}
-                    <span className="text-blue-600 dark:text-blue-300">[1-3]</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Try to calibrate the specified bar (1, 2, or 3).</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/reset</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Reset the level to its initial state.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/theme</span>{" "}
-                    <span className="text-blue-600 dark:text-blue-300">[dark|light]</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Change the theme to dark or light.</p>
-                  </div>
-                  
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">/help</span>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Show this help menu.</p>
-                  </div>
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">
+                Available Commands:
+              </h2>
+              <div className="space-y-1 mb-6">
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /weigh
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-300">
+                    [left coins] [right coins]
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Weigh two groups. e.g., <code>/weigh 1,2,3,4 5,6,7,8</code>
+                    <br />
+                    Groups must have equal size. You can also use "vs": <code>/weigh 1,2 vs 3,4</code>
+                  </p>
                 </div>
-                
-                
-                
-                <h3 className="text-xl font-bold mt-4 mb-2 text-purple-800 dark:text-[#F9DC34]">Hint:</h3>
-                <p className="text-gray-600 dark:text-gray-300 italic">
-                Precision is key! Wait for the bar’s indicator to meet the red line—timing it just right makes all the difference.
-                </p>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /guess
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-300">[coin number]</span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Guess which coin is the fake.
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /reset
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Reset with a new random fake coin.
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /help
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Show commands and hints.
+                  </p>
+                </div>
               </div>
-              
-              <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
-                <button
-                  onClick={() => setHelpModalOpen(false)}
-                  className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
-                >
-                  Close
-                </button>
+
+              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
+                Rules:
+              </h3>
+              <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 text-sm">
+                <p>• 12 coins, one is fake (lighter).</p>
+                <p>• You have only <strong>3 weighings</strong> on the balance scale.</p>
+                <p>• The lighter side contains the fake coin.</p>
+                <p>• Equal means the fake is in neither group.</p>
               </div>
-            </motion.div>
+
+              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
+                Hint:
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 italic">
+                You can't test every coin one by one. Weigh coins in groups, and use coins you've proven real as benchmarks.
+              </p>
+            </div>
+
+            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
+              <button
+                onClick={closeHelpModal}
+                className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
+              >
+                Close
+              </button>
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };

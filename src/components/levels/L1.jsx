@@ -1,416 +1,107 @@
-// import React, { useState, useEffect } from 'react';
-// import { Input } from "@/components/ui/input";
-// import { useTheme } from "next-themes";
-// import { motion, AnimatePresence } from "framer-motion";
-// import { HelpCircle, ArrowRight, Droplets } from "lucide-react";
-// import { useToast } from "../ui/use-toast";
-
-// const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
-//   const [inputValue, setInputValue] = useState("");
-//   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
-//   const [message, setMessage] = useState("The fish is out of water! Can you help?");
-//   const [gameState, setGameState] = useState({
-//     fishPosition: "land",
-//     attempts: 0,
-//   });
-//   const [isSuccess, setIsSuccess] = useState(false);
-  
-//   const { theme, setTheme } = useTheme();
-//   const { toast } = useToast();
-
-//   useEffect(() => {
-//     if (isSuccess) {
-//       toast({
-//         title: "Level Completed!",
-//         description: "You've successfully put the fish back in water!",
-//         variant: "success",
-//         className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
-//       });
-      
-//       setTimeout(() => {
-//         onComplete(nextLevelNumber);
-//       }, 2000);
-//     }
-//   }, [isSuccess, nextLevelNumber, onComplete, toast]);
-
-//   const checkWinCondition = () => {
-//     if (gameState.fishPosition === "water") {
-//       console.log(gameState.fishPosition)
-//       setIsSuccess(true);
-//     }
-//   };
-
-//   const resetGame = () => {
-//     setGameState({
-//       fishPosition: "land",
-//       attempts: 0,
-//     });
-//     setMessage("The fish is out of water! Can you help?");
-//   };
-
-//   const handleInputChange = (e) => {
-//     setInputValue(e.target.value);
-//   };
-
-//   const handleKeyPress = (e) => {
-//     if (e.key === "Enter") {
-//       handleCommandSubmit();
-//     }
-//   };
-
-//   const handleCommandSubmit = () => {
-//     const resetMatch = inputValue.match(/^\/reset$/i);
-//     const helpMatch = inputValue.match(/^\/help$/i);
-//     const themeMatch = inputValue.match(/^\/theme\s+(dark|light)$/i);
-//     const undoMatch = inputValue.match(/^\/undo$/i);
-    
-//     if (resetMatch) {
-//       resetGame();
-//       toast({
-//         title: "Level Reset",
-//         description: "The game has been reset to its initial state",
-//         variant: "default",
-//         className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-//       });
-//     } else if (helpMatch) {
-//       setHelpModalOpen(true);
-//     } else if (themeMatch) {
-//       const newTheme = themeMatch[1];
-//       setTheme(newTheme);
-//       toast({
-//         title: "Theme Changed",
-//         description: `Theme set to ${newTheme} mode`,
-//         variant: "default",
-//         className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-//       });
-//     } else if (undoMatch) {
-//       setGameState(prevState => ({
-//         ...prevState,
-//         fishPosition: "water",
-//         attempts: prevState.attempts + 1,
-//       }));
-//       console.log(gameState.fishPosition)
-//       setMessage("Great job! The fish is back in water!");
-//       setIsSuccess(true); 
-//       checkWinCondition();  
-//     } else {
-//       setGameState(prevState => ({
-//         ...prevState,
-//         attempts: prevState.attempts + 1,
-//       }));
-//       toast({
-//         title: "Try Again",
-//         description: "Type /help to see available commands",
-//         variant: "destructive",
-//         className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-//       });
-//     }
-    
-//     setInputValue("");
-//   };
-
-//   return (
-//     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
-//       <motion.h1 
-//         initial={{ opacity: 0, y: -20 }}
-//         animate={{ opacity: 1, y: 0 }}
-//         transition={{ duration: 0.6 }}
-//         className="px-6 py-3 text-2xl font-bold text-[#2D1B4B] dark:text-[#1A0F2E] bg-gradient-to-r from-[#F9DC34] to-[#F5A623] rounded-full shadow-lg"
-//       >
-//         Level {levelNumber}
-//       </motion.h1>
-      
-//       <motion.p 
-//         initial={{ opacity: 0 }}
-//         animate={{ opacity: 1 }}
-//         transition={{ duration: 0.6, delay: 0.2 }}
-//         className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
-//       >
-//         {message}
-//       </motion.p>
-
-//       <motion.div
-//         initial={{ opacity: 0, scale: 0.9 }}
-//         animate={{ opacity: 1, scale: 1 }}
-//         transition={{ duration: 0.6, delay: 0.3 }}
-//         className="bg-white dark:bg-[#2D1B4B]/40 rounded-2xl p-6 shadow-lg backdrop-blur-sm border border-purple-200 dark:border-purple-700/30 w-full max-w-md"
-//       >
-//         {/* Fish Illustration */}
-//         <div className="min-h-48 flex items-center justify-center relative overflow-hidden">
-//           {gameState.fishPosition === "land" ? (
-//             <div className="relative">
-//               {/* Land */}
-//               <div className="absolute bottom-0 w-64 h-12 bg-yellow-200 dark:bg-yellow-900 rounded-t-full"></div>
-              
-//               {/* Fish */}
-//               <motion.svg 
-//                 viewBox="0 0 100 50" 
-//                 width="120"
-//                 className="relative z-10"
-//                 initial={{ rotate: 0 }}
-//                 animate={{ rotate: [0, 10, 0, -10, 0] }}
-//                 transition={{ repeat: Infinity, duration: 2 }}
-//               >
-//                 <path 
-//                   d="M20,25 C20,15 30,5 50,5 C70,5 80,15 80,25 C80,35 70,45 50,45 C30,45 20,35 20,25 Z" 
-//                   fill="#ff9800" 
-//                   stroke="#e65100" 
-//                   strokeWidth="2"
-//                 />
-//                 <circle cx="35" cy="20" r="3" fill="#000" />
-//                 <path 
-//                   d="M80,25 L95,10 L95,40 Z" 
-//                   fill="#ff9800" 
-//                   stroke="#e65100" 
-//                   strokeWidth="2"
-//                 />
-//                 <path 
-//                   d="M50,5 L45,15 L55,15 Z" 
-//                   fill="#ff9800" 
-//                   stroke="#e65100" 
-//                   strokeWidth="2"
-//                 />
-//               </motion.svg>
-              
-//               {/* Droplets indicating dryness */}
-//               <motion.div
-//                 className="absolute top-0 right-0"
-//                 initial={{ opacity: 0.7 }}
-//                 animate={{ opacity: [0.7, 0.3, 0.7] }}
-//                 transition={{ repeat: Infinity, duration: 1.5 }}
-//               >
-//                 <Droplets className="text-blue-300 dark:text-blue-500 opacity-50" size={24} />
-//               </motion.div>
-//             </div>
-//           ) : (
-//             <div className="relative">
-//               {/* Water */}
-//               <div className="absolute inset-0 w-64 h-48 bg-blue-300 dark:bg-blue-900/70 rounded-lg">
-//                 <motion.div 
-//                   className="absolute top-0 left-0 right-0 h-4 bg-blue-200 dark:bg-blue-800 rounded-t-lg"
-//                   initial={{ y: -4 }}
-//                   animate={{ y: [0, 2, 0] }}
-//                   transition={{ repeat: Infinity, duration: 2 }}
-//                 />
-//               </div>
-              
-//               {/* Happy Fish */}
-//               <motion.svg 
-//                 viewBox="0 0 100 50" 
-//                 width="120"
-//                 className="relative z-10"
-//                 initial={{ x: -20 }}
-//                 animate={{ 
-//                   x: [0, 30, 0],
-//                   y: [0, 5, 0, -5, 0]
-//                 }}
-//                 transition={{ 
-//                   repeat: Infinity, 
-//                   duration: 4,
-//                   times: [0, 0.5, 1]
-//                 }}
-//               >
-//                 <path 
-//                   d="M20,25 C20,15 30,5 50,5 C70,5 80,15 80,25 C80,35 70,45 50,45 C30,45 20,35 20,25 Z" 
-//                   fill="#ff9800" 
-//                   stroke="#e65100" 
-//                   strokeWidth="2"
-//                 />
-//                 <circle cx="35" cy="20" r="3" fill="#000" />
-//                 <path 
-//                   d="M80,25 L95,10 L95,40 Z" 
-//                   fill="#ff9800" 
-//                   stroke="#e65100" 
-//                   strokeWidth="2"
-//                 />
-//                 <path 
-//                   d="M50,5 L45,15 L55,15 Z" 
-//                   fill="#ff9800" 
-//                   stroke="#e65100" 
-//                   strokeWidth="2"
-//                 />
-//                 <path
-//                   d="M40,30 Q50,40 60,30"
-//                   fill="none"
-//                   stroke="#000"
-//                   strokeWidth="2"
-//                   strokeLinecap="round"
-//                 />
-//               </motion.svg>
-              
-//               {/* Bubbles */}
-//               <motion.div 
-//                 className="absolute top-6 right-10"
-//                 initial={{ y: 0, opacity: 1 }}
-//                 animate={{ y: -20, opacity: 0 }}
-//                 transition={{ repeat: Infinity, duration: 2 }}
-//               >
-//                 <div className="w-3 h-3 bg-white rounded-full opacity-60"></div>
-//               </motion.div>
-//               <motion.div 
-//                 className="absolute top-12 right-16"
-//                 initial={{ y: 0, opacity: 1 }}
-//                 animate={{ y: -15, opacity: 0 }}
-//                 transition={{ repeat: Infinity, duration: 1.5, delay: 0.5 }}
-//               >
-//                 <div className="w-2 h-2 bg-white rounded-full opacity-60"></div>
-//               </motion.div>
-//             </div>
-//           )}
-//         </div>
-//       </motion.div>
-      
-//       <motion.span
-//         initial={{ opacity: 0 }}
-//         animate={{ opacity: 1 }}
-//         transition={{ duration: 0.6, delay: 0.5 }}
-//         className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
-//         onClick={() => setHelpModalOpen(true)}
-//       >
-//         Type <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">/help</span> to get commands and hints
-//       </motion.span>
-
-//       <motion.div 
-//         initial={{ opacity: 0, y: 20 }}
-//         animate={{ opacity: 1, y: 0 }}
-//         transition={{ duration: 0.6, delay: 0.6 }}
-//         className="flex gap-2 w-full max-w-md"
-//       >
-//         <Input
-//           type="text"
-//           value={inputValue}
-//           onChange={handleInputChange}
-//           onKeyPress={handleKeyPress}
-//           placeholder="Enter command..."
-//           className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-//         />
-//         <button 
-//           onClick={handleCommandSubmit}
-//           className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-//         >
-//           <div className="w-5 h-5 flex items-center justify-center">
-//             <ArrowRight className="w-5 h-5 text-purple-900" />
-//           </div>
-//         </button>
-//       </motion.div>
-
-//       <AnimatePresence>
-//         {isHelpModalOpen && (
-//           <motion.div 
-//             initial={{ opacity: 0 }}
-//             animate={{ opacity: 1 }}
-//             exit={{ opacity: 0 }}
-//             className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
-//           >
-//             <motion.div 
-//               initial={{ scale: 0.9 }}
-//               animate={{ scale: 1 }}
-//               exit={{ scale: 0.9 }}
-//               className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col"
-//             >
-//               <div className="p-6 overflow-y-auto flex-grow">
-//                 <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">Available Commands:</h2>
-//                 <div className="space-y-1 mb-6">
-//                   <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-//                     <span className="font-bold text-purple-700 dark:text-purple-300">/undo</span>
-//                     <p className="mt-1 text-gray-600 dark:text-gray-300">Reverses the situation that just happened</p>
-//                   </div>
-                  
-//                   <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-//                     <span className="font-bold text-purple-700 dark:text-purple-300">/reset</span>
-//                     <p className="mt-1 text-gray-600 dark:text-gray-300">Reset the level to its initial state.</p>
-//                   </div>
-                  
-//                   <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-//                     <span className="font-bold text-purple-700 dark:text-purple-300">/theme</span>{" "}
-//                     <span className="text-blue-600 dark:text-blue-300">[dark|light]</span>
-//                     <p className="mt-1 text-gray-600 dark:text-gray-300">Change the theme to dark or light.</p>
-//                   </div>
-                  
-//                   <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-//                     <span className="font-bold text-purple-700 dark:text-purple-300">/help</span>
-//                     <p className="mt-1 text-gray-600 dark:text-gray-300">Show this help menu.</p>
-//                   </div>
-//                 </div>
-                
-                
-                
-//                 <h3 className="text-xl font-bold mt-4 mb-2 text-purple-800 dark:text-[#F9DC34]">Hint:</h3>
-//                 <p className="text-gray-600 dark:text-gray-300 italic">
-//                   The fish just got out of the tank.
-//                 </p>
-//               </div>
-              
-//               <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
-//                 <button
-//                   onClick={() => setHelpModalOpen(false)}
-//                   className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
-//                 >
-//                   Close
-//                 </button>
-//               </div>
-//             </motion.div>
-//           </motion.div>
-//         )}
-//       </AnimatePresence>
-//     </div>
-//   );
-// };
-
-// export default Level1;
-
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
 import { useToast } from "../ui/use-toast";
+
+// Each light has 5 angular positions. The beam fans out from ceiling to floor.
+// "hitsDoor" means the beam cone overlaps the door area.
+// Starting positions: all 3 beams hit the door. Goal: rotate all away.
+const LIGHT_DEFS = {
+  A: {
+    cx: 80,
+    positions: [
+      { floorX: 20, hitsDoor: false },
+      { floorX: 75, hitsDoor: false },
+      { floorX: 145, hitsDoor: false },
+      { floorX: 195, hitsDoor: true },   // ← START
+      { floorX: 290, hitsDoor: false },
+    ],
+    startIdx: 3,
+    color: "#FBBF24",
+  },
+  B: {
+    cx: 190,
+    positions: [
+      { floorX: 80, hitsDoor: false },
+      { floorX: 135, hitsDoor: false },
+      { floorX: 190, hitsDoor: true },   // ← START
+      { floorX: 250, hitsDoor: false },
+      { floorX: 310, hitsDoor: false },
+    ],
+    startIdx: 2,
+    color: "#FCD34D",
+  },
+  C: {
+    cx: 300,
+    positions: [
+      { floorX: 90, hitsDoor: false },
+      { floorX: 185, hitsDoor: true },   // ← START
+      { floorX: 255, hitsDoor: false },
+      { floorX: 310, hitsDoor: false },
+      { floorX: 365, hitsDoor: false },
+    ],
+    startIdx: 1,
+    color: "#FDE68A",
+  },
+};
+
+const LIGHT_Y = 35;
+const FLOOR_Y = 220;
+const BEAM_HALF_W = 25;
+const DOOR_X = 165;
+const DOOR_W = 50;
+const DOOR_H = 70;
+const DOOR_Y = FLOOR_Y - DOOR_H;
 
 const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
   const [inputValue, setInputValue] = useState("");
-  const [message, setMessage] = useState(
-    "Set the value to 10 without typing numbers."
-  );
-  const [gameState, setGameState] = useState({
-    value: 1,
-    attempts: 0,
-  });
+  const [isHelpModalOpen, setHelpModalOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-
+  const [lightPositions, setLightPositions] = useState({
+    A: LIGHT_DEFS.A.startIdx,
+    B: LIGHT_DEFS.B.startIdx,
+    C: LIGHT_DEFS.C.startIdx,
+  });
   const { toast } = useToast();
-  const TARGET = 10;
 
-  // ✅ Success Toast (same style as original)
+  // Check win: no beam hits the door
+  const anyHitsDoor = () => {
+    return (
+      LIGHT_DEFS.A.positions[lightPositions.A].hitsDoor ||
+      LIGHT_DEFS.B.positions[lightPositions.B].hitsDoor ||
+      LIGHT_DEFS.C.positions[lightPositions.C].hitsDoor
+    );
+  };
+
+  useEffect(() => {
+    if (!anyHitsDoor() && !isSuccess) {
+      setIsSuccess(true);
+    }
+  }, [lightPositions]);
+
   useEffect(() => {
     if (isSuccess) {
       toast({
-        title: "Level Completed!",
-        description: "You've successfully reached 10!",
+        title: "Door Unlocked! 🚪✨",
+        description: "The overlapping shadows cancelled the light. The door opens!",
         variant: "success",
         className:
           "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
       });
-
       setTimeout(() => {
-        onComplete(nextLevelNumber);
+        onComplete(4);
       }, 2000);
     }
-  }, [isSuccess, nextLevelNumber, onComplete, toast]);
-
-  const resetGame = () => {
-    setGameState({
-      value: 1,
-      attempts: 0,
-    });
-    setMessage("Set the value to 10 without typing numbers.");
-  };
+  }, [isSuccess, onComplete, toast]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
 
-  const handleKeyPress = (e) => {
+  const handleEnter = (e) => {
     if (e.key === "Enter") {
       handleCommandSubmit();
     }
@@ -419,41 +110,63 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
   const handleCommandSubmit = () => {
     const cmd = inputValue.trim().toLowerCase();
 
-    if (cmd === "/double") {
-      setGameState((prev) => ({
-        ...prev,
-        value: prev.value * 2,
-        attempts: prev.attempts + 1,
-      }));
-      setMessage("Value doubled!");
-    } 
-    else if (cmd === "/add") {
-      setGameState((prev) => ({
-        ...prev,
-        value: prev.value + 1,
-        attempts: prev.attempts + 1,
-      }));
-      setMessage("Added 1!");
-    } 
-    else if (cmd === "/reset") {
-      resetGame();
+    const rotateMatch = cmd.match(/^\/rotate\s+(lighta|lightb|lightc)\s+(left|right)$/i);
+    const resetMatch = cmd.match(/^\/reset$/i);
+    const helpMatch = cmd.match(/^\/help$/i);
+
+    if (rotateMatch) {
+      const lightKey = rotateMatch[1].charAt(rotateMatch[1].length - 1).toUpperCase();
+      const dir = rotateMatch[2].toLowerCase();
+      const def = LIGHT_DEFS[lightKey];
+      const current = lightPositions[lightKey];
+
+      if (dir === "left" && current > 0) {
+        setLightPositions((p) => ({ ...p, [lightKey]: current - 1 }));
+        toast({
+          title: `Light ${lightKey} rotated left`,
+          description: `Position: ${current - 1 + 1}/5`,
+          variant: "default",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        });
+      } else if (dir === "right" && current < def.positions.length - 1) {
+        setLightPositions((p) => ({ ...p, [lightKey]: current + 1 }));
+        toast({
+          title: `Light ${lightKey} rotated right`,
+          description: `Position: ${current + 1 + 1}/5`,
+          variant: "default",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        });
+      } else {
+        toast({
+          title: "Can't rotate further",
+          description: `Light ${lightKey} is already at the ${dir === "left" ? "leftmost" : "rightmost"} position.`,
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+      }
+    } else if (resetMatch) {
+      setLightPositions({
+        A: LIGHT_DEFS.A.startIdx,
+        B: LIGHT_DEFS.B.startIdx,
+        C: LIGHT_DEFS.C.startIdx,
+      });
+      setIsSuccess(false);
       toast({
         title: "Level Reset",
-        description: "The level has been reset to initial state.",
+        description: "Lights returned to starting positions.",
         variant: "default",
         className:
           "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
       });
-    } 
-    else {
-      setGameState((prev) => ({
-        ...prev,
-        attempts: prev.attempts + 1,
-      }));
-
+    } else if (helpMatch) {
+      setHelpModalOpen(true);
+    } else {
       toast({
-        title: "Try Again",
-        description: "Use /double, /add or /reset",
+        title: "Unknown Command",
+        description: "Type /help to see available commands",
         variant: "destructive",
         className:
           "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
@@ -463,17 +176,80 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
     setInputValue("");
   };
 
-  // ✅ Win Condition
-  useEffect(() => {
-    if (gameState.value === TARGET) {
-      setIsSuccess(true);
-    }
-  }, [gameState.value]);
+  const closeHelpModal = () => {
+    setHelpModalOpen(false);
+  };
+
+  // Render a single light beam
+  const renderBeam = (lightKey) => {
+    const def = LIGHT_DEFS[lightKey];
+    const posIdx = lightPositions[lightKey];
+    const pos = def.positions[posIdx];
+    const floorX = pos.floorX;
+
+    return (
+      <motion.g
+        key={lightKey}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        {/* Beam cone */}
+        <motion.polygon
+          animate={{
+            points: `${def.cx},${LIGHT_Y + 10} ${floorX - BEAM_HALF_W},${FLOOR_Y} ${floorX + BEAM_HALF_W},${FLOOR_Y}`,
+          }}
+          transition={{ type: "tween", duration: 0.4, ease: "easeOut" }}
+          fill={def.color}
+          opacity={pos.hitsDoor ? "0.25" : "0.15"}
+        />
+        {/* Beam center line */}
+        <motion.line
+          animate={{
+            x1: def.cx,
+            y1: LIGHT_Y + 10,
+            x2: floorX,
+            y2: FLOOR_Y,
+          }}
+          transition={{ type: "tween", duration: 0.4, ease: "easeOut" }}
+          stroke={def.color}
+          strokeWidth="1"
+          opacity="0.3"
+        />
+      </motion.g>
+    );
+  };
+
+  // Render light fixture
+  const renderFixture = (lightKey) => {
+    const def = LIGHT_DEFS[lightKey];
+    const posIdx = lightPositions[lightKey];
+    const hits = def.positions[posIdx].hitsDoor;
+
+    return (
+      <g key={`fix-${lightKey}`}>
+        {/* Wire */}
+        <line x1={def.cx} y1={10} x2={def.cx} y2={LIGHT_Y - 5} stroke="#666" strokeWidth="1.5" />
+        {/* Bulb housing */}
+        <rect x={def.cx - 12} y={LIGHT_Y - 5} width={24} height={10} rx="3" fill="#444" stroke="#555" strokeWidth="1" />
+        {/* Bulb */}
+        <circle cx={def.cx} cy={LIGHT_Y + 10} r="6" fill={hits ? def.color : "#887722"} opacity={hits ? 1 : 0.5} />
+        {/* Glow */}
+        {hits && (
+          <circle cx={def.cx} cy={LIGHT_Y + 10} r="12" fill={def.color} opacity="0.15" />
+        )}
+        {/* Label */}
+        <text x={def.cx} y={LIGHT_Y - 12} textAnchor="middle" fontSize="10" fill={hits ? "#FF6B6B" : "#4ADE80"} fontWeight="bold">
+          {lightKey}
+        </text>
+      </g>
+    );
+  };
+
+  const doorHit = anyHitsDoor();
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
-      
-      {/* Level Title */}
+      {/* Level title badge */}
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -483,49 +259,154 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
         Level {levelNumber}
       </motion.h1>
 
-      {/* Message */}
+      {/* Question */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
-        {message}
+        Unlock the door.
       </motion.p>
 
-      {/* Hint */}
-      <p className="text-sm text-purple-600 dark:text-purple-300 mb-6 italic text-center">
-        Hint: Three fast jumps, two small taps.
-      </p>
-
-      {/* Value Card (keeps same animated card style like fish container) */}
+      {/* Scene */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.3 }}
-        className="bg-white dark:bg-[#2D1B4B]/40 rounded-2xl p-6 shadow-lg backdrop-blur-sm border border-purple-200 dark:border-purple-700/30 w-full max-w-md flex flex-col items-center"
+        className="bg-[#0a0a1a] dark:bg-[#0a0a1a] rounded-2xl p-4 shadow-lg border border-purple-700/30 w-full max-w-md relative overflow-hidden"
       >
-        <div className="text-6xl font-bold text-[#F5A623]">
-          {gameState.value}
-        </div>
+        <svg viewBox="0 0 380 260" className="w-full">
+          {/* Room background */}
+          <rect x="0" y="0" width="380" height="260" fill="#0a0a1a" />
 
-        <div className="mt-3 text-sm text-purple-700 dark:text-purple-300">
-          Attempts: {gameState.attempts}
-        </div>
+          {/* Ceiling */}
+          <rect x="0" y="0" width="380" height="12" fill="#1a1a2e" />
+          <line x1="0" y1="12" x2="380" y2="12" stroke="#333" strokeWidth="1" />
+
+          {/* Floor */}
+          <rect x="0" y={FLOOR_Y} width="380" height={260 - FLOOR_Y} fill="#111122" />
+          <line x1="0" y1={FLOOR_Y} x2="380" y2={FLOOR_Y} stroke="#333" strokeWidth="1" />
+
+          {/* Wall pattern */}
+          {[...Array(8)].map((_, i) => (
+            <line key={`w${i}`} x1={0} y1={30 + i * 25} x2={380} y2={30 + i * 25} stroke="#141428" strokeWidth="0.5" />
+          ))}
+
+          {/* Light beams (behind door) */}
+          {["A", "B", "C"].map(renderBeam)}
+
+          {/* Door */}
+          <rect
+            x={DOOR_X}
+            y={DOOR_Y}
+            width={DOOR_W}
+            height={DOOR_H}
+            rx="3"
+            fill={isSuccess ? "#1a3a1a" : "#1a1a2e"}
+            stroke={isSuccess ? "#22c55e" : doorHit ? "#FF6B6B" : "#22c55e"}
+            strokeWidth="2"
+          />
+          {/* Door panels */}
+          <rect x={DOOR_X + 5} y={DOOR_Y + 5} width={DOOR_W - 10} height={28} rx="2" fill="none" stroke={isSuccess ? "#22c55e44" : "#ffffff10"} strokeWidth="1" />
+          <rect x={DOOR_X + 5} y={DOOR_Y + 37} width={DOOR_W - 10} height={28} rx="2" fill="none" stroke={isSuccess ? "#22c55e44" : "#ffffff10"} strokeWidth="1" />
+          {/* Door handle */}
+          <circle
+            cx={DOOR_X + DOOR_W - 10}
+            cy={DOOR_Y + DOOR_H / 2}
+            r="3"
+            fill={isSuccess ? "#22c55e" : "#F9DC34"}
+          />
+          {/* Lock indicator */}
+          <text
+            x={DOOR_X + DOOR_W / 2}
+            y={DOOR_Y - 6}
+            textAnchor="middle"
+            fontSize="10"
+            fill={doorHit ? "#FF6B6B" : "#22c55e"}
+            fontWeight="bold"
+          >
+            {isSuccess ? "🔓 OPEN" : doorHit ? "🔒 LOCKED" : "🔓 UNLOCKED"}
+          </text>
+
+          {/* Light fixtures (on top of beams) */}
+          {["A", "B", "C"].map(renderFixture)}
+
+          {/* Status indicators per light */}
+          {["A", "B", "C"].map((key) => {
+            const def = LIGHT_DEFS[key];
+            const hits = def.positions[lightPositions[key]].hitsDoor;
+            return (
+              <text
+                key={`status-${key}`}
+                x={def.cx}
+                y={FLOOR_Y + 18}
+                textAnchor="middle"
+                fontSize="8"
+                fill={hits ? "#FF6B6B" : "#4ADE80"}
+              >
+                {hits ? "⚡ hitting door" : "✓ clear"}
+              </text>
+            );
+          })}
+
+          {/* Title */}
+          <text x="330" y="30" textAnchor="middle" fontSize="9" fill="#555577">
+            SHADOW PUZZLE
+          </text>
+        </svg>
       </motion.div>
 
-      {/* Input Section */}
+      {/* Light status bar */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        className="w-full max-w-md mt-3 flex justify-center gap-3"
+      >
+        {["A", "B", "C"].map((key) => {
+          const hits = LIGHT_DEFS[key].positions[lightPositions[key]].hitsDoor;
+          return (
+            <div
+              key={key}
+              className={`text-xs px-3 py-1 rounded-full border ${hits
+                  ? "bg-red-500/20 text-red-400 border-red-500/40"
+                  : "bg-green-500/20 text-green-400 border-green-500/40"
+                }`}
+            >
+              Light {key}: {hits ? "🔴 Hits Door" : "🟢 Clear"}
+            </div>
+          );
+        })}
+      </motion.div>
+
+      {/* Help prompt */}
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
+        className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
+        onClick={() => setHelpModalOpen(true)}
+      >
+        Type{" "}
+        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+          /help
+        </span>{" "}
+        to get commands and hints
+      </motion.span>
+
+      {/* Command input */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.6 }}
-        className="flex gap-2 w-full max-w-md mt-6"
+        className="flex gap-2 w-full max-w-md"
       >
         <Input
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
+          onKeyPress={handleEnter}
           placeholder="Enter command..."
           className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
         />
@@ -533,21 +414,92 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
           onClick={handleCommandSubmit}
           className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
         >
-          <ArrowRight className="w-5 h-5 text-purple-900" />
+          <Image
+            src="/runcode.png"
+            alt="Run"
+            height={20}
+            width={20}
+            className="rounded-sm"
+          />
         </button>
       </motion.div>
 
-      {/* Available Commands (instead of /help modal) */}
-      <div className="mt-6 text-center text-sm text-purple-700 dark:text-purple-300 space-y-1">
-        <div className="font-semibold">Available Commands:</div>
-        <div>/double</div>
-        <div>/add</div>
-        <div>/reset</div>
-      </div>
+      {/* Help Modal */}
+      {isHelpModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4"
+          >
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">
+                Available Commands:
+              </h2>
+              <div className="space-y-1 mb-6">
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /rotate
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-300">
+                    [lightA/lightB/lightC] [left/right]
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Rotate a light's beam direction left or right.
+                    <br />
+                    e.g., <code>/rotate lightA left</code>
+                  </p>
+                </div>
 
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /reset
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Reset all lights to starting positions.
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /help
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Show commands and hints.
+                  </p>
+                </div>
+              </div>
+
+              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
+                Rules:
+              </h3>
+              <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 text-sm">
+                <p>• 3 lights on the ceiling point in different directions.</p>
+                <p>• If <strong>any</strong> light beam touches the door, it stays <strong>locked</strong>.</p>
+                <p>• Rotate all lights so <strong>none</strong> hit the door to unlock it.</p>
+              </div>
+
+              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
+                Hint:
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 italic">
+                Overlap the dark to remove it. When all beams point away, the door is free.
+              </p>
+            </div>
+
+            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
+              <button
+                onClick={closeHelpModal}
+                className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
+              >
+                Close
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Level1;
-
