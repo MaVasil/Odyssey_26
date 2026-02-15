@@ -20,30 +20,42 @@ const Level8 = ({ onComplete }) => {
   const [scaleState, setScaleState] = useState("balanced");
   const [leftPan, setLeftPan] = useState([]); // coin IDs on left pan
   const [rightPan, setRightPan] = useState([]); // coin IDs on right pan
+  const [score, setScore] = useState(100);
   const { toast } = useToast();
   const initialized = useRef(false);
 
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true;
-      setFakeCoin(9);
+      setFakeCoin(Math.floor(Math.random() * TOTAL_COINS) + 1);
     }
   }, []);
 
   useEffect(() => {
     if (isSuccess) {
+      const weighingsUsed = MAX_WEIGHINGS - weighingsLeft;
+      
+      // Bluff detection
+      if (weighingsUsed < 3) {
+        toast({
+          title: "Wait... That's a Bluff! 🤔",
+          description: "You can't identify the fake coin in less than 3 weighings without seeing the results!",
+          variant: "destructive"
+      });
+        setIsSuccess(false);
+        return;
+      }
+      
       toast({
-        title: "Correct! 🪙",
-        description: `Coin ${fakeCoin} was indeed the fake! Found in ${MAX_WEIGHINGS - weighingsLeft} weighing(s).`,
-        variant: "success",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        title: `Correct! 🪙 Score: ${score}`,
+        description: `Coin ${fakeCoin} was the fake! Found in ${weighingsUsed} weighing(s).`,
+        variant: "success"
       });
       setTimeout(() => {
         onComplete(4);
       }, 2000);
     }
-  }, [isSuccess, onComplete, toast, fakeCoin, weighingsLeft]);
+  }, [isSuccess, onComplete, toast, fakeCoin, weighingsLeft, score]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -74,9 +86,7 @@ const Level8 = ({ onComplete }) => {
       toast({
         title: "No Weighings Left",
         description: "Use /reset to try again.",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
       setInputValue("");
       return;
@@ -87,10 +97,8 @@ const Level8 = ({ onComplete }) => {
         toast({
           title: "No Weighings Left!",
           description: "You've used all 3 weighings. Make your /guess now!",
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
         setInputValue("");
         return;
       }
@@ -102,10 +110,8 @@ const Level8 = ({ onComplete }) => {
         toast({
           title: "Invalid Coins",
           description: "Use coin numbers 1-12 separated by commas. e.g., /weigh 1,2,3,4 5,6,7,8",
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
         setInputValue("");
         return;
       }
@@ -114,10 +120,8 @@ const Level8 = ({ onComplete }) => {
         toast({
           title: "Uneven Groups",
           description: "Both sides must have the same number of coins.",
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
         setInputValue("");
         return;
       }
@@ -127,10 +131,8 @@ const Level8 = ({ onComplete }) => {
         toast({
           title: "Duplicate Coins",
           description: "A coin can't be on both sides of the scale!",
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
         setInputValue("");
         return;
       }
@@ -153,6 +155,10 @@ const Level8 = ({ onComplete }) => {
       setLeftPan(leftCoins);
       setRightPan(rightCoins);
       setWeighingsLeft((p) => p - 1);
+      
+      // Reduce score for each weighing used
+      setScore((prev) => Math.max(0, prev - 15));
+      
       setWeighHistory((prev) => [
         ...prev,
         { left: leftCoins, right: rightCoins, result },
@@ -168,9 +174,7 @@ const Level8 = ({ onComplete }) => {
       toast({
         title: resultText,
         description: `Weighings remaining: ${weighingsLeft - 1}`,
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (guessMatch) {
       const coinNum = parseInt(guessMatch[1]);
@@ -178,10 +182,8 @@ const Level8 = ({ onComplete }) => {
         toast({
           title: "Invalid Coin",
           description: "Choose a coin from 1 to 12.",
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       } else if (coinNum === fakeCoin) {
         setIsSuccess(true);
       } else {
@@ -189,10 +191,8 @@ const Level8 = ({ onComplete }) => {
         toast({
           title: "Wrong! 💀",
           description: `Coin ${coinNum} is real. The fake was coin ${fakeCoin}.`,
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       }
     } else if (resetMatch) {
       initialized.current = true;
@@ -207,9 +207,7 @@ const Level8 = ({ onComplete }) => {
       toast({
         title: "Level Reset",
         description: "A new fake coin has been placed. Good luck!",
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -217,9 +215,7 @@ const Level8 = ({ onComplete }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
 
@@ -275,22 +271,14 @@ const Level8 = ({ onComplete }) => {
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
-      {/* Level title badge */}
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="px-6 py-3 text-2xl font-bold text-[#2D1B4B] dark:text-[#1A0F2E] bg-gradient-to-r from-[#F9DC34] to-[#F5A623] rounded-full shadow-lg"
-      >
-        Level 8
-      </motion.h1>
+      {/* Level title badge - now in sticky header */}
 
       {/* Question */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
+        className="mt-8 text-lg font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
         The 12-Coin Balance — Find the fake coin.
       </motion.p>
@@ -302,7 +290,7 @@ const Level8 = ({ onComplete }) => {
         transition={{ duration: 0.6, delay: 0.3 }}
         className="bg-[#0a0a1a] dark:bg-[#0a0a1a] rounded-2xl p-4 shadow-lg border border-purple-700/30 w-full max-w-md relative overflow-hidden"
       >
-        <svg viewBox="0 0 380 280" className="w-full">
+        <svg viewBox="0 0 380 300" className="w-full">
           {/* Grid */}
           {[...Array(16)].map((_, i) => (
             <line key={`v${i}`} x1={i * 25} y1={0} x2={i * 25} y2={280} stroke="#1a1a3a" strokeWidth="0.5" />
@@ -462,6 +450,11 @@ const Level8 = ({ onComplete }) => {
             </tspan>
             /3
           </text>
+          
+          {/* Score display */}
+          <text x="190" y="285" textAnchor="middle" fontSize="12" fill="#22c55e" fontWeight="bold">
+            Score: {score}/100
+          </text>
         </svg>
       </motion.div>
 
@@ -500,27 +493,30 @@ const Level8 = ({ onComplete }) => {
       )}
 
       {/* Help prompt */}
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.5 }}
-        className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
-        onClick={() => setHelpModalOpen(true)}
-      >
-        Type{" "}
-        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-          /help
-        </span>{" "}
-        to get commands and hints
-      </motion.span>
+      {/* Sticky Command Panel */}
+      <div className="sticky bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/95 to-transparent backdrop-blur-sm border-t border-purple-500/20 py-4 mt-8">
+        <div className="flex flex-col items-center gap-3 max-w-4xl mx-auto px-4">
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-sm text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
+            onClick={() => setHelpModalOpen(true)}
+          >
+            Type{" "}
+            <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+              /help
+            </span>{" "}
+            to get commands and hints
+          </motion.span>
 
-      {/* Command input */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="flex gap-2 w-full max-w-md"
-      >
+          {/* Command input */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex gap-2 w-full max-w-md"
+          >
         <Input
           type="text"
           value={inputValue}
@@ -542,16 +538,18 @@ const Level8 = ({ onComplete }) => {
           />
         </button>
       </motion.div>
+        </div>
+      </div>
 
       {/* Help Modal */}
       {isHelpModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4"
+            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col"
           >
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto flex-grow">
               <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">
                 Available Commands:
               </h2>
@@ -610,14 +608,14 @@ const Level8 = ({ onComplete }) => {
               </div>
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Hint:
+                Goal:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                You can't test every coin one by one. Weigh coins in groups, and use coins you've proven real as benchmarks.
+                Find the fake coin efficiently. Your score starts at 100 and decreases by 15 points with each weighing. Minimum 3 weighings required.
               </p>
             </div>
 
-            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
+            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center flex-shrink-0">
               <button
                 onClick={closeHelpModal}
                 className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"

@@ -28,9 +28,7 @@ const Level9 = ({ onComplete }) => {
       toast({
         title: "Correct! 🧠",
         description: "312211 — Three 1s, Two 2s, One 1. The Look-and-Say sequence!",
-        variant: "success",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
       setTimeout(() => {
         onComplete(4);
@@ -65,10 +63,8 @@ const Level9 = ({ onComplete }) => {
         toast({
           title: "Incorrect ❌",
           description: `"${guess}" is not the next number. Look at the pattern more carefully.`,
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       }
     } else if (resetMatch) {
       setAttempts([]);
@@ -76,9 +72,7 @@ const Level9 = ({ onComplete }) => {
       toast({
         title: "Level Reset",
         description: "Try decoding the sequence again.",
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -86,9 +80,7 @@ const Level9 = ({ onComplete }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
 
@@ -188,22 +180,14 @@ const Level9 = ({ onComplete }) => {
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
-      {/* Level title badge */}
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="px-6 py-3 text-2xl font-bold text-[#2D1B4B] dark:text-[#1A0F2E] bg-gradient-to-r from-[#F9DC34] to-[#F5A623] rounded-full shadow-lg"
-      >
-        Level 9
-      </motion.h1>
+      {/* Level title badge - now in sticky header */}
 
       {/* Question */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
+        className="mt-8 text-lg font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
         Enter the next number in the sequence.
       </motion.p>
@@ -224,7 +208,7 @@ const Level9 = ({ onComplete }) => {
         </div>
 
         <div className="p-4">
-          <svg viewBox="0 0 380 310" className="w-full">
+          <svg viewBox="0 0 380 325" className="w-full">
             {/* Scanline effect */}
             {[...Array(30)].map((_, i) => (
               <line
@@ -313,27 +297,30 @@ const Level9 = ({ onComplete }) => {
       )}
 
       {/* Help prompt */}
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.5 }}
-        className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
-        onClick={() => setHelpModalOpen(true)}
-      >
-        Type{" "}
-        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-          /help
-        </span>{" "}
-        to get commands and hints
-      </motion.span>
+      {/* Sticky Command Panel */}
+      <div className="sticky bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/95 to-transparent backdrop-blur-sm border-t border-purple-500/20 py-4 mt-8">
+        <div className="flex flex-col items-center gap-3 max-w-4xl mx-auto px-4">
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-sm text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
+            onClick={() => setHelpModalOpen(true)}
+          >
+            Type{" "}
+            <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+              /help
+            </span>{" "}
+            to get commands and hints
+          </motion.span>
 
-      {/* Command input */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="flex gap-2 w-full max-w-md"
-      >
+          {/* Command input */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex gap-2 w-full max-w-md"
+          >
         <Input
           type="text"
           value={inputValue}
@@ -355,16 +342,18 @@ const Level9 = ({ onComplete }) => {
           />
         </button>
       </motion.div>
+        </div>
+      </div>
 
       {/* Help Modal */}
       {isHelpModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4"
+            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col"
           >
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto flex-grow">
               <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">
                 Available Commands:
               </h2>
@@ -418,7 +407,7 @@ const Level9 = ({ onComplete }) => {
               </p>
             </div>
 
-            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
+            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center flex-shrink-0">
               <button
                 onClick={closeHelpModal}
                 className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"

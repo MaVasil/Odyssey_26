@@ -6,9 +6,9 @@ import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useToast } from "../ui/use-toast";
 
-const GRID_SIZE = 3;
+const GRID_SIZE = 5;
 const START = { x: 1, y: 1 };
-const TARGET = { x: 3, y: 3 };
+const TARGET = { x: 5, y: 5 };
 
 // Valid L-shaped knight moves
 const KNIGHT_DELTAS = [
@@ -46,9 +46,7 @@ const Level4 = ({ onComplete }) => {
       toast({
         title: "Level Completed! ♞",
         description: "The knight has reached the target!",
-        variant: "success",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
 
       setTimeout(() => {
@@ -57,12 +55,12 @@ const Level4 = ({ onComplete }) => {
     }
   }, [isSuccess, onComplete, toast]);
 
-  // Check win
+  // Check win - must cover all squares
   useEffect(() => {
-    if (knightPos.x === TARGET.x && knightPos.y === TARGET.y && !isSuccess) {
+    if (knightPos.x === TARGET.x && knightPos.y === TARGET.y && visitedCells.size === GRID_SIZE * GRID_SIZE && !isSuccess) {
       setIsSuccess(true);
     }
-  }, [knightPos, isSuccess]);
+  }, [knightPos, isSuccess, visitedCells]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -91,18 +89,14 @@ const Level4 = ({ onComplete }) => {
         toast({
           title: "Out of Bounds",
           description: `(${targetX},${targetY}) is outside the ${GRID_SIZE}×${GRID_SIZE} grid.`,
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       } else if (!isValidKnightMove(knightPos, to)) {
         toast({
           title: "Invalid Move ❌",
           description: `A knight can't move from (${knightPos.x},${knightPos.y}) to (${targetX},${targetY}). Knights move in an L-shape: 2+1 squares.`,
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       } else {
         setKnightPos(to);
         setMoveHistory((prev) => [...prev, to]);
@@ -113,10 +107,8 @@ const Level4 = ({ onComplete }) => {
             to.x === TARGET.x && to.y === TARGET.y
               ? "You reached the target! 🎉"
               : `Knight is now at (${targetX},${targetY}).`,
-          variant: "default",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-        });
+          variant: "default"
+      });
       }
     } else if (undoMatch) {
       if (moveHistory.length > 1) {
@@ -127,18 +119,14 @@ const Level4 = ({ onComplete }) => {
         toast({
           title: "Move Undone",
           description: `Knight returned to (${prevPos.x},${prevPos.y}).`,
-          variant: "default",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-        });
+          variant: "default"
+      });
       } else {
         toast({
           title: "Nothing to Undo",
           description: "You're at the starting position.",
-          variant: "default",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-        });
+          variant: "default"
+      });
       }
     } else if (resetMatch) {
       setKnightPos({ ...START });
@@ -148,9 +136,7 @@ const Level4 = ({ onComplete }) => {
       toast({
         title: "Level Reset",
         description: "Knight returned to (1,1).",
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -158,9 +144,7 @@ const Level4 = ({ onComplete }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
 
@@ -174,8 +158,7 @@ const Level4 = ({ onComplete }) => {
   // Compute valid moves from current position for highlighting
   const validMoves = KNIGHT_DELTAS.map((d) => ({
     x: knightPos.x + d.dx,
-    y: knightPos.y + d.dy,
-  })).filter(isInBounds);
+    y: knightPos.y + d.dy})).filter(isInBounds);
 
   // Grid rendering
   const CELL_SIZE = 90;
@@ -184,29 +167,20 @@ const Level4 = ({ onComplete }) => {
 
   const cellToPixel = (gx, gy) => ({
     px: PADDING + (gx - 1) * CELL_SIZE + CELL_SIZE / 2,
-    py: PADDING + (gy - 1) * CELL_SIZE + CELL_SIZE / 2,
-  });
+    py: PADDING + (gy - 1) * CELL_SIZE + CELL_SIZE / 2});
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
-      {/* Level title badge */}
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="px-6 py-3 text-2xl font-bold text-[#2D1B4B] dark:text-[#1A0F2E] bg-gradient-to-r from-[#F9DC34] to-[#F5A623] rounded-full shadow-lg"
-      >
-        Level 4
-      </motion.h1>
+      {/* Level title badge - now in sticky header */}
 
       {/* Question */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
+        className="mt-8 text-lg font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
-        The Knight's Path — Move the knight from (1,1) to (3,3).
+        The Knight's Path — Cover all {GRID_SIZE}×{GRID_SIZE} squares and reach ({GRID_SIZE},{GRID_SIZE}).
       </motion.p>
 
       {/* Board */}
@@ -349,8 +323,7 @@ const Level4 = ({ onComplete }) => {
           <motion.g
             animate={{
               x: cellToPixel(knightPos.x, knightPos.y).px - cellToPixel(1, 1).px,
-              y: cellToPixel(knightPos.x, knightPos.y).py - cellToPixel(1, 1).py,
-            }}
+              y: cellToPixel(knightPos.x, knightPos.y).py - cellToPixel(1, 1).py}}
             transition={{ type: "spring", stiffness: 200, damping: 25 }}
           >
             {/* Knight shadow */}
@@ -378,7 +351,7 @@ const Level4 = ({ onComplete }) => {
         {/* Move counter */}
         <div className="flex justify-between px-4 pb-2 text-sm">
           <span className="text-purple-300">
-            Moves: <span className="text-[#F9DC34] font-bold">{moveHistory.length - 1}</span>
+            Covered: <span className="text-[#F9DC34] font-bold">{visitedCells.size}/{GRID_SIZE * GRID_SIZE}</span>
           </span>
           <span className="text-purple-300">
             Position: <span className="text-[#F9DC34] font-bold">({knightPos.x},{knightPos.y})</span>
@@ -387,27 +360,30 @@ const Level4 = ({ onComplete }) => {
       </motion.div>
 
       {/* Help prompt */}
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.5 }}
-        className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
-        onClick={() => setHelpModalOpen(true)}
-      >
-        Type{" "}
-        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-          /help
-        </span>{" "}
-        to get commands and hints
-      </motion.span>
+      {/* Sticky Command Panel */}
+      <div className="sticky bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/95 to-transparent backdrop-blur-sm border-t border-purple-500/20 py-4 mt-8">
+        <div className="flex flex-col items-center gap-3 max-w-4xl mx-auto px-4">
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-sm text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
+            onClick={() => setHelpModalOpen(true)}
+          >
+            Type{" "}
+            <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+              /help
+            </span>{" "}
+            to get commands and hints
+          </motion.span>
 
-      {/* Command input */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="flex gap-2 w-full max-w-md"
-      >
+          {/* Command input */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex gap-2 w-full max-w-md"
+          >
         <Input
           type="text"
           value={inputValue}
@@ -429,16 +405,18 @@ const Level4 = ({ onComplete }) => {
           />
         </button>
       </motion.div>
+        </div>
+      </div>
 
       {/* Help Modal */}
       {isHelpModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4"
+            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col"
           >
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto flex-grow">
               <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">
                 Available Commands:
               </h2>
@@ -482,14 +460,17 @@ const Level4 = ({ onComplete }) => {
               </div>
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Hint:
+                Goal:
               </h3>
-              <p className="text-gray-600 dark:text-gray-300 italic">
-                If you cannot jump to the center, you must use the edges.
+              <p className="text-gray-600 dark:text-gray-300">
+                Visit every square on the {GRID_SIZE}×{GRID_SIZE} board and end at position ({GRID_SIZE},{GRID_SIZE}).
+              </p>
+              <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm">
+                Squares visited: <strong>{visitedCells.size}/{GRID_SIZE * GRID_SIZE}</strong>
               </p>
             </div>
 
-            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
+            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center flex-shrink-0">
               <button
                 onClick={closeHelpModal}
                 className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"

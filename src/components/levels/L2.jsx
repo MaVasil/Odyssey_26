@@ -31,9 +31,7 @@ const Level2 = ({ onComplete }) => {
       toast({
         title: "Correct! 🌻",
         description: "It's a sunflower — it always follows the sun!",
-        variant: "success",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
 
       setTimeout(() => {
@@ -50,14 +48,12 @@ const Level2 = ({ onComplete }) => {
     // Sun moves from left to right
     await sunControls.start({
       x: [0, 300],
-      transition: { duration: 4, ease: "easeInOut" },
-    });
+      transition: { duration: 4, ease: "easeInOut" }});
 
     // Sunflower head tracks the sun during the animation
     await sunflowerControls.start({
       rotate: [0, -20, 0, 20, 35],
-      transition: { duration: 4, ease: "easeInOut" },
-    });
+      transition: { duration: 4, ease: "easeInOut" }});
 
     setSunAnimating(false);
   };
@@ -72,12 +68,10 @@ const Level2 = ({ onComplete }) => {
     await Promise.all([
       sunControls.start({
         x: [0, 300],
-        transition: { duration: 4, ease: "easeInOut" },
-      }),
+        transition: { duration: 4, ease: "easeInOut" }}),
       sunflowerControls.start({
         rotate: [-25, 0, 25, 40],
-        transition: { duration: 4, ease: "easeInOut" },
-      }),
+        transition: { duration: 4, ease: "easeInOut" }}),
     ]);
 
     // Reset sun back to start after animation
@@ -89,10 +83,8 @@ const Level2 = ({ onComplete }) => {
     toast({
       title: "Observation",
       description: "The sun moved across the sky... did you notice anything?",
-      variant: "default",
-      className:
-        "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-    });
+      variant: "default"
+      });
   };
 
   const handleInputChange = (e) => {
@@ -123,10 +115,8 @@ const Level2 = ({ onComplete }) => {
         toast({
           title: "Incorrect",
           description: `"${enterMatch[1].trim()}" is not the right flower. Look more carefully!`,
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       }
     } else if (resetMatch) {
       setHasLooked(false);
@@ -135,9 +125,7 @@ const Level2 = ({ onComplete }) => {
       toast({
         title: "Level Reset",
         description: "The garden has been reset.",
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -145,9 +133,7 @@ const Level2 = ({ onComplete }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
 
@@ -290,22 +276,14 @@ const Level2 = ({ onComplete }) => {
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
-      {/* Level title badge */}
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="px-6 py-3 text-2xl font-bold text-[#2D1B4B] dark:text-[#1A0F2E] bg-gradient-to-r from-[#F9DC34] to-[#F5A623] rounded-full shadow-lg"
-      >
-        Level 2
-      </motion.h1>
+      {/* Level title badge - now in sticky header */}
 
       {/* Question */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
+        className="mt-8 text-lg font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
         Name the flower.
       </motion.p>
@@ -398,27 +376,30 @@ const Level2 = ({ onComplete }) => {
       </motion.div>
 
       {/* Help prompt */}
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.5 }}
-        className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
-        onClick={() => setHelpModalOpen(true)}
-      >
-        Type{" "}
-        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-          /help
-        </span>{" "}
-        to get commands and hints
-      </motion.span>
+      {/* Sticky Command Panel */}
+      <div className="sticky bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/95 to-transparent backdrop-blur-sm border-t border-purple-500/20 py-4 mt-8">
+        <div className="flex flex-col items-center gap-3 max-w-4xl mx-auto px-4">
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-sm text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
+            onClick={() => setHelpModalOpen(true)}
+          >
+            Type{" "}
+            <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+              /help
+            </span>{" "}
+            to get commands and hints
+          </motion.span>
 
-      {/* Command input */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="flex gap-2 w-full max-w-md"
-      >
+          {/* Command input */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex gap-2 w-full max-w-md"
+          >
         <Input
           type="text"
           value={inputValue}
@@ -440,16 +421,18 @@ const Level2 = ({ onComplete }) => {
           />
         </button>
       </motion.div>
+        </div>
+      </div>
 
       {/* Help Modal */}
       {isHelpModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4"
+            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col"
           >
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto flex-grow">
               <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">
                 Available Commands:
               </h2>
@@ -500,7 +483,7 @@ const Level2 = ({ onComplete }) => {
               </p>
             </div>
 
-            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
+            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center flex-shrink-0">
               <button
                 onClick={closeHelpModal}
                 className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"

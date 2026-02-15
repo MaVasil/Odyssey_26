@@ -20,8 +20,7 @@ const LIGHT_DEFS = {
       { floorX: 290, hitsDoor: false },
     ],
     startIdx: 3,
-    color: "#FBBF24",
-  },
+    color: "#FBBF24"},
   B: {
     cx: 190,
     positions: [
@@ -32,8 +31,7 @@ const LIGHT_DEFS = {
       { floorX: 310, hitsDoor: false },
     ],
     startIdx: 2,
-    color: "#FCD34D",
-  },
+    color: "#FCD34D"},
   C: {
     cx: 300,
     positions: [
@@ -44,9 +42,7 @@ const LIGHT_DEFS = {
       { floorX: 365, hitsDoor: false },
     ],
     startIdx: 1,
-    color: "#FDE68A",
-  },
-};
+    color: "#FDE68A"}};
 
 const LIGHT_Y = 35;
 const FLOOR_Y = 220;
@@ -63,8 +59,7 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
   const [lightPositions, setLightPositions] = useState({
     A: LIGHT_DEFS.A.startIdx,
     B: LIGHT_DEFS.B.startIdx,
-    C: LIGHT_DEFS.C.startIdx,
-  });
+    C: LIGHT_DEFS.C.startIdx});
   const { toast } = useToast();
 
   // Check win: no beam hits the door
@@ -87,9 +82,7 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
       toast({
         title: "Door Unlocked! 🚪✨",
         description: "The overlapping shadows cancelled the light. The door opens!",
-        variant: "success",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
       setTimeout(() => {
         onComplete(4);
@@ -125,41 +118,32 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
         toast({
           title: `Light ${lightKey} rotated left`,
           description: `Position: ${current - 1 + 1}/5`,
-          variant: "default",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-        });
+          variant: "default"
+      });
       } else if (dir === "right" && current < def.positions.length - 1) {
         setLightPositions((p) => ({ ...p, [lightKey]: current + 1 }));
         toast({
           title: `Light ${lightKey} rotated right`,
           description: `Position: ${current + 1 + 1}/5`,
-          variant: "default",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-        });
+          variant: "default"
+      });
       } else {
         toast({
           title: "Can't rotate further",
           description: `Light ${lightKey} is already at the ${dir === "left" ? "leftmost" : "rightmost"} position.`,
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       }
     } else if (resetMatch) {
       setLightPositions({
         A: LIGHT_DEFS.A.startIdx,
         B: LIGHT_DEFS.B.startIdx,
-        C: LIGHT_DEFS.C.startIdx,
-      });
+        C: LIGHT_DEFS.C.startIdx});
       setIsSuccess(false);
       toast({
         title: "Level Reset",
         description: "Lights returned to starting positions.",
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -167,9 +151,7 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
 
@@ -196,8 +178,7 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
         {/* Beam cone */}
         <motion.polygon
           animate={{
-            points: `${def.cx},${LIGHT_Y + 10} ${floorX - BEAM_HALF_W},${FLOOR_Y} ${floorX + BEAM_HALF_W},${FLOOR_Y}`,
-          }}
+            points: `${def.cx},${LIGHT_Y + 10} ${floorX - BEAM_HALF_W},${FLOOR_Y} ${floorX + BEAM_HALF_W},${FLOOR_Y}`}}
           transition={{ type: "tween", duration: 0.4, ease: "easeOut" }}
           fill={def.color}
           opacity={pos.hitsDoor ? "0.25" : "0.15"}
@@ -208,8 +189,7 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
             x1: def.cx,
             y1: LIGHT_Y + 10,
             x2: floorX,
-            y2: FLOOR_Y,
-          }}
+            y2: FLOOR_Y}}
           transition={{ type: "tween", duration: 0.4, ease: "easeOut" }}
           stroke={def.color}
           strokeWidth="1"
@@ -249,31 +229,23 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
-      {/* Level title badge */}
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="px-6 py-3 text-2xl font-bold text-[#2D1B4B] dark:text-[#1A0F2E] bg-gradient-to-r from-[#F9DC34] to-[#F5A623] rounded-full shadow-lg"
-      >
-        Level {levelNumber}
-      </motion.h1>
+      {/* Level title badge - now in sticky header */}
 
       {/* Question */}
       <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2, type: "spring", stiffness: 100 }}
+        className="mt-8 text-lg font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
         Unlock the door.
       </motion.p>
 
       {/* Scene */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
+        initial={{ opacity: 0, scale: 0.9, rotateX: 10 }}
+        animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+        transition={{ duration: 0.7, delay: 0.3, type: "spring", stiffness: 80 }}
         className="bg-[#0a0a1a] dark:bg-[#0a0a1a] rounded-2xl p-4 shadow-lg border border-purple-700/30 w-full max-w-md relative overflow-hidden"
       >
         <svg viewBox="0 0 380 260" className="w-full">
@@ -362,7 +334,7 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.4 }}
-        className="w-full max-w-md mt-3 flex justify-center gap-3"
+        className="w-full max-w-md mt-3 flex flex-wrap justify-center gap-2 sm:gap-3"
       >
         {["A", "B", "C"].map((key) => {
           const hits = LIGHT_DEFS[key].positions[lightPositions[key]].hitsDoor;
@@ -381,27 +353,30 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
       </motion.div>
 
       {/* Help prompt */}
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.5 }}
-        className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
-        onClick={() => setHelpModalOpen(true)}
-      >
-        Type{" "}
-        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-          /help
-        </span>{" "}
-        to get commands and hints
-      </motion.span>
+      {/* Sticky Command Panel */}
+      <div className="sticky bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/95 to-transparent backdrop-blur-sm border-t border-purple-500/20 py-4 mt-8">
+        <div className="flex flex-col items-center gap-3 max-w-4xl mx-auto px-4">
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-sm text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
+            onClick={() => setHelpModalOpen(true)}
+          >
+            Type{" "}
+            <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+              /help
+            </span>{" "}
+            to get commands and hints
+          </motion.span>
 
-      {/* Command input */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="flex gap-2 w-full max-w-md"
-      >
+          {/* Command input */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex gap-2 w-full max-w-md"
+          >
         <Input
           type="text"
           value={inputValue}
@@ -423,16 +398,18 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
           />
         </button>
       </motion.div>
+        </div>
+      </div>
 
       {/* Help Modal */}
       {isHelpModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4"
+            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col"
           >
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto flex-grow">
               <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">
                 Available Commands:
               </h2>
@@ -487,7 +464,7 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
               </p>
             </div>
 
-            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
+            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center flex-shrink-0">
               <button
                 onClick={closeHelpModal}
                 className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"

@@ -1,506 +1,119 @@
-// "use client";
+﻿"use client";
 
-// import React, { useState, useEffect } from "react";
-// import Image from "next/image";
-// import { Input } from "@/components/ui/input";
-// import { motion } from "framer-motion";
-// import { useToast } from "../ui/use-toast";
-
-// // The symbols: ▲ ▲ ■ ▲ ■ ■ ▲
-// // Triangle = 1, Square = 0
-// // Binary: 1101001 = 105 decimal
-// // 1 + 0 + 5 = 6  →  6th letter = F
-// const SYMBOLS = [
-//   { shape: "triangle", value: 1 },
-//   { shape: "triangle", value: 1 },
-//   { shape: "square", value: 0 },
-//   { shape: "triangle", value: 1 },
-//   { shape: "square", value: 0 },
-//   { shape: "square", value: 0 },
-//   { shape: "triangle", value: 1 },
-// ];
-
-// const ANSWER = "f";
-
-// const Level6 = ({ onComplete }) => {
-//   const [inputValue, setInputValue] = useState("");
-//   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
-//   const [isSuccess, setIsSuccess] = useState(false);
-//   const [attempts, setAttempts] = useState([]);
-//   const { toast } = useToast();
-
-//   useEffect(() => {
-//     if (isSuccess) {
-//       toast({
-//         title: "Decoded! 🔓",
-//         description: "The answer is F — brilliant decoding!",
-//         variant: "success",
-//         className:
-//           "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
-//       });
-
-//       setTimeout(() => {
-//         onComplete(4);
-//       }, 2000);
-//     }
-//   }, [isSuccess, onComplete, toast]);
-
-//   const handleInputChange = (e) => {
-//     setInputValue(e.target.value);
-//   };
-
-//   const handleEnter = (e) => {
-//     if (e.key === "Enter") {
-//       handleCommandSubmit();
-//     }
-//   };
-
-//   const handleCommandSubmit = () => {
-//     const cmd = inputValue.trim().toLowerCase();
-
-//     const enterMatch = cmd.match(/^\/enter\s+(.+)$/i);
-//     const resetMatch = cmd.match(/^\/reset$/i);
-//     const helpMatch = cmd.match(/^\/help$/i);
-
-//     if (enterMatch) {
-//       const guess = enterMatch[1].trim().toLowerCase();
-//       setAttempts((prev) => [...prev, guess]);
-
-//       if (guess === ANSWER) {
-//         setIsSuccess(true);
-//       } else {
-//         toast({
-//           title: "Incorrect ❌",
-//           description: `"${guess.toUpperCase()}" is not the right letter. Think about what the shapes represent.`,
-//           variant: "destructive",
-//           className:
-//             "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-//         });
-//       }
-//     } else if (resetMatch) {
-//       setAttempts([]);
-//       setIsSuccess(false);
-//       toast({
-//         title: "Level Reset",
-//         description: "Try decoding the symbols again.",
-//         variant: "default",
-//         className:
-//           "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-//       });
-//     } else if (helpMatch) {
-//       setHelpModalOpen(true);
-//     } else {
-//       toast({
-//         title: "Unknown Command",
-//         description: "Type /help to see available commands",
-//         variant: "destructive",
-//         className:
-//           "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-//       });
-//     }
-
-//     setInputValue("");
-//   };
-
-//   const closeHelpModal = () => {
-//     setHelpModalOpen(false);
-//   };
-
-//   // Render a single symbol (triangle or square)
-//   const renderSymbol = (symbol, index) => {
-//     const cx = 35 + index * 48;
-//     const cy = 80;
-
-//     if (symbol.shape === "triangle") {
-//       return (
-//         <motion.g
-//           key={index}
-//           initial={{ opacity: 0, y: -20 }}
-//           animate={{ opacity: 1, y: 0 }}
-//           transition={{ duration: 0.4, delay: index * 0.1 }}
-//         >
-//           <polygon
-//             points={`${cx},${cy - 22} ${cx - 18},${cy + 14} ${cx + 18},${cy + 14}`}
-//             fill="#F9DC34"
-//             stroke="#F5A623"
-//             strokeWidth="2"
-//             strokeLinejoin="round"
-//           />
-//           <text
-//             x={cx}
-//             y={cy + 34}
-//             textAnchor="middle"
-//             fontSize="11"
-//             fill="#F9DC34"
-//             fontWeight="bold"
-//             opacity="0.6"
-//           >
-//             ▲
-//           </text>
-//         </motion.g>
-//       );
-//     } else {
-//       return (
-//         <motion.g
-//           key={index}
-//           initial={{ opacity: 0, y: -20 }}
-//           animate={{ opacity: 1, y: 0 }}
-//           transition={{ duration: 0.4, delay: index * 0.1 }}
-//         >
-//           <rect
-//             x={cx - 16}
-//             y={cy - 16}
-//             width="32"
-//             height="32"
-//             rx="3"
-//             fill="#A78BFA"
-//             stroke="#7C3AED"
-//             strokeWidth="2"
-//           />
-//           <text
-//             x={cx}
-//             y={cy + 34}
-//             textAnchor="middle"
-//             fontSize="11"
-//             fill="#A78BFA"
-//             fontWeight="bold"
-//             opacity="0.6"
-//           >
-//             ■
-//           </text>
-//         </motion.g>
-//       );
-//     }
-//   };
-
-//   return (
-//     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
-//       {/* Level title badge */}
-//       <motion.h1
-//         initial={{ opacity: 0, y: -20 }}
-//         animate={{ opacity: 1, y: 0 }}
-//         transition={{ duration: 0.6 }}
-//         className="px-6 py-3 text-2xl font-bold text-[#2D1B4B] dark:text-[#1A0F2E] bg-gradient-to-r from-[#F9DC34] to-[#F5A623] rounded-full shadow-lg"
-//       >
-//         Level 6
-//       </motion.h1>
-
-//       {/* Question */}
-//       <motion.p
-//         initial={{ opacity: 0 }}
-//         animate={{ opacity: 1 }}
-//         transition={{ duration: 0.6, delay: 0.2 }}
-//         className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
-//       >
-//         Decode the symbols.
-//       </motion.p>
-
-//       {/* Symbol display */}
-//       <motion.div
-//         initial={{ opacity: 0, scale: 0.9 }}
-//         animate={{ opacity: 1, scale: 1 }}
-//         transition={{ duration: 0.6, delay: 0.3 }}
-//         className="bg-[#0a0a1a] dark:bg-[#0a0a1a] rounded-2xl p-4 shadow-lg border border-purple-700/30 w-full max-w-md relative overflow-hidden"
-//       >
-//         <svg viewBox="0 0 370 160" className="w-full">
-//           {/* Background grid pattern */}
-//           {[...Array(15)].map((_, i) => (
-//             <line
-//               key={`vg${i}`}
-//               x1={i * 25}
-//               y1={0}
-//               x2={i * 25}
-//               y2={160}
-//               stroke="#1a1a3a"
-//               strokeWidth="0.5"
-//             />
-//           ))}
-//           {[...Array(7)].map((_, i) => (
-//             <line
-//               key={`hg${i}`}
-//               x1={0}
-//               y1={i * 25}
-//               x2={370}
-//               y2={i * 25}
-//               stroke="#1a1a3a"
-//               strokeWidth="0.5"
-//             />
-//           ))}
-
-//           {/* Title */}
-//           <text
-//             x="185"
-//             y="25"
-//             textAnchor="middle"
-//             fontSize="13"
-//             fill="#8888BB"
-//             fontWeight="bold"
-//           >
-//             DECODE THE SEQUENCE
-//           </text>
-
-//           {/* Symbols */}
-//           {SYMBOLS.map((symbol, index) => renderSymbol(symbol, index))}
-
-//           {/* Legend */}
-//           <g>
-//             {/* Triangle legend */}
-//             <polygon
-//               points="60,135 52,149 68,149"
-//               fill="#F9DC34"
-//               stroke="#F5A623"
-//               strokeWidth="1.5"
-//               strokeLinejoin="round"
-//             />
-//             <text x="78" y="146" fontSize="11" fill="#8888BB">
-//               = ?
-//             </text>
-
-//             {/* Square legend */}
-//             <rect
-//               x="130"
-//               y="132"
-//               width="18"
-//               height="18"
-//               rx="2"
-//               fill="#A78BFA"
-//               stroke="#7C3AED"
-//               strokeWidth="1.5"
-//             />
-//             <text x="158" y="146" fontSize="11" fill="#8888BB">
-//               = ?
-//             </text>
-
-//             {/* Question mark */}
-//             <text
-//               x="270"
-//               y="148"
-//               textAnchor="middle"
-//               fontSize="12"
-//               fill="#F9DC34"
-//               fontWeight="bold"
-//             >
-//               → ? → LETTER
-//             </text>
-//           </g>
-//         </svg>
-//       </motion.div>
-
-//       {/* Attempts display */}
-//       {attempts.length > 0 && (
-//         <motion.div
-//           initial={{ opacity: 0 }}
-//           animate={{ opacity: 1 }}
-//           className="w-full max-w-md mt-3 flex flex-wrap gap-2 justify-center"
-//         >
-//           {attempts.slice(-5).map((attempt, i) => (
-//             <span
-//               key={i}
-//               className={`text-xs px-3 py-1 rounded-full border ${attempt === ANSWER
-//                   ? "bg-green-500/20 text-green-400 border-green-500/40"
-//                   : "bg-red-500/20 text-red-400 border-red-500/40 line-through"
-//                 }`}
-//             >
-//               {attempt.toUpperCase()}
-//             </span>
-//           ))}
-//         </motion.div>
-//       )}
-
-//       {/* Help prompt */}
-//       <motion.span
-//         initial={{ opacity: 0 }}
-//         animate={{ opacity: 1 }}
-//         transition={{ duration: 0.6, delay: 0.5 }}
-//         className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
-//         onClick={() => setHelpModalOpen(true)}
-//       >
-//         Type{" "}
-//         <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-//           /help
-//         </span>{" "}
-//         to get commands and hints
-//       </motion.span>
-
-//       {/* Command input */}
-//       <motion.div
-//         initial={{ opacity: 0, y: 20 }}
-//         animate={{ opacity: 1, y: 0 }}
-//         transition={{ duration: 0.6, delay: 0.6 }}
-//         className="flex gap-2 w-full max-w-md"
-//       >
-//         <Input
-//           type="text"
-//           value={inputValue}
-//           onChange={handleInputChange}
-//           onKeyPress={handleEnter}
-//           placeholder="Enter command..."
-//           className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-//         />
-//         <button
-//           onClick={handleCommandSubmit}
-//           className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-//         >
-//           <Image
-//             src="/runcode.png"
-//             alt="Run"
-//             height={20}
-//             width={20}
-//             className="rounded-sm"
-//           />
-//         </button>
-//       </motion.div>
-
-//       {/* Help Modal */}
-//       {isHelpModalOpen && (
-//         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
-//           <motion.div
-//             initial={{ opacity: 0, scale: 0.9 }}
-//             animate={{ opacity: 1, scale: 1 }}
-//             className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4"
-//           >
-//             <div className="p-6">
-//               <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">
-//                 Available Commands:
-//               </h2>
-//               <div className="space-y-1 mb-6">
-//                 <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-//                   <span className="font-bold text-purple-700 dark:text-purple-300">
-//                     /enter
-//                   </span>{" "}
-//                   <span className="text-blue-600 dark:text-blue-300">[letter]</span>
-//                   <p className="mt-1 text-gray-600 dark:text-gray-300">
-//                     Enter the decoded letter.
-//                   </p>
-//                 </div>
-
-//                 <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-//                   <span className="font-bold text-purple-700 dark:text-purple-300">
-//                     /reset
-//                   </span>
-//                   <p className="mt-1 text-gray-600 dark:text-gray-300">
-//                     Reset the level.
-//                   </p>
-//                 </div>
-
-//                 <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-//                   <span className="font-bold text-purple-700 dark:text-purple-300">
-//                     /help
-//                   </span>
-//                   <p className="mt-1 text-gray-600 dark:text-gray-300">
-//                     Show available commands and hints.
-//                   </p>
-//                 </div>
-//               </div>
-
-//               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-//                 Rules:
-//               </h3>
-//               <div className="space-y-2 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-//                 <p>
-//                   • <span className="text-[#F9DC34]">▲</span> Triangle = 1
-//                 </p>
-//                 <p>
-//                   • <span className="text-[#A78BFA]">■</span> Square = 0
-//                 </p>
-//                 <p>• Binary → Decimal → Word index (A=1, B=2, ...)</p>
-//               </div>
-
-//               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-//                 Hint:
-//               </h3>
-//               <p className="text-gray-600 dark:text-gray-300 italic">
-//                 Read the shapes as ones and zeros. Convert to a number. Then think about digits adding up.
-//               </p>
-//             </div>
-
-//             <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
-//               <button
-//                 onClick={closeHelpModal}
-//                 className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
-//               >
-//                 Close
-//               </button>
-//             </div>
-//           </motion.div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default Level6;
-
-"use client";
-
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useToast } from "../ui/use-toast";
 
-const generateRandomBits = () => {
-  return Array.from({ length: 7 }, () => (Math.random() > 0.5 ? 1 : 0));
+// Generate a random target number (3 digits, e.g., 105)
+const generateTargetNumber = () => {
+  return Math.floor(100 + Math.random() * 400); // 100-499
 };
 
 const Level6 = ({ onComplete }) => {
-  const [bits, setBits] = useState(() => generateRandomBits());
   const [inputValue, setInputValue] = useState("");
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
-  const [attempts, setAttempts] = useState([]);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [targetNumber, setTargetNumber] = useState(null);
+  const [switches, setSwitches] = useState([false, false, false, false, false, false, false, false]);
+  const [attempts, setAttempts] = useState([]);
   const { toast } = useToast();
+  const initialized = useRef(false);
 
-  const correctNumber = useMemo(() => {
-    return parseInt(bits.join(""), 2);
-  }, [bits]);
-
+  useEffect(() => {
+    if (!initialized.current) {
+      initialized.current = true;
+      const num = generateTargetNumber();
+      setTargetNumber(num);
+      console.log("Target number:", num); // For debugging
+    }
+  }, []);
 
   useEffect(() => {
     if (isSuccess) {
       toast({
-        title: "Access Granted 🔓",
-        description: `Correct Number: ${correctNumber}`,
-        variant: "success",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white shadow-lg",
+        title: "Binary Master! 🎯",
+        description: `You recreated the number ${targetNumber}!`,
+        variant: "success"
       });
-
       setTimeout(() => {
         onComplete(4);
       }, 2000);
     }
-  }, [isSuccess, correctNumber, onComplete, toast]);
+  }, [isSuccess, onComplete, toast, targetNumber]);
+
+  const getCurrentBinary = () => {
+    return switches.map(s => s ? 1 : 0).join("");
+  };
+
+  const getCurrentDecimal = () => {
+    return parseInt(getCurrentBinary(), 2);
+  };
+
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleEnter = (e) => {
+    if (e.key === "Enter") {
+      handleCommandSubmit();
+    }
+  };
 
   const handleCommandSubmit = () => {
     const cmd = inputValue.trim().toLowerCase();
 
-    const numberMatch = cmd.match(/^\/number\s+(\d+)$/i);
+    const toggleMatch = cmd.match(/^\/toggle\s+(\d)$/i);
+    const checkMatch = cmd.match(/^\/check$/i);
     const resetMatch = cmd.match(/^\/reset$/i);
     const helpMatch = cmd.match(/^\/help$/i);
 
-    if (numberMatch) {
-      const guess = parseInt(numberMatch[1]);
-
-      if (guess === correctNumber) {
+    if (toggleMatch) {
+      const switchNum = parseInt(toggleMatch[1]);
+      if (switchNum < 1 || switchNum > 8) {
+        toast({
+          title: "Invalid Switch",
+          description: "Switch number must be between 1-8.",
+          variant: "destructive"
+      });
+      } else {
+        const newSwitches = [...switches];
+        newSwitches[switchNum - 1] = !newSwitches[switchNum - 1];
+        setSwitches(newSwitches);
+        toast({
+          title: `Switch ${switchNum} ${newSwitches[switchNum - 1] ? "ON" : "OFF"}`,
+          description: `Current value: ${getCurrentDecimal()}`,
+          variant: "default"
+      });
+      }
+    } else if (checkMatch) {
+      const currentValue = getCurrentDecimal();
+      setAttempts([...attempts, currentValue]);
+      
+      if (currentValue === targetNumber) {
         setIsSuccess(true);
       } else {
-        setAttempts((prev) => [...prev, guess]);
+        const diff = Math.abs(currentValue - targetNumber);
+        let hint = "";
+        if (currentValue < targetNumber) {
+          hint = `Too low! Need ${diff} more.`;
+        } else {
+          hint = `Too high! Need to reduce by ${diff}.`;
+        }
         toast({
-          title: "Incorrect ❌",
-          description: `"${guess}" is not correct.`,
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white shadow-lg",
-        });
+          title: "Not Quite! ❌",
+          description: hint,
+          variant: "destructive"
+      });
       }
     } else if (resetMatch) {
-      setBits(generateRandomBits());
+      setSwitches([false, false, false, false, false, false, false, false]);
       setAttempts([]);
-      setIsSuccess(false);
       toast({
-        title: "Circuit Reset",
-        description: "New random circuit generated.",
+        title: "Switches Reset",
+        description: "All bulbs turned off.",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -508,143 +121,239 @@ const Level6 = ({ onComplete }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
 
     setInputValue("");
   };
 
-  const renderBulb = (isOn, index) => {
-    const cx = 35 + index * 48;
-    const cy = 80;
-
-    return (
-      <motion.g
-        key={index}
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: index * 0.1 }}
-      >
-        {isOn === 1 && (
-          <circle
-            cx={cx}
-            cy={cy}
-            r="16"
-            fill="#F9DC34"
-            opacity="0.35"
-            style={{ filter: "blur(10px)" }}
-          />
-        )}
-
-        <path
-          d={`M${cx - 10},${cy} a10,10 0 1,1 20,0 c0,5 -3,7 -3,11 h-14 c0,-4 -3,-6 -3,-11`}
-          fill={isOn === 1 ? "#F9DC34" : "#2D1B4B"}
-          stroke={isOn === 1 ? "#F5A623" : "#4A4A5A"}
-          strokeWidth="2"
-        />
-
-        <rect x={cx - 6} y={cy + 11} width="12" height="5" fill="#666" rx="1" />
-      </motion.g>
-    );
+  const closeHelpModal = () => {
+    setHelpModalOpen(false);
   };
+
+  if (!targetNumber) return null;
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
+      {/* Level title badge - now in sticky header */}
 
-      {/* Level Title */}
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="px-6 py-3 text-2xl font-bold text-[#2D1B4B] dark:text-[#1A0F2E] bg-gradient-to-r from-[#F9DC34] to-[#F5A623] rounded-full shadow-lg"
-      >
-        Level 6
-      </motion.h1>
-
-      <motion.p
+      {/* Question */}
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="mt-8 text-center mb-6"
       >
-        Decode the circuit and compute the final number.
-      </motion.p>
+        <p className="text-lg font-semibold text-purple-900 dark:text-[#F9DC34]">
+          Binary Bulbs — Recreate the number: <span className="text-xl font-bold text-[#F9DC34]">{targetNumber}</span>
+        </p>
+        <p className="text-sm text-purple-600 dark:text-purple-400 mt-2">
+          Use switches to control binary bulbs
+        </p>
+      </motion.div>
 
-      {/* Circuit Display */}
+      {/* Bulb Display */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-[#0a0a1a] rounded-2xl p-4 shadow-lg border border-purple-700/30 w-full max-w-md"
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className="bg-gradient-to-b from-[#1a1a2e] to-[#0a0a1a] rounded-2xl p-4 sm:p-8 shadow-xl border border-purple-700/30 w-full max-w-2xl"
       >
-        <svg viewBox="0 0 370 160" className="w-full">
-          {bits.map((bit, index) => renderBulb(bit, index))}
-        </svg>
+        <div className="grid grid-cols-8 gap-1 sm:gap-4 mb-6">
+          {switches.map((isOn, idx) => {
+            const power = 7 - idx;
+            const value = Math.pow(2, power);
+            return (
+              <div key={idx} className="flex flex-col items-center">
+                {/* Bulb */}
+                <motion.div
+                  animate={{
+                    filter: isOn ? "drop-shadow(0 0 10px #FFD700)" : "none"
+                  }}
+                  className="relative"
+                >
+                  <svg className="w-8 h-11 sm:w-[50px] sm:h-[70px]" viewBox="0 0 50 70">
+                    {/* Bulb glow */}
+                    {isOn && (
+                      <circle
+                        cx="25"
+                        cy="25"
+                        r="20"
+                        fill="#FFD700"
+                        opacity="0.3"
+                        filter="blur(8px)"
+                      />
+                    )}
+                    {/* Bulb glass */}
+                    <ellipse
+                      cx="25"
+                      cy="25"
+                      rx="15"
+                      ry="20"
+                      fill={isOn ? "#FFD700" : "#333"}
+                      stroke="#666"
+                      strokeWidth="2"
+                    />
+                    {/* Bulb base */}
+                    <rect
+                      x="20"
+                      y="43"
+                      width="10"
+                      height="8"
+                      fill="#444"
+                      stroke="#666"
+                      strokeWidth="1"
+                    />
+                    <rect
+                      x="18"
+                      y="51"
+                      width="14"
+                      height="4"
+                      fill="#333"
+                      stroke="#666"
+                      strokeWidth="1"
+                    />
+                    {/* Light rays */}
+                    {isOn && (
+                      <>
+                        <line x1="25" y1="10" x2="25" y2="2" stroke="#FFD700" strokeWidth="2" opacity="0.8" />
+                        <line x1="25" y1="40" x2="25" y2="48" stroke="#FFD700" strokeWidth="2" opacity="0.8" />
+                        <line x1="10" y1="25" x2="2" y2="25" stroke="#FFD700" strokeWidth="2" opacity="0.8" />
+                        <line x1="40" y1="25" x2="48" y2="25" stroke="#FFD700" strokeWidth="2" opacity="0.8" />
+                      </>
+                    )}
+                  </svg>
+                </motion.div>
+                
+                {/* Power value */}
+                <div className="text-center mt-1 sm:mt-2">
+                  <div className="text-[8px] sm:text-xs text-purple-400 font-mono">2^{power}</div>
+                  <div className="text-xs sm:text-sm text-[#F9DC34] font-bold">{value}</div>
+                </div>
+                
+                {/* Switch label */}
+                <div className="text-[8px] sm:text-[10px] text-purple-500 mt-1">SW{idx + 1}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Current value display */}
+        <div className="bg-purple-900/30 rounded-lg p-4 border border-purple-500/30">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-xs text-purple-400">Binary:</p>
+              <p className="text-lg font-mono text-[#F9DC34] font-bold">{getCurrentBinary()}</p>
+            </div>
+            <div>
+              <p className="text-xs text-purple-400">Decimal:</p>
+              <p className="text-2xl font-bold text-[#F9DC34]">{getCurrentDecimal()}</p>
+            </div>
+            <div>
+              <p className="text-xs text-purple-400">Target:</p>
+              <p className="text-2xl font-bold text-green-400">{targetNumber}</p>
+            </div>
+          </div>
+        </div>
       </motion.div>
 
-      {/* Attempts */}
+      {/* Attempts history */}
       {attempts.length > 0 && (
-        <div className="w-full max-w-md mt-3 flex flex-wrap gap-2 justify-center">
-          {attempts.slice(-5).map((attempt, i) => (
-            <span
-              key={i}
-              className="text-xs px-3 py-1 rounded-full border bg-red-500/20 text-red-400 border-red-500/40 line-through"
-            >
-              {attempt}
-            </span>
-          ))}
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="w-full max-w-2xl mt-4 bg-purple-900/20 rounded-lg p-3 border border-purple-500/20"
+        >
+          <p className="text-xs text-purple-400 mb-2">Previous Attempts:</p>
+          <div className="flex flex-wrap gap-2">
+            {attempts.map((val, idx) => (
+              <span key={idx} className="text-xs px-2 py-1 bg-purple-800/30 rounded-full text-purple-200">
+                {val}
+              </span>
+            ))}
+          </div>
+        </motion.div>
       )}
 
-      {/* Help Trigger */}
-      <span
-        className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] transition-colors"
-        onClick={() => setHelpModalOpen(true)}
-      >
-        Type{" "}
-        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-          /help
-        </span>{" "}
-        to get commands and hints
-      </span>
+      {/* Help prompt */}
+      {/* Sticky Command Panel */}
+      <div className="sticky bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/95 to-transparent backdrop-blur-sm border-t border-purple-500/20 py-4 mt-8">
+        <div className="flex flex-col items-center gap-3 max-w-4xl mx-auto px-4">
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-sm text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
+            onClick={() => setHelpModalOpen(true)}
+          >
+            Type{" "}
+            <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+              /help
+            </span>{" "}
+            to get commands and hints
+          </motion.span>
 
-      {/* Command Input */}
-      <div className="flex gap-2 w-full max-w-md">
+          {/* Command input */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex gap-2 w-full max-w-2xl"
+          >
         <Input
           type="text"
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleCommandSubmit()}
-          placeholder="Enter command..."
-          className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623]"
+          onChange={handleInputChange}
+          onKeyPress={handleEnter}
+          placeholder="Enter command... (e.g., /toggle 5)"
+          className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
         />
         <button
           onClick={handleCommandSubmit}
-          className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] p-2 rounded-lg shadow-md hover:scale-105 transition-transform"
+          className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
         >
-          <Image src="/runcode.png" alt="Run" height={20} width={20} />
+          <Image
+            src="/runcode.png"
+            alt="Run"
+            height={20}
+            width={20}
+            className="rounded-sm"
+          />
         </button>
+      </motion.div>
+        </div>
       </div>
 
-      {/* Help Modal (Aligned Design) */}
+      {/* Help Modal */}
       {isHelpModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4"
+            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col"
           >
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto flex-grow">
               <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">
-                Available Commands:
+                Binary Bulbs Commands:
               </h2>
-
-              <div className="space-y-3 mb-6">
+              <div className="space-y-2 mb-6">
                 <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
                   <span className="font-bold text-purple-700 dark:text-purple-300">
-                    /number
+                    /toggle
                   </span>{" "}
-                  <span className="text-blue-600 dark:text-blue-300">[value]</span>
-                  <p className="mt-1 text-gray-600 dark:text-gray-300">
-                    Submit the final calculated number.
+                  <span className="text-blue-600 dark:text-blue-300">[1-8]</span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300 text-sm">
+                    Toggle a switch ON/OFF. e.g., <code>/toggle 3</code>
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /check
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300 text-sm">
+                    Check if your current value matches the target.
                   </p>
                 </div>
 
@@ -652,36 +361,41 @@ const Level6 = ({ onComplete }) => {
                   <span className="font-bold text-purple-700 dark:text-purple-300">
                     /reset
                   </span>
-                  <p className="mt-1 text-gray-600 dark:text-gray-300">
-                    Generate a new random circuit.
+                  <p className="mt-1 text-gray-600 dark:text-gray-300 text-sm">
+                    Reset all switches to OFF.
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /help
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300 text-sm">
+                    Show this help menu.
                   </p>
                 </div>
               </div>
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Rules:
+                How It Works:
               </h3>
-
-              <div className="space-y-2 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                <p>• Analyze the circuit carefully</p>
-                <p>• Convert the sequence into its numeric form</p>
-                <p>• Submit the final number</p>
-
-              </div>
-
-              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Hint:
-              </h3>
-
-              <p className="text-gray-600 dark:text-gray-300 italic">
-              Compute its integer representation
+              <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">
+                Each bulb represents a power of 2 in binary. When turned ON, its value is added to the total.
+              </p>
+              <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">
+                <strong>Example:</strong> If switches 1, 3, and 7 are ON:
+                <br />
+                128 + 32 + 2 = <strong>162</strong>
+              </p>
+              <p className="text-gray-600 dark:text-gray-300 text-sm italic">
+                Tip: Start with the largest values first!
               </p>
             </div>
 
-            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
+            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center flex-shrink-0">
               <button
-                onClick={() => setHelpModalOpen(false)}
-                className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md hover:scale-105 transition-transform"
+                onClick={closeHelpModal}
+                className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
               >
                 Close
               </button>

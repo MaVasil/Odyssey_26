@@ -172,7 +172,7 @@ const CommandSnake = ({ levelNumber, onComplete, nextLevelNumber }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help for available commands",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
 
@@ -193,7 +193,7 @@ const CommandSnake = ({ levelNumber, onComplete, nextLevelNumber }) => {
     return board.map((row, rowIndex) => (
       <div key={rowIndex} className="flex">
         {row.map((cell, cellIndex) => {
-          let cellClass = "w-4 h-4 sm:w-5 sm:h-5 border border-gray-200";
+          let cellClass = "w-3 h-3 sm:w-5 sm:h-5 border border-gray-200";
           switch(cell) {
             case 1: 
               cellClass += " bg-green-600";
@@ -220,36 +220,54 @@ const CommandSnake = ({ levelNumber, onComplete, nextLevelNumber }) => {
 
   return (
     <div className="flex flex-col items-center mt-4 sm:mt-8 max-w-4xl mx-auto px-4">
-      <motion.h1 
-        className="px-4 sm:px-6 py-2 sm:py-3 text-xl sm:text-2xl font-bold text-[#2D1B4B] dark:text-[#1A0F2E] bg-gradient-to-r from-[#F9DC34] to-[#F5A623] rounded-full shadow-lg"
-      >
-        Level 14
-      </motion.h1>
+      {/* Level title badge - now in sticky header */}
 
       <motion.h1 
-        className="px-4 sm:px-6 py-2 sm:py-3 text-xl sm:text-2xl font-bold text-black dark:text-white rounded-full shadow-lg"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, type: "spring", stiffness: 120 }}
+        className="px-4 sm:px-6 py-2 sm:py-3 text-lg sm:text-xl font-bold text-black dark:text-white rounded-full shadow-lg"
       >
         Have Fun! Score 60
       </motion.h1>
 
       <div className="flex items-center justify-between w-full max-w-md mt-2 sm:mt-4">
-        <span className="text-base sm:text-lg font-semibold">
+        <motion.span 
+          className="text-base sm:text-lg font-semibold"
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 0.5 }}
+          key={score}
+        >
           Score: {score}
-        </span>
+        </motion.span>
         {isPaused && (
-          <span className="text-yellow-600 font-bold text-sm sm:text-base">
+          <motion.span 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="text-yellow-600 font-bold text-sm sm:text-base"
+          >
             PAUSED
-          </span>
+          </motion.span>
         )}
         {isGameOver && (
-          <span className="text-red-600 font-bold text-sm sm:text-base">
+          <motion.span 
+            initial={{ scale: 0 }}
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 0.5 }}
+            className="text-red-600 font-bold text-sm sm:text-base"
+          >
             GAME OVER
-          </span>
+          </motion.span>
         )}
         {isSuccess && (
-          <span className="text-green-600 font-bold text-sm sm:text-base">
+          <motion.span 
+            initial={{ scale: 0 }}
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 0.5 }}
+            className="text-green-600 font-bold text-sm sm:text-base"
+          >
             SUCCESS!
-          </span>
+          </motion.span>
         )}
       </div>
 
@@ -257,17 +275,20 @@ const CommandSnake = ({ levelNumber, onComplete, nextLevelNumber }) => {
         {renderBoard()}
       </div>
 
-       <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
-              onClick={() => setHelpModalOpen(true)}
-            >
-              Type <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">/help</span> to get commands and hints
-            </motion.span>
+       {/* Sticky Command Panel */}
+      <div className="sticky bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/95 to-transparent backdrop-blur-sm border-t border-purple-500/20 py-4 mt-8">
+        <div className="flex flex-col items-center gap-3 max-w-4xl mx-auto px-4">
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-sm text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
+            onClick={() => setHelpModalOpen(true)}
+          >
+            Type <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">/help</span> to get commands and hints
+          </motion.span>
 
-      <motion.div 
+          <motion.div 
         className="flex gap-2 w-full max-w-md mt-2 sm:mt-4"
       >
         <Input
@@ -286,6 +307,8 @@ const CommandSnake = ({ levelNumber, onComplete, nextLevelNumber }) => {
           <ArrowRight className="w-5 h-5" />
         </Button>
       </motion.div>
+        </div>
+      </div>
 
       <Dialog open={isHelpModalOpen} onOpenChange={setHelpModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
