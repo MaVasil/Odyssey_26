@@ -20,7 +20,6 @@ const Level8 = ({ onComplete }) => {
   const [scaleState, setScaleState] = useState("balanced");
   const [leftPan, setLeftPan] = useState([]); // coin IDs on left pan
   const [rightPan, setRightPan] = useState([]); // coin IDs on right pan
-  const [score, setScore] = useState(100);
   const { toast } = useToast();
   const initialized = useRef(false);
 
@@ -47,15 +46,15 @@ const Level8 = ({ onComplete }) => {
       }
       
       toast({
-        title: `Correct! 🪙 Score: ${score}`,
-        description: `Coin ${fakeCoin} was the fake! Found in ${weighingsUsed} weighing(s).`,
+        title: "Correct! 🪙",
+        description: `Coin ${fakeCoin} was the fake! Found in ${weighingsUsed} turn(s).`,
         variant: "success"
       });
       setTimeout(() => {
         onComplete(4);
       }, 2000);
     }
-  }, [isSuccess, onComplete, toast, fakeCoin, weighingsLeft, score]);
+  }, [isSuccess, onComplete, toast, fakeCoin, weighingsLeft]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -155,9 +154,6 @@ const Level8 = ({ onComplete }) => {
       setLeftPan(leftCoins);
       setRightPan(rightCoins);
       setWeighingsLeft((p) => p - 1);
-      
-      // Reduce score for each weighing used
-      setScore((prev) => Math.max(0, prev - 15));
       
       setWeighHistory((prev) => [
         ...prev,
@@ -451,9 +447,9 @@ const Level8 = ({ onComplete }) => {
             /3
           </text>
           
-          {/* Score display */}
+          {/* Turns taken */}
           <text x="190" y="285" textAnchor="middle" fontSize="12" fill="#22c55e" fontWeight="bold">
-            Score: {score}/100
+            Turns taken: {MAX_WEIGHINGS - weighingsLeft}
           </text>
         </svg>
       </motion.div>
@@ -611,7 +607,7 @@ const Level8 = ({ onComplete }) => {
                 Goal:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                Find the fake coin efficiently. Your score starts at 100 and decreases by 15 points with each weighing. Minimum 3 weighings required.
+                Find the fake coin using the balance scale. You have 3 weighings to identify which coin is fake, then make your guess.
               </p>
             </div>
 

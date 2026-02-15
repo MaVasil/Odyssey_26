@@ -5,7 +5,6 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import { useToast } from "../ui/use-toast";
-import { useTheme } from "next-themes";
 
 // Flower types positioned across the garden
 const FLOWERS = [
@@ -24,7 +23,6 @@ const Level2 = ({ onComplete }) => {
   const [isDarkScene, setIsDarkScene] = useState(false);
   const [sunAnimating, setSunAnimating] = useState(false);
   const { toast } = useToast();
-  const { setTheme } = useTheme();
   const sunControls = useAnimation();
   const sunflowerControls = useAnimation();
   const petalControls = useAnimation();
@@ -50,7 +48,6 @@ const Level2 = ({ onComplete }) => {
     setHasObserved(true);
 
     if (mode === "dark") {
-      setTheme("dark");
       setIsDarkScene(true);
       // Sun sets, sunflower droops and petals close
       await Promise.all([
@@ -78,7 +75,6 @@ const Level2 = ({ onComplete }) => {
         variant: "default",
       });
     } else {
-      setTheme("light");
       setIsDarkScene(false);
       // Sun rises, sunflower perks up and petals open
       await Promise.all([

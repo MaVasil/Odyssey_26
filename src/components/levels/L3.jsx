@@ -10,11 +10,88 @@ const Level3 = ({ onComplete }) => {
   const [inputValue, setInputValue] = useState("");
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [mirrorAngle, setMirrorAngle] = useState(90); // 90 = vertical, 45 = correct
+  const [mirrorAngle, setMirrorAngle] = useState(0); // 0° = vertical, 45° = tilted right to hit target
   const [hasFired, setHasFired] = useState(false);
   const [fireResult, setFireResult] = useState(null); // "hit" | "miss" | null
   const [laserAnimating, setLaserAnimating] = useState(false);
   const { toast } = useToast();
+
+  // SVG coordinates
+  const LASER_X = 30;
+  const LASER_Y = 80;
+  const MIRROR_CX = 250;
+  const MIRROR_CY = 80;
+  const TARGET_CX = 250;
+  const TARGET_CY = 270;
+  const MIRROR_LEN = 40;
+  const SVG_W = 400;
+  const SVG_H = 325;
+  const HIT_RADIUS = 22;
+
+  // Mirror visual rotation: 0° = vertical (no rotation), 45° = tilted 45° clockwise
+  const mirrorRotation = -mirrorAngle;
+
+  // Reflected beam physics (0° = vertical mirror → beam bounces back)
+  const thetaRad = (mirrorAngle * Math.PI) / 180;
+  const reflectDx = -Math.cos(2 * thetaRad);
+  const reflectDy = Math.sin(2 * thetaRad);
+
+  // Find where reflected beam exits the SVG viewport (or stops at target)
+  const computeBeamEnd = (stopAtTarget = false) => {
+    const candidates = [];
+    if (reflectDx > 0.001) candidates.push((SVG_W - MIRROR_CX) / reflectDx);
+    if (reflectDx < -0.001) candidates.push(-MIRROR_CX / reflectDx);
+    if (reflectDy > 0.001) candidates.push((SVG_H - MIRROR_CY) / reflectDy);
+    if (reflectDy < -0.001) candidates.push(-MIRROR_CY / reflectDy);
+
+    // If stopAtTarget, also consider the parametric t that reaches the target center
+    if (stopAtTarget) {
+      const dx = reflectDx;
+      const dy = reflectDy;
+      const len2 = dx * dx + dy * dy;
+      if (len2 > 0) {
+        const tx = TARGET_CX - MIRROR_CX;
+        const ty = TARGET_CY - MIRROR_CY;
+        const tParam = (tx * dx + ty * dy) / len2;
+        if (tParam > 0) {
+          const closestX = MIRROR_CX + tParam * dx;
+          const closestY = MIRROR_CY + tParam * dy;
+          const dist = Math.sqrt((closestX - TARGET_CX) ** 2 + (closestY - TARGET_CY) ** 2);
+          if (dist < HIT_RADIUS) {
+            // Beam stops exactly at target center
+            return { x: TARGET_CX, y: TARGET_CY, isTargetHit: true };
+          }
+        }
+      }
+    }
+
+    const positives = candidates.filter((t) => t > 0);
+    if (positives.length === 0) return { x: MIRROR_CX, y: MIRROR_CY, isTargetHit: false };
+    const t = Math.min(...positives);
+    return {
+      x: MIRROR_CX + t * reflectDx,
+      y: MIRROR_CY + t * reflectDy,
+      isTargetHit: false,
+    };
+  };
+
+  // Check if reflected beam passes close enough to the target
+  const checkHit = () => {
+    const end = computeBeamEnd();
+    const dx = end.x - MIRROR_CX;
+    const dy = end.y - MIRROR_CY;
+    const len2 = dx * dx + dy * dy;
+    if (len2 === 0) return false;
+    const tx = TARGET_CX - MIRROR_CX;
+    const ty = TARGET_CY - MIRROR_CY;
+    const param = Math.max(0, Math.min(1, (tx * dx + ty * dy) / len2));
+    const closestX = MIRROR_CX + param * dx;
+    const closestY = MIRROR_CY + param * dy;
+    const dist = Math.sqrt(
+      (closestX - TARGET_CX) ** 2 + (closestY - TARGET_CY) ** 2
+    );
+    return dist < HIT_RADIUS;
+  };
 
   useEffect(() => {
     if (isSuccess) {
@@ -82,32 +159,32 @@ const Level3 = ({ onComplete }) => {
 
     if (rotateMatch) {
       const angle = parseInt(rotateMatch[1]);
-      if (angle === 45 || angle === 90) {
+      if (angle >= 0 && angle <= 180) {
         setMirrorAngle(angle);
         setFireResult(null);
         setHasFired(false);
         toast({
           title: "Mirror Rotated",
           description: `Mirror set to ${angle}°`,
-          variant: "default"
-      });
+          variant: "default",
+        });
       } else {
         toast({
           title: "Invalid Angle",
-          description: "The mirror can only be set to 45 or 90 degrees.",
-          variant: "destructive"
-      });
+          description: "The mirror angle must be between 0° and 180°.",
+          variant: "destructive",
+        });
       }
     } else if (fireMatch) {
       handleFire();
     } else if (resetMatch) {
-      setMirrorAngle(90);
+      setMirrorAngle(0);
       setFireResult(null);
       setHasFired(false);
       setIsSuccess(false);
       toast({
         title: "Level Reset",
-        description: "Mirror reset to vertical. Laser ready.",
+        description: "Mirror reset to 0° (vertical). Laser ready.",
         variant: "default"
       });
     } else if (helpMatch) {
@@ -127,57 +204,61 @@ const Level3 = ({ onComplete }) => {
     setHelpModalOpen(false);
   };
 
-  // SVG coordinates
-  const LASER_X = 30; // laser gun x
-  const LASER_Y = 80; // laser gun y (beam origin)
-  const MIRROR_CX = 250; // mirror center x
-  const MIRROR_CY = 80; // mirror center y
-  const TARGET_CX = 250; // target center x
-  const TARGET_CY = 270; // target center y
-  const MIRROR_LEN = 40; // half-length of mirror line
-
-  // Mirror endpoints based on angle
-  const mirrorRad = (mirrorAngle * Math.PI) / 180;
-  const mx1 = MIRROR_CX - Math.cos(mirrorRad) * MIRROR_LEN;
-  const my1 = MIRROR_CY - Math.sin(mirrorRad) * MIRROR_LEN;
-  const mx2 = MIRROR_CX + Math.cos(mirrorRad) * MIRROR_LEN;
-  const my2 = MIRROR_CY + Math.sin(mirrorRad) * MIRROR_LEN;
-
-  // Compute laser beam path
+  // Compute laser beam path for any angle
   const renderLaserBeam = () => {
     if (!hasFired) return null;
 
-    if (mirrorAngle === 45) {
-      // Beam goes right, hits mirror at 45°, deflects downward to target
-      return (
-        <>
-          {/* Horizontal beam: gun → mirror */}
-          <motion.line
-            x1={LASER_X + 30}
-            y1={LASER_Y}
-            x2={MIRROR_CX}
-            y2={MIRROR_CY}
-            stroke="#FF0000"
-            strokeWidth="3"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 0.4 }}
-            style={{ filter: "drop-shadow(0 0 6px #FF0000)" }}
-          />
-          {/* Vertical beam: mirror → target */}
-          <motion.line
-            x1={MIRROR_CX}
-            y1={MIRROR_CY}
-            x2={TARGET_CX}
-            y2={TARGET_CY}
-            stroke="#FF0000"
-            strokeWidth="3"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            style={{ filter: "drop-shadow(0 0 6px #FF0000)" }}
-          />
-          {/* Hit glow on target */}
+    const isHit = fireResult === "hit";
+    const beamEnd = computeBeamEnd(isHit);
+
+    // Compute beam length for animation timing
+    const reflectedLen = Math.sqrt(
+      (beamEnd.x - MIRROR_CX) ** 2 + (beamEnd.y - MIRROR_CY) ** 2
+    );
+    const incomingLen = MIRROR_CX - (LASER_X + 30);
+    const reflectDuration = Math.min(0.8, (reflectedLen / incomingLen) * 0.4);
+
+    return (
+      <>
+        {/* Incoming beam: gun → mirror */}
+        <motion.line
+          x1={LASER_X + 30}
+          y1={LASER_Y}
+          x2={MIRROR_CX}
+          y2={MIRROR_CY}
+          stroke="#FF0000"
+          strokeWidth="3"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          style={{ filter: "drop-shadow(0 0 6px #FF0000)" }}
+        />
+        {/* Reflected beam: mirror → computed endpoint */}
+        <motion.line
+          x1={MIRROR_CX}
+          y1={MIRROR_CY}
+          x2={beamEnd.x}
+          y2={beamEnd.y}
+          stroke={isHit ? "#FF0000" : "#FF4444"}
+          strokeWidth={isHit ? 3 : 2}
+          strokeDasharray={isHit ? "none" : "6 4"}
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: isHit ? 1 : 0.7 }}
+          transition={{ duration: reflectDuration, delay: 0.4 }}
+          style={{ filter: `drop-shadow(0 0 ${isHit ? 6 : 4}px ${isHit ? "#FF0000" : "#FF4444"})` }}
+        />
+        {/* Spark on mirror */}
+        <motion.circle
+          cx={MIRROR_CX}
+          cy={MIRROR_CY}
+          r="8"
+          fill="#FFAA00"
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
+          transition={{ duration: 0.5, delay: 0.35 }}
+        />
+        {/* Hit glow on target */}
+        {isHit && (
           <motion.circle
             cx={TARGET_CX}
             cy={TARGET_CY}
@@ -185,56 +266,24 @@ const Level3 = ({ onComplete }) => {
             fill="#FF0000"
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: [0, 0.5, 0.3], scale: [0, 1.5, 1] }}
-            transition={{ duration: 0.5, delay: 0.9 }}
+            transition={{ duration: 0.5, delay: 0.4 + reflectDuration }}
             style={{ filter: "blur(8px)" }}
           />
-        </>
-      );
-    } else if (mirrorAngle === 90) {
-      // Beam goes right, hits vertical mirror, bounces straight back
-      return (
-        <>
-          {/* Forward beam: gun → mirror */}
-          <motion.line
-            x1={LASER_X + 30}
-            y1={LASER_Y}
-            x2={MIRROR_CX}
-            y2={MIRROR_CY}
-            stroke="#FF0000"
-            strokeWidth="3"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 0.4 }}
-            style={{ filter: "drop-shadow(0 0 6px #FF0000)" }}
-          />
-          {/* Bounce-back beam: mirror → left (off screen) */}
-          <motion.line
-            x1={MIRROR_CX}
-            y1={MIRROR_CY}
-            x2={LASER_X + 30}
-            y2={LASER_Y}
-            stroke="#FF0000"
-            strokeWidth="2"
-            strokeDasharray="6 4"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 0.6 }}
-            transition={{ duration: 0.4, delay: 0.5 }}
-            style={{ filter: "drop-shadow(0 0 4px #FF4444)" }}
-          />
-          {/* Spark on mirror */}
+        )}
+        {/* Miss impact on wall */}
+        {!isHit && (
           <motion.circle
-            cx={MIRROR_CX}
-            cy={MIRROR_CY}
-            r="8"
-            fill="#FFAA00"
+            cx={beamEnd.x}
+            cy={beamEnd.y}
+            r="6"
+            fill="#FF6600"
             initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            animate={{ opacity: [0, 0.8, 0], scale: [0, 1.2, 0] }}
+            transition={{ duration: 0.5, delay: 0.4 + reflectDuration }}
           />
-        </>
-      );
-    }
-    return null;
+        )}
+      </>
+    );
   };
 
   return (
@@ -351,12 +400,13 @@ const Level3 = ({ onComplete }) => {
 
           {/* Mirror */}
           <motion.g
-            animate={{ rotate: mirrorAngle === 45 ? -45 : 0 }}
+            animate={{ rotate: mirrorRotation }}
             transition={{ type: "spring", stiffness: 150, damping: 20 }}
             style={{
               originX: `${MIRROR_CX}px`,
               originY: `${MIRROR_CY}px`,
-              transformOrigin: `${MIRROR_CX}px ${MIRROR_CY}px`}}
+              transformOrigin: `${MIRROR_CX}px ${MIRROR_CY}px`,
+            }}
           >
             {/* Mirror surface (reflective) */}
             <line
@@ -542,7 +592,9 @@ const Level3 = ({ onComplete }) => {
                   </span>{" "}
                   <span className="text-blue-600 dark:text-blue-300">[angle]</span>
                   <p className="mt-1 text-gray-600 dark:text-gray-300">
-                    Set the mirror angle.
+                    Set the mirror angle (0–180 degrees).
+                    <br />
+                    e.g., <code>/rotate mirror 45</code>
                   </p>
                 </div>
 

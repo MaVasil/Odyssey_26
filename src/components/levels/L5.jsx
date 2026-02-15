@@ -6,15 +6,21 @@ import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "../ui/use-toast";
 
+// Use String.fromCodePoint to avoid file-encoding corruption
+const EMOJI_WOLF = String.fromCodePoint(0x1F43A);    // Wolf face
+const EMOJI_GOAT = String.fromCodePoint(0x1F411);    // Sheep (fluffy & cute)
+const EMOJI_CABBAGE = String.fromCodePoint(0x1F33F); // Herb/seedling
+
 const ITEMS = {
-  wolf: { emoji: "🐺", label: "Wolf" },
-  goat: { emoji: "🐐", label: "Goat" },
-  cabbage: { emoji: "🥬", label: "Cabbage" }};
+  wolf:    { label: "Wolf",    emoji: EMOJI_WOLF },
+  goat:    { label: "Sheep",   emoji: EMOJI_GOAT },
+  cabbage: { label: "Cabbage", emoji: EMOJI_CABBAGE },
+};
 
 // Dangerous pairs: if left alone on the same bank without the player
 const DANGER_PAIRS = [
-  { predator: "wolf", prey: "goat", msg: "The Wolf ate the Goat! 🐺💀🐐" },
-  { predator: "goat", prey: "cabbage", msg: "The Goat ate the Cabbage! 🐐💀🥬" },
+  { predator: "wolf", prey: "goat", msg: "The Wolf ate the Sheep!" },
+  { predator: "goat", prey: "cabbage", msg: "The Sheep ate the Cabbage!" },
 ];
 
 const Level5 = ({ onComplete }) => {
@@ -213,26 +219,28 @@ const Level5 = ({ onComplete }) => {
     setHelpModalOpen(false);
   };
 
-  // Render items on a bank
+  // Render items on a bank using foreignObject for reliable emoji rendering
   const renderBankItems = (items, side) => {
+    const count = items.length;
     return items.map((item, i) => {
-      const xBase = side === "left" ? 30 : 310;
-      const xOffset = i * 30;
+      const bankCenter = side === "left" ? 50 : 345;
+      const totalWidth = (count - 1) * 28;
+      const xBase = bankCenter - totalWidth / 2;
+      const x = xBase + i * 28;
       return (
-        <motion.text
+        <motion.g
           key={`${side}-${item}`}
-          x={xBase + xOffset}
-          y={195}
-          fontSize="28"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
           transition={{ duration: 0.3 }}
-          className="select-none"
-          style={{ filter: 'drop-shadow(2px 2px 3px rgba(0,0,0,0.3))' }}
         >
-          {ITEMS[item].emoji}
-        </motion.text>
+          <foreignObject x={x - 16} y={155} width={32} height={32}>
+            <div xmlns="http://www.w3.org/1999/xhtml" style={{ fontSize: 24, textAlign: 'center', lineHeight: '32px', filter: 'drop-shadow(2px 2px 3px rgba(0,0,0,0.3))' }}>
+              {ITEMS[item].emoji}
+            </div>
+          </foreignObject>
+        </motion.g>
       );
     });
   };
@@ -381,18 +389,12 @@ const Level5 = ({ onComplete }) => {
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
           />
 
-          {/* Bank labels with better styling */}
-          <text x="55" y="168" textAnchor="middle" fontSize="12" fill="#F9DC34" fontWeight="bold" style={{ filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.4))' }}>
-            LEFT
+          {/* Bank labels - positioned above items */}
+          <text x="55" y="148" textAnchor="middle" fontSize="11" fill="#F9DC34" fontWeight="bold" style={{ filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.4))' }}>
+            ← LEFT
           </text>
-          <text x="55" y="182" textAnchor="middle" fontSize="12" fill="#F9DC34" fontWeight="bold" style={{ filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.4))' }}>
-            BANK
-          </text>
-          <text x="345" y="168" textAnchor="middle" fontSize="12" fill="#F9DC34" fontWeight="bold" style={{ filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.4))' }}>
-            RIGHT
-          </text>
-          <text x="345" y="182" textAnchor="middle" fontSize="12" fill="#F9DC34" fontWeight="bold" style={{ filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.4))' }}>
-            BANK
+          <text x="345" y="148" textAnchor="middle" fontSize="11" fill="#F9DC34" fontWeight="bold" style={{ filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.4))' }}>
+            RIGHT →
           </text>
 
           {/* Boat with enhanced design */}
@@ -438,11 +440,13 @@ const Level5 = ({ onComplete }) => {
               <text x="143" y="218" fontSize="24" className="select-none" style={{ filter: 'drop-shadow(2px 2px 3px rgba(0,0,0,0.3))' }}>
                 🧑
               </text>
-              {/* Item in boat during crossing with shadow */}
+              {/* Item in boat during crossing */}
               {crossing && boatItem && (
-                <text x="160" y="218" fontSize="20" className="select-none" style={{ filter: 'drop-shadow(2px 2px 3px rgba(0,0,0,0.3))' }}>
-                  {ITEMS[boatItem].emoji}
-                </text>
+                <foreignObject x={152} y={200} width={24} height={24}>
+                  <div xmlns="http://www.w3.org/1999/xhtml" style={{ fontSize: 18, textAlign: 'center', lineHeight: '24px', filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.3))' }}>
+                    {ITEMS[boatItem].emoji}
+                  </div>
+                </foreignObject>
               )}
             </motion.g>
           </motion.g>
@@ -533,7 +537,7 @@ const Level5 = ({ onComplete }) => {
             >
               <span className="text-lg">{item.emoji}</span>
               <span className="ml-1.5 font-medium text-xs">
-                {onLeft ? "Left" : onRight ? "Right ✓" : "???"}
+                {item.label} {onRight ? "✓" : ""}
               </span>
             </motion.div>
           );
@@ -648,10 +652,10 @@ const Level5 = ({ onComplete }) => {
               <div className="space-y-2 mb-4 text-gray-600 dark:text-gray-300 text-sm">
                 <p>• The boat can carry you and <strong>one</strong> item.</p>
                 <p>
-                  • 🐺 + 🐐 left alone = Wolf eats Goat
+                  • <strong>Wolf + Sheep</strong> left alone = Wolf eats Sheep
                 </p>
                 <p>
-                  • 🐐 + 🥬 left alone = Goat eats Cabbage
+                  • <strong>Sheep + Cabbage</strong> left alone = Sheep eats Cabbage
                 </p>
               </div>
 

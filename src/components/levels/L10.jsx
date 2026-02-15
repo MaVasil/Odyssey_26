@@ -7,13 +7,13 @@ import { motion } from "framer-motion";
 import { useToast } from "../ui/use-toast";
 
 // The COSC logo is a 2×2 layout:
-// Top-Left: C (purple)   | Top-Right: O (blue-purple)
-// Bottom-Left: S (magenta) | Bottom-Right: C (pink)
+// Top-Left: C (deep purple)   | Top-Right: O (purple)
+// Bottom-Left: S (magenta)     | Bottom-Right: C (pink)
 const TILES = [
-  { id: 0, letter: "C", gradient: ["#6B2FA0", "#8B3FA0"], label: "C (purple)" },
-  { id: 1, letter: "O", gradient: ["#7B3DAA", "#9B4AB5"], label: "O (blue-purple)" },
-  { id: 2, letter: "S", gradient: ["#C04480", "#D85090"], label: "S (magenta)" },
-  { id: 3, letter: "C", gradient: ["#E04888", "#F05898"], label: "C (pink)" },
+  { id: 0, letter: "C", gradient: ["#594D9F", "#6A4E9E"], label: "C (deep purple)" },
+  { id: 1, letter: "O", gradient: ["#714C9C", "#8E3D94"], label: "O (purple)" },
+  { id: 2, letter: "S", gradient: ["#A9329D", "#C22C89"], label: "S (magenta)" },
+  { id: 3, letter: "C", gradient: ["#D72087", "#E01C80"], label: "C (pink)" },
 ];
 
 // Solved order: [0, 1, 2, 3]
@@ -246,6 +246,17 @@ const Level10 = ({ onComplete }) => {
         The COSC Scramble — Restore the logo.
       </motion.p>
 
+      {/* Reference logo */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.25 }}
+        className="mb-3 flex items-center gap-3"
+      >
+        <Image src="/LogoCOSC.svg" alt="COSC Logo" width={48} height={48} className="rounded-lg shadow-md" />
+        <span className="text-xs text-purple-400 dark:text-purple-300 italic">Target logo</span>
+      </motion.div>
+
       {/* Puzzle grid */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9, rotateX: 10 }}
@@ -290,10 +301,10 @@ const Level10 = ({ onComplete }) => {
         className="w-full max-w-sm mt-3 flex items-center justify-center"
       >
         <div className="h-4 w-48 rounded-full overflow-hidden flex">
-          <div className="flex-1" style={{ background: "#6B2FA0" }} />
-          <div className="flex-1" style={{ background: "#8B3FA0" }} />
-          <div className="flex-1" style={{ background: "#C04480" }} />
-          <div className="flex-1" style={{ background: "#E04888" }} />
+          <div className="flex-1" style={{ background: "#594D9F" }} />
+          <div className="flex-1" style={{ background: "#714C9C" }} />
+          <div className="flex-1" style={{ background: "#C22C89" }} />
+          <div className="flex-1" style={{ background: "#D72087" }} />
         </div>
         <span className="text-xs text-purple-400 ml-2">Purple → Pink</span>
       </motion.div>
@@ -401,10 +412,10 @@ const Level10 = ({ onComplete }) => {
               <div className="mb-4 text-gray-600 dark:text-gray-300 text-sm">
                 <p className="mb-2">Arrange the 4 tiles to match the COSC logo:</p>
                 <div className="grid grid-cols-2 gap-1 w-40 mx-auto my-2">
-                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#6B2FA0" }}>C</div>
-                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#8B3FA0" }}>O</div>
-                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#C04480" }}>S</div>
-                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#E04888" }}>C</div>
+                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#594D9F" }}>C</div>
+                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#714C9C" }}>O</div>
+                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#C22C89" }}>S</div>
+                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#D72087" }}>C</div>
                 </div>
                 <p>• ✅ Green check = tile is in the correct position</p>
               </div>
