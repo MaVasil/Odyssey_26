@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "../ui/use-toast";
+import { useCommandHistory } from "@/hooks/useCommandHistory";
 
 // Fan directions: "center" (at player), "left" (toward paper), "right" (away)
 const FAN_DIRS = ["left", "center", "right"];
@@ -12,6 +13,7 @@ const HIDDEN_CODE = "ODYSSEY";
 
 const Level11 = ({ onComplete }) => {
   const [inputValue, setInputValue] = useState("");
+  const { pushCommand, handleKeyDown: handleHistoryKeys } = useCommandHistory(setInputValue);
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [fanDir, setFanDir] = useState("center"); // starts facing the player
@@ -55,6 +57,7 @@ const Level11 = ({ onComplete }) => {
   };
 
   const handleCommandSubmit = () => {
+    pushCommand(inputValue);
     const cmd = inputValue.trim().toLowerCase();
 
     const turnMatch = cmd.match(/^\/turn\s+fan\s+(left|right)$/i);
@@ -408,7 +411,7 @@ const Level11 = ({ onComplete }) => {
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-          onKeyPress={handleEnter}
+          onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
           placeholder="Enter command..."
           className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
         />

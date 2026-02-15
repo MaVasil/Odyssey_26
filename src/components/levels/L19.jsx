@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useToast } from "../ui/use-toast";
+import { useCommandHistory } from "@/hooks/useCommandHistory";
 
 /*
   Setup:
@@ -18,6 +19,7 @@ import { useToast } from "../ui/use-toast";
 
 const Level19 = ({ onComplete }) => {
     const [inputValue, setInputValue] = useState("");
+    const { pushCommand, handleKeyDown: handleHistoryKeys } = useCommandHistory(setInputValue);
     const [isHelpModalOpen, setHelpModalOpen] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const { toast } = useToast();
@@ -61,6 +63,7 @@ const Level19 = ({ onComplete }) => {
     };
 
     const handleCommandSubmit = () => {
+        pushCommand(inputValue);
         const cmd = inputValue.trim().toLowerCase();
 
         const redMatch = cmd.match(/^\/red\s+(top|bottom|left|right)$/i);
@@ -365,7 +368,7 @@ const Level19 = ({ onComplete }) => {
                     type="text"
                     value={inputValue}
                     onChange={handleInputChange}
-                    onKeyPress={handleEnter}
+                    onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
                     placeholder="Enter command..."
                     className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
                 />

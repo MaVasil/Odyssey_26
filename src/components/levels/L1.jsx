@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useToast } from "../ui/use-toast";
+import { useCommandHistory } from "@/hooks/useCommandHistory";
 
 // Each light has 5 angular positions. The beam fans out from ceiling to floor.
 // "hitsDoor" means the beam cone overlaps the door area.
@@ -54,6 +55,7 @@ const DOOR_Y = FLOOR_Y - DOOR_H;
 
 const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
   const [inputValue, setInputValue] = useState("");
+  const { pushCommand, handleKeyDown: handleHistoryKeys } = useCommandHistory(setInputValue);
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [lightPositions, setLightPositions] = useState({
@@ -101,6 +103,7 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
   };
 
   const handleCommandSubmit = () => {
+    pushCommand(inputValue);
     const cmd = inputValue.trim().toLowerCase();
 
     const rotateMatch = cmd.match(/^\/rotate\s+(lighta|lightb|lightc)\s+(left|right)$/i);
@@ -381,7 +384,7 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-          onKeyPress={handleEnter}
+          onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
           placeholder="Enter command..."
           className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
         />

@@ -4,10 +4,12 @@ import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { HelpCircle, ArrowRight } from "lucide-react";
 import { useToast } from "../ui/use-toast";
+import { useCommandHistory } from "@/hooks/useCommandHistory";
 
 const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
   // State management
   const [inputValue, setInputValue] = useState("");
+  const { pushCommand, handleKeyDown: handleHistoryKeys } = useCommandHistory(setInputValue);
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
   const [message, setMessage] = useState("Level description goes here");
   const [gameState, setGameState] = useState({
@@ -66,6 +68,7 @@ const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
   };
 
   const handleCommandSubmit = () => {
+    pushCommand(inputValue);
     // Command parsing - expand this based on your game's needs
     const resetMatch = inputValue.match(/^\/reset$/i);
     const helpMatch = inputValue.match(/^\/help$/i);
@@ -164,7 +167,7 @@ const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
+          onKeyDown={(e) => { handleKeyPress(e); handleHistoryKeys(e); }}
           placeholder="Enter command..."
           className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
         />

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useToast } from "../ui/use-toast";
+import { useCommandHistory } from "@/hooks/useCommandHistory";
 
 const generateRandomBits = () => {
   return Array.from({ length: 7 }, () => (Math.random() > 0.5 ? 1 : 0));
@@ -13,6 +14,7 @@ const generateRandomBits = () => {
 const Level6 = ({ onComplete }) => {
   const [bits, setBits] = useState(() => generateRandomBits());
   const [inputValue, setInputValue] = useState("");
+  const { pushCommand, handleKeyDown: handleHistoryKeys } = useCommandHistory(setInputValue);
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
   const [attempts, setAttempts] = useState([]);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -38,6 +40,7 @@ const Level6 = ({ onComplete }) => {
   }, [isSuccess, correctNumber, onComplete, toast]);
 
   const handleCommandSubmit = () => {
+    pushCommand(inputValue);
     const cmd = inputValue.trim().toLowerCase();
 
     const numberMatch = cmd.match(/^\/number\s+(\d+)$/i);
@@ -177,7 +180,7 @@ const Level6 = ({ onComplete }) => {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleCommandSubmit()}
+              onKeyDown={(e) => { if (e.key === "Enter") handleCommandSubmit(); handleHistoryKeys(e); }}
               placeholder="Enter command..."
               className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
             />

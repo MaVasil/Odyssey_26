@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "../ui/use-toast";
+import { useCommandHistory } from "@/hooks/useCommandHistory";
 
 // 5x5 board
 const BOARD_SIZE = 5;
@@ -47,6 +48,7 @@ const randomStart = () => ({
 
 const Level4 = ({ onComplete }) => {
   const [inputValue, setInputValue] = useState("");
+  const { pushCommand, handleKeyDown: handleHistoryKeys } = useCommandHistory(setInputValue);
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -131,6 +133,7 @@ const Level4 = ({ onComplete }) => {
   const validMoves = getValidMoves();
 
   const handleCommandSubmit = () => {
+    pushCommand(inputValue);
     const cmd = inputValue.trim().toLowerCase();
     const moveMatch = cmd.match(/^\/move\s+([a-e]\d)$/i);
     const undoMatch = cmd.match(/^\/undo$/i);
@@ -514,7 +517,7 @@ const Level4 = ({ onComplete }) => {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleEnter}
+              onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
               placeholder="Enter command..."
               className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
             />
