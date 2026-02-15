@@ -20,8 +20,7 @@ const LIGHT_DEFS = {
       { floorX: 290, hitsDoor: false },
     ],
     startIdx: 3,
-    color: "#FBBF24",
-  },
+    color: "#FBBF24"},
   B: {
     cx: 190,
     positions: [
@@ -32,8 +31,7 @@ const LIGHT_DEFS = {
       { floorX: 310, hitsDoor: false },
     ],
     startIdx: 2,
-    color: "#FCD34D",
-  },
+    color: "#FCD34D"},
   C: {
     cx: 300,
     positions: [
@@ -44,9 +42,7 @@ const LIGHT_DEFS = {
       { floorX: 365, hitsDoor: false },
     ],
     startIdx: 1,
-    color: "#FDE68A",
-  },
-};
+    color: "#FDE68A"}};
 
 const LIGHT_Y = 35;
 const FLOOR_Y = 220;
@@ -63,8 +59,7 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
   const [lightPositions, setLightPositions] = useState({
     A: LIGHT_DEFS.A.startIdx,
     B: LIGHT_DEFS.B.startIdx,
-    C: LIGHT_DEFS.C.startIdx,
-  });
+    C: LIGHT_DEFS.C.startIdx});
   const { toast } = useToast();
 
   // Check win: no beam hits the door
@@ -87,9 +82,7 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
       toast({
         title: "Door Unlocked! 🚪✨",
         description: "The overlapping shadows cancelled the light. The door opens!",
-        variant: "success",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
       setTimeout(() => {
         onComplete(4);
@@ -125,41 +118,32 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
         toast({
           title: `Light ${lightKey} rotated left`,
           description: `Position: ${current - 1 + 1}/5`,
-          variant: "default",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-        });
+          variant: "default"
+      });
       } else if (dir === "right" && current < def.positions.length - 1) {
         setLightPositions((p) => ({ ...p, [lightKey]: current + 1 }));
         toast({
           title: `Light ${lightKey} rotated right`,
           description: `Position: ${current + 1 + 1}/5`,
-          variant: "default",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-        });
+          variant: "default"
+      });
       } else {
         toast({
           title: "Can't rotate further",
           description: `Light ${lightKey} is already at the ${dir === "left" ? "leftmost" : "rightmost"} position.`,
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       }
     } else if (resetMatch) {
       setLightPositions({
         A: LIGHT_DEFS.A.startIdx,
         B: LIGHT_DEFS.B.startIdx,
-        C: LIGHT_DEFS.C.startIdx,
-      });
+        C: LIGHT_DEFS.C.startIdx});
       setIsSuccess(false);
       toast({
         title: "Level Reset",
         description: "Lights returned to starting positions.",
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -167,9 +151,7 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
 
@@ -196,8 +178,7 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
         {/* Beam cone */}
         <motion.polygon
           animate={{
-            points: `${def.cx},${LIGHT_Y + 10} ${floorX - BEAM_HALF_W},${FLOOR_Y} ${floorX + BEAM_HALF_W},${FLOOR_Y}`,
-          }}
+            points: `${def.cx},${LIGHT_Y + 10} ${floorX - BEAM_HALF_W},${FLOOR_Y} ${floorX + BEAM_HALF_W},${FLOOR_Y}`}}
           transition={{ type: "tween", duration: 0.4, ease: "easeOut" }}
           fill={def.color}
           opacity={pos.hitsDoor ? "0.25" : "0.15"}
@@ -208,8 +189,7 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
             x1: def.cx,
             y1: LIGHT_Y + 10,
             x2: floorX,
-            y2: FLOOR_Y,
-          }}
+            y2: FLOOR_Y}}
           transition={{ type: "tween", duration: 0.4, ease: "easeOut" }}
           stroke={def.color}
           strokeWidth="1"

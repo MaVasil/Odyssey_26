@@ -97,8 +97,7 @@ const CipherPuzzleLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
       toast({
         title: "Level Completed!",
         description: "You've successfully transformed the code!",
-        variant: "success",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
       
       setTimeout(() => {
@@ -133,16 +132,14 @@ const CipherPuzzleLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
           toast({
             title: "Cipher Applied",
             description: `Applied /cipher ${command} command`,
-            variant: "default",
-            className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-          });
+            variant: "default"
+      });
         } catch (error) {
           toast({
             title: "Cipher Error",
             description: error.message,
-            variant: "destructive",
-            className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-          });
+            variant: "destructive"
+      });
         }
       }
     } else if (resetMatch) {
@@ -150,8 +147,7 @@ const CipherPuzzleLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
       toast({
         title: "Level Reset",
         description: "Restored initial number sequence",
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -161,15 +157,13 @@ const CipherPuzzleLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
       toast({
         title: "Theme Changed",
         description: `Theme set to ${newTheme} mode`,
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
     

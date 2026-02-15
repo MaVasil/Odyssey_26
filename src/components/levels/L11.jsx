@@ -43,8 +43,7 @@ const ChessKnightLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
       toast({
         title: "Level Completed!",
         description: "You've successfully moved the knight to the exit!",
-        variant: "success",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
       
       setTimeout(() => {
@@ -86,8 +85,7 @@ const ChessKnightLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
       toast({
         title: "Invalid Move",
         description: "That move is not allowed for a knight!",
-        variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
       return;
     }
@@ -96,15 +94,8 @@ const ChessKnightLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
     newBoard[gameState.knightPosition.y][gameState.knightPosition.x] = '🟩';
     newBoard[y][x] = '♞';
 
-    console.log('Current Position:', { x, y });
-console.log('Exit Position:', gameState.board.findIndex(row => row.includes('🏁')));
-
-
     const isExit = newBoard[2][2] === '♞';
     const updatedMoves = gameState.moves + 1;
-
-    console.log('Is Exit:', isExit);
-console.log('Moves:', updatedMoves);
 
     const newState = {
       ...gameState,
@@ -123,8 +114,7 @@ console.log('Moves:', updatedMoves);
       toast({
         title: "Too Many Moves",
         description: "You've exceeded the 4-move limit!",
-        variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
       resetGame();
     }
@@ -157,8 +147,7 @@ console.log('Moves:', updatedMoves);
       toast({
         title: "Level Reset",
         description: "The game has been reset to its initial state",
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -168,8 +157,7 @@ console.log('Moves:', updatedMoves);
       toast({
         title: "Theme Changed",
         description: `Theme set to ${newTheme} mode`,
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (moveMatch) {
       const target = parseChessNotation(moveMatch[1]);
@@ -178,8 +166,7 @@ console.log('Moves:', updatedMoves);
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
     

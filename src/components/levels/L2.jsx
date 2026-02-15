@@ -31,9 +31,7 @@ const Level2 = ({ onComplete }) => {
       toast({
         title: "Correct! 🌻",
         description: "It's a sunflower — it always follows the sun!",
-        variant: "success",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
 
       setTimeout(() => {
@@ -50,14 +48,12 @@ const Level2 = ({ onComplete }) => {
     // Sun moves from left to right
     await sunControls.start({
       x: [0, 300],
-      transition: { duration: 4, ease: "easeInOut" },
-    });
+      transition: { duration: 4, ease: "easeInOut" }});
 
     // Sunflower head tracks the sun during the animation
     await sunflowerControls.start({
       rotate: [0, -20, 0, 20, 35],
-      transition: { duration: 4, ease: "easeInOut" },
-    });
+      transition: { duration: 4, ease: "easeInOut" }});
 
     setSunAnimating(false);
   };
@@ -72,12 +68,10 @@ const Level2 = ({ onComplete }) => {
     await Promise.all([
       sunControls.start({
         x: [0, 300],
-        transition: { duration: 4, ease: "easeInOut" },
-      }),
+        transition: { duration: 4, ease: "easeInOut" }}),
       sunflowerControls.start({
         rotate: [-25, 0, 25, 40],
-        transition: { duration: 4, ease: "easeInOut" },
-      }),
+        transition: { duration: 4, ease: "easeInOut" }}),
     ]);
 
     // Reset sun back to start after animation
@@ -89,10 +83,8 @@ const Level2 = ({ onComplete }) => {
     toast({
       title: "Observation",
       description: "The sun moved across the sky... did you notice anything?",
-      variant: "default",
-      className:
-        "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-    });
+      variant: "default"
+      });
   };
 
   const handleInputChange = (e) => {
@@ -123,10 +115,8 @@ const Level2 = ({ onComplete }) => {
         toast({
           title: "Incorrect",
           description: `"${enterMatch[1].trim()}" is not the right flower. Look more carefully!`,
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       }
     } else if (resetMatch) {
       setHasLooked(false);
@@ -135,9 +125,7 @@ const Level2 = ({ onComplete }) => {
       toast({
         title: "Level Reset",
         description: "The garden has been reset.",
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -145,9 +133,7 @@ const Level2 = ({ onComplete }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
 

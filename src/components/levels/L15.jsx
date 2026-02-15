@@ -47,8 +47,7 @@ const Level15 = ({ onComplete }) => {
       toast({
         title: "Level Completed!",
         description: "You've successfully matched the musical sequence!",
-        variant: "success",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
       
       setTimeout(() => {
@@ -115,8 +114,7 @@ const Level15 = ({ onComplete }) => {
       toast({
         title: "Level Reset",
         description: "The game has been reset to its initial state",
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -126,8 +124,7 @@ const Level15 = ({ onComplete }) => {
       toast({
         title: "Theme Changed",
         description: `Theme set to ${newTheme} mode`,
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (playMatch) {
       const sequence = inputValue.slice(6).split(/\s+/);
@@ -148,9 +145,8 @@ const Level15 = ({ onComplete }) => {
         toast({
           title: "Incorrect Sequence",
           description: "Not quite right. Try listening again! 🎵",
-          variant: "destructive",
-          className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       }
     } else if (listenMatch) {
       playSequence();
@@ -158,8 +154,7 @@ const Level15 = ({ onComplete }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
     

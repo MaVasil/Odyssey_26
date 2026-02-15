@@ -6,9 +6,9 @@ import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useToast } from "../ui/use-toast";
 
-const GRID_SIZE = 3;
+const GRID_SIZE = 5;
 const START = { x: 1, y: 1 };
-const TARGET = { x: 3, y: 3 };
+const TARGET = { x: 5, y: 5 };
 
 // Valid L-shaped knight moves
 const KNIGHT_DELTAS = [
@@ -46,9 +46,7 @@ const Level4 = ({ onComplete }) => {
       toast({
         title: "Level Completed! ♞",
         description: "The knight has reached the target!",
-        variant: "success",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
 
       setTimeout(() => {
@@ -57,12 +55,12 @@ const Level4 = ({ onComplete }) => {
     }
   }, [isSuccess, onComplete, toast]);
 
-  // Check win
+  // Check win - must cover all squares
   useEffect(() => {
-    if (knightPos.x === TARGET.x && knightPos.y === TARGET.y && !isSuccess) {
+    if (knightPos.x === TARGET.x && knightPos.y === TARGET.y && visitedCells.size === GRID_SIZE * GRID_SIZE && !isSuccess) {
       setIsSuccess(true);
     }
-  }, [knightPos, isSuccess]);
+  }, [knightPos, isSuccess, visitedCells]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -91,18 +89,14 @@ const Level4 = ({ onComplete }) => {
         toast({
           title: "Out of Bounds",
           description: `(${targetX},${targetY}) is outside the ${GRID_SIZE}×${GRID_SIZE} grid.`,
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       } else if (!isValidKnightMove(knightPos, to)) {
         toast({
           title: "Invalid Move ❌",
           description: `A knight can't move from (${knightPos.x},${knightPos.y}) to (${targetX},${targetY}). Knights move in an L-shape: 2+1 squares.`,
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       } else {
         setKnightPos(to);
         setMoveHistory((prev) => [...prev, to]);
@@ -113,10 +107,8 @@ const Level4 = ({ onComplete }) => {
             to.x === TARGET.x && to.y === TARGET.y
               ? "You reached the target! 🎉"
               : `Knight is now at (${targetX},${targetY}).`,
-          variant: "default",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-        });
+          variant: "default"
+      });
       }
     } else if (undoMatch) {
       if (moveHistory.length > 1) {
@@ -127,18 +119,14 @@ const Level4 = ({ onComplete }) => {
         toast({
           title: "Move Undone",
           description: `Knight returned to (${prevPos.x},${prevPos.y}).`,
-          variant: "default",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-        });
+          variant: "default"
+      });
       } else {
         toast({
           title: "Nothing to Undo",
           description: "You're at the starting position.",
-          variant: "default",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-        });
+          variant: "default"
+      });
       }
     } else if (resetMatch) {
       setKnightPos({ ...START });
@@ -148,9 +136,7 @@ const Level4 = ({ onComplete }) => {
       toast({
         title: "Level Reset",
         description: "Knight returned to (1,1).",
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -158,9 +144,7 @@ const Level4 = ({ onComplete }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
 
@@ -174,8 +158,7 @@ const Level4 = ({ onComplete }) => {
   // Compute valid moves from current position for highlighting
   const validMoves = KNIGHT_DELTAS.map((d) => ({
     x: knightPos.x + d.dx,
-    y: knightPos.y + d.dy,
-  })).filter(isInBounds);
+    y: knightPos.y + d.dy})).filter(isInBounds);
 
   // Grid rendering
   const CELL_SIZE = 90;
@@ -184,8 +167,7 @@ const Level4 = ({ onComplete }) => {
 
   const cellToPixel = (gx, gy) => ({
     px: PADDING + (gx - 1) * CELL_SIZE + CELL_SIZE / 2,
-    py: PADDING + (gy - 1) * CELL_SIZE + CELL_SIZE / 2,
-  });
+    py: PADDING + (gy - 1) * CELL_SIZE + CELL_SIZE / 2});
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
@@ -206,7 +188,7 @@ const Level4 = ({ onComplete }) => {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
-        The Knight's Path — Move the knight from (1,1) to (3,3).
+        The Knight's Path — Cover all {GRID_SIZE}×{GRID_SIZE} squares and reach ({GRID_SIZE},{GRID_SIZE}).
       </motion.p>
 
       {/* Board */}
@@ -349,8 +331,7 @@ const Level4 = ({ onComplete }) => {
           <motion.g
             animate={{
               x: cellToPixel(knightPos.x, knightPos.y).px - cellToPixel(1, 1).px,
-              y: cellToPixel(knightPos.x, knightPos.y).py - cellToPixel(1, 1).py,
-            }}
+              y: cellToPixel(knightPos.x, knightPos.y).py - cellToPixel(1, 1).py}}
             transition={{ type: "spring", stiffness: 200, damping: 25 }}
           >
             {/* Knight shadow */}
@@ -378,7 +359,7 @@ const Level4 = ({ onComplete }) => {
         {/* Move counter */}
         <div className="flex justify-between px-4 pb-2 text-sm">
           <span className="text-purple-300">
-            Moves: <span className="text-[#F9DC34] font-bold">{moveHistory.length - 1}</span>
+            Covered: <span className="text-[#F9DC34] font-bold">{visitedCells.size}/{GRID_SIZE * GRID_SIZE}</span>
           </span>
           <span className="text-purple-300">
             Position: <span className="text-[#F9DC34] font-bold">({knightPos.x},{knightPos.y})</span>
@@ -482,10 +463,13 @@ const Level4 = ({ onComplete }) => {
               </div>
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Hint:
+                Goal:
               </h3>
-              <p className="text-gray-600 dark:text-gray-300 italic">
-                If you cannot jump to the center, you must use the edges.
+              <p className="text-gray-600 dark:text-gray-300">
+                Visit every square on the {GRID_SIZE}×{GRID_SIZE} board and end at position ({GRID_SIZE},{GRID_SIZE}).
+              </p>
+              <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm">
+                Squares visited: <strong>{visitedCells.size}/{GRID_SIZE * GRID_SIZE}</strong>
               </p>
             </div>
 

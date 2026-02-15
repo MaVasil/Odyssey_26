@@ -21,9 +21,7 @@ const Level3 = ({ onComplete }) => {
       toast({
         title: "Target Hit! 🎯",
         description: "The laser reflected perfectly to the target!",
-        variant: "success",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
 
       setTimeout(() => {
@@ -63,10 +61,8 @@ const Level3 = ({ onComplete }) => {
             mirrorAngle === 90
               ? "The laser bounced straight back! The mirror is vertical."
               : "The beam didn't reach the target. Adjust the mirror angle.",
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
         // Reset fire state after showing miss
         setTimeout(() => {
           setFireResult(null);
@@ -93,18 +89,14 @@ const Level3 = ({ onComplete }) => {
         toast({
           title: "Mirror Rotated",
           description: `Mirror set to ${angle}°`,
-          variant: "default",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-        });
+          variant: "default"
+      });
       } else {
         toast({
           title: "Invalid Angle",
           description: "The mirror can only be set to 45 or 90 degrees.",
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       }
     } else if (fireMatch) {
       handleFire();
@@ -116,9 +108,7 @@ const Level3 = ({ onComplete }) => {
       toast({
         title: "Level Reset",
         description: "Mirror reset to vertical. Laser ready.",
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -126,9 +116,7 @@ const Level3 = ({ onComplete }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
 
@@ -376,8 +364,7 @@ const Level3 = ({ onComplete }) => {
             style={{
               originX: `${MIRROR_CX}px`,
               originY: `${MIRROR_CY}px`,
-              transformOrigin: `${MIRROR_CX}px ${MIRROR_CY}px`,
-            }}
+              transformOrigin: `${MIRROR_CX}px ${MIRROR_CY}px`}}
           >
             {/* Mirror surface (reflective) */}
             <line

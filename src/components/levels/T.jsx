@@ -16,8 +16,7 @@ const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
     // score: 0,
     // moveCount: 0,
     // playerPosition: { x: 0, y: 0 },
-    // gameBoard: [...],
-  });
+    // gameBoard: [...]});
   const [isSuccess, setIsSuccess] = useState(false);
   
   // Hooks
@@ -30,8 +29,7 @@ const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
       toast({
         title: "Level Completed!",
         description: "You've successfully completed the level!",
-        variant: "success",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
       
       setTimeout(() => {
@@ -81,8 +79,7 @@ const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
       toast({
         title: "Level Reset",
         description: "The game has been reset to its initial state",
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -92,8 +89,7 @@ const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
       toast({
         title: "Theme Changed",
         description: `Theme set to ${newTheme} mode`,
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     }
     // Add else-if blocks for game-specific commands
@@ -101,8 +97,7 @@ const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
     

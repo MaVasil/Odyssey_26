@@ -20,30 +20,42 @@ const Level8 = ({ onComplete }) => {
   const [scaleState, setScaleState] = useState("balanced");
   const [leftPan, setLeftPan] = useState([]); // coin IDs on left pan
   const [rightPan, setRightPan] = useState([]); // coin IDs on right pan
+  const [score, setScore] = useState(100);
   const { toast } = useToast();
   const initialized = useRef(false);
 
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true;
-      setFakeCoin(9);
+      setFakeCoin(Math.floor(Math.random() * TOTAL_COINS) + 1);
     }
   }, []);
 
   useEffect(() => {
     if (isSuccess) {
+      const weighingsUsed = MAX_WEIGHINGS - weighingsLeft;
+      
+      // Bluff detection
+      if (weighingsUsed < 3) {
+        toast({
+          title: "Wait... That's a Bluff! 🤔",
+          description: "You can't identify the fake coin in less than 3 weighings without seeing the results!",
+          variant: "destructive"
+      });
+        setIsSuccess(false);
+        return;
+      }
+      
       toast({
-        title: "Correct! 🪙",
-        description: `Coin ${fakeCoin} was indeed the fake! Found in ${MAX_WEIGHINGS - weighingsLeft} weighing(s).`,
-        variant: "success",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        title: `Correct! 🪙 Score: ${score}`,
+        description: `Coin ${fakeCoin} was the fake! Found in ${weighingsUsed} weighing(s).`,
+        variant: "success"
       });
       setTimeout(() => {
         onComplete(4);
       }, 2000);
     }
-  }, [isSuccess, onComplete, toast, fakeCoin, weighingsLeft]);
+  }, [isSuccess, onComplete, toast, fakeCoin, weighingsLeft, score]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -74,9 +86,7 @@ const Level8 = ({ onComplete }) => {
       toast({
         title: "No Weighings Left",
         description: "Use /reset to try again.",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
       setInputValue("");
       return;
@@ -87,10 +97,8 @@ const Level8 = ({ onComplete }) => {
         toast({
           title: "No Weighings Left!",
           description: "You've used all 3 weighings. Make your /guess now!",
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
         setInputValue("");
         return;
       }
@@ -102,10 +110,8 @@ const Level8 = ({ onComplete }) => {
         toast({
           title: "Invalid Coins",
           description: "Use coin numbers 1-12 separated by commas. e.g., /weigh 1,2,3,4 5,6,7,8",
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
         setInputValue("");
         return;
       }
@@ -114,10 +120,8 @@ const Level8 = ({ onComplete }) => {
         toast({
           title: "Uneven Groups",
           description: "Both sides must have the same number of coins.",
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
         setInputValue("");
         return;
       }
@@ -127,10 +131,8 @@ const Level8 = ({ onComplete }) => {
         toast({
           title: "Duplicate Coins",
           description: "A coin can't be on both sides of the scale!",
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
         setInputValue("");
         return;
       }
@@ -153,6 +155,10 @@ const Level8 = ({ onComplete }) => {
       setLeftPan(leftCoins);
       setRightPan(rightCoins);
       setWeighingsLeft((p) => p - 1);
+      
+      // Reduce score for each weighing used
+      setScore((prev) => Math.max(0, prev - 15));
+      
       setWeighHistory((prev) => [
         ...prev,
         { left: leftCoins, right: rightCoins, result },
@@ -168,9 +174,7 @@ const Level8 = ({ onComplete }) => {
       toast({
         title: resultText,
         description: `Weighings remaining: ${weighingsLeft - 1}`,
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (guessMatch) {
       const coinNum = parseInt(guessMatch[1]);
@@ -178,10 +182,8 @@ const Level8 = ({ onComplete }) => {
         toast({
           title: "Invalid Coin",
           description: "Choose a coin from 1 to 12.",
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       } else if (coinNum === fakeCoin) {
         setIsSuccess(true);
       } else {
@@ -189,10 +191,8 @@ const Level8 = ({ onComplete }) => {
         toast({
           title: "Wrong! 💀",
           description: `Coin ${coinNum} is real. The fake was coin ${fakeCoin}.`,
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       }
     } else if (resetMatch) {
       initialized.current = true;
@@ -207,9 +207,7 @@ const Level8 = ({ onComplete }) => {
       toast({
         title: "Level Reset",
         description: "A new fake coin has been placed. Good luck!",
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -217,9 +215,7 @@ const Level8 = ({ onComplete }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
 
@@ -462,6 +458,11 @@ const Level8 = ({ onComplete }) => {
             </tspan>
             /3
           </text>
+          
+          {/* Score display */}
+          <text x="190" y="285" textAnchor="middle" fontSize="12" fill="#22c55e" fontWeight="bold">
+            Score: {score}/100
+          </text>
         </svg>
       </motion.div>
 
@@ -610,10 +611,10 @@ const Level8 = ({ onComplete }) => {
               </div>
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Hint:
+                Goal:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                You can't test every coin one by one. Weigh coins in groups, and use coins you've proven real as benchmarks.
+                Find the fake coin efficiently. Your score starts at 100 and decreases by 15 points with each weighing. Minimum 3 weighings required.
               </p>
             </div>
 

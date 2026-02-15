@@ -52,9 +52,7 @@ const Level10 = ({ onComplete }) => {
       toast({
         title: "COSC Logo Restored! 🎨",
         description: `Puzzle solved in ${moveCount} swaps!`,
-        variant: "success",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
       setTimeout(() => {
         onComplete(4);
@@ -77,8 +75,7 @@ const Level10 = ({ onComplete }) => {
     "top-left": 0, "tl": 0, "1": 0,
     "top-right": 0, "tr": 1, "2": 1,
     "bottom-left": 2, "bl": 2, "3": 2,
-    "bottom-right": 3, "br": 3, "4": 3,
-  };
+    "bottom-right": 3, "br": 3, "4": 3};
 
   const POS_LABELS = ["Top-Left", "Top-Right", "Bottom-Left", "Bottom-Right"];
 
@@ -103,18 +100,14 @@ const Level10 = ({ onComplete }) => {
         toast({
           title: "Invalid Position",
           description: "Use: TL (Top-Left), TR (Top-Right), BL (Bottom-Left), BR (Bottom-Right), or 1-4.",
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       } else if (pos1 === pos2) {
         toast({
           title: "Same Position",
           description: "Pick two different tiles to swap.",
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       } else {
         const newGrid = [...grid];
         [newGrid[pos1], newGrid[pos2]] = [newGrid[pos2], newGrid[pos1]];
@@ -124,10 +117,8 @@ const Level10 = ({ onComplete }) => {
         toast({
           title: `Swapped ${POS_LABELS[pos1]} ↔ ${POS_LABELS[pos2]}`,
           description: `Moves: ${moveCount + 1}`,
-          variant: "default",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-        });
+          variant: "default"
+      });
       }
     } else if (resetMatch) {
       setGrid(createInitialGrid());
@@ -136,9 +127,7 @@ const Level10 = ({ onComplete }) => {
       toast({
         title: "Level Reset",
         description: "Tiles scrambled again.",
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -146,9 +135,7 @@ const Level10 = ({ onComplete }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
 

@@ -9,8 +9,7 @@ import { useToast } from "../ui/use-toast";
 const ITEMS = {
   wolf: { emoji: "🐺", label: "Wolf" },
   goat: { emoji: "🐐", label: "Goat" },
-  cabbage: { emoji: "🥬", label: "Cabbage" },
-};
+  cabbage: { emoji: "🥬", label: "Cabbage" }};
 
 // Dangerous pairs: if left alone on the same bank without the player
 const DANGER_PAIRS = [
@@ -49,9 +48,7 @@ const Level5 = ({ onComplete }) => {
       toast({
         title: "Level Completed! 🎉",
         description: `All items crossed safely in ${moveCount} moves!`,
-        variant: "success",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
       setTimeout(() => {
         onComplete(4);
@@ -127,10 +124,8 @@ const Level5 = ({ onComplete }) => {
         toast({
           title: "Game Over! 💀",
           description: danger,
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
         return;
       }
 
@@ -146,9 +141,7 @@ const Level5 = ({ onComplete }) => {
           ? `Crossed with ${ITEMS[item].label} ${ITEMS[item].emoji}`
           : "Crossed alone 🚣",
         description: `You are now on the ${toSide} bank.`,
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     }, 800);
   };
@@ -167,9 +160,7 @@ const Level5 = ({ onComplete }) => {
       toast({
         title: "Game Over",
         description: "Use /reset to try again.",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
       setInputValue("");
       return;
@@ -183,10 +174,8 @@ const Level5 = ({ onComplete }) => {
         toast({
           title: "Item Not Here",
           description: `The ${ITEMS[item].label} is not on the ${playerSide} bank.`,
-          variant: "destructive",
-          className:
-            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
       } else {
         setBoatItem(item);
         performCrossing(item);
@@ -205,9 +194,7 @@ const Level5 = ({ onComplete }) => {
       toast({
         title: "Level Reset",
         description: "Back to the left bank with all items.",
-        variant: "default",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
@@ -215,9 +202,7 @@ const Level5 = ({ onComplete }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className:
-          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
 
@@ -232,18 +217,19 @@ const Level5 = ({ onComplete }) => {
   const renderBankItems = (items, side) => {
     return items.map((item, i) => {
       const xBase = side === "left" ? 30 : 310;
-      const xOffset = i * 28;
+      const xOffset = i * 30;
       return (
         <motion.text
           key={`${side}-${item}`}
           x={xBase + xOffset}
           y={195}
-          fontSize="26"
+          fontSize="28"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
           transition={{ duration: 0.3 }}
           className="select-none"
+          style={{ filter: 'drop-shadow(2px 2px 3px rgba(0,0,0,0.3))' }}
         >
           {ITEMS[item].emoji}
         </motion.text>
@@ -280,55 +266,98 @@ const Level5 = ({ onComplete }) => {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.3 }}
-        className="bg-gradient-to-b from-[#87CEEB] to-[#5BA3D9] dark:from-[#1a2744] dark:to-[#0f1d33] rounded-2xl p-0 shadow-lg border border-purple-200 dark:border-purple-700/30 w-full max-w-md relative overflow-hidden"
+        className="bg-gradient-to-b from-[#87CEEB] via-[#B0D8F0] to-[#5BA3D9] dark:from-[#1a2744] dark:via-[#243654] dark:to-[#0f1d33] rounded-2xl p-0 shadow-2xl border-2 border-purple-200 dark:border-purple-700/40 w-full max-w-md relative overflow-hidden"
       >
         <svg viewBox="0 0 400 250" className="w-full">
-          {/* Sky */}
+          {/* Sun */}
+          <defs>
+            <radialGradient id="sunGradient">
+              <stop offset="0%" stopColor="#FFE55C" stopOpacity="0.9" />
+              <stop offset="70%" stopColor="#F9DC34" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="#F5A623" stopOpacity="0.2" />
+            </radialGradient>
+          </defs>
+          <circle cx="350" cy="35" r="22" fill="url(#sunGradient)" />
+          <circle cx="350" cy="35" r="16" fill="#FFE55C" />
+
+          {/* Sky - gradient already in parent div */}
           <rect x="0" y="0" width="400" height="130" fill="transparent" />
 
-          {/* Clouds */}
-          <g opacity="0.6">
-            <ellipse cx="80" cy="30" rx="25" ry="10" fill="white" />
-            <ellipse cx="65" cy="26" rx="16" ry="8" fill="white" />
-            <ellipse cx="95" cy="27" rx="14" ry="7" fill="white" />
+          {/* Enhanced Clouds */}
+          <g opacity="0.8" style={{ filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.1))' }}>
+            <ellipse cx="80" cy="30" rx="28" ry="12" fill="white" />
+            <ellipse cx="65" cy="26" rx="18" ry="10" fill="white" />
+            <ellipse cx="95" cy="27" rx="16" ry="9" fill="white" />
           </g>
-          <g opacity="0.4">
-            <ellipse cx="300" cy="40" rx="20" ry="8" fill="white" />
-            <ellipse cx="285" cy="37" rx="14" ry="7" fill="white" />
-            <ellipse cx="315" cy="38" rx="12" ry="6" fill="white" />
+          <g opacity="0.6" style={{ filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.1))' }}>
+            <ellipse cx="300" cy="45" rx="24" ry="10" fill="white" />
+            <ellipse cx="285" cy="42" rx="16" ry="8" fill="white" />
+            <ellipse cx="315" cy="43" rx="14" ry="7" fill="white" />
           </g>
 
-          {/* River (drawn first, behind banks) */}
-          <rect x="100" y="130" width="200" height="120" fill="#1976D2" opacity="0.7" />
-          <rect x="108" y="130" width="184" height="120" fill="#2196F3" opacity="0.6" />
+          {/* River with gradient and depth */}
+          <defs>
+            <linearGradient id="riverGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#1976D2" stopOpacity="0.8" />
+              <stop offset="50%" stopColor="#2196F3" stopOpacity="0.75" />
+              <stop offset="100%" stopColor="#0D47A1" stopOpacity="0.9" />
+            </linearGradient>
+          </defs>
+          <rect x="100" y="130" width="200" height="120" fill="url(#riverGradient)" />
 
-          {/* Left bank (earth) — drawn on top of river */}
+          {/* Left bank with texture */}
+          <defs>
+            <linearGradient id="grassGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#6BA045" />
+              <stop offset="100%" stopColor="#4A7A2E" />
+            </linearGradient>
+          </defs>
           <path
             d="M0,120 Q55,115 115,135 L115,250 L0,250 Z"
-            fill="#5D8C3E"
+            fill="url(#grassGradient)"
+            style={{ filter: 'drop-shadow(2px 0px 3px rgba(0,0,0,0.2))' }}
           />
           <path
             d="M0,128 Q55,123 112,140 L112,250 L0,250 Z"
             fill="#4A7A2E"
+            opacity="0.7"
           />
+          {/* Grass tufts on left bank */}
+          <g opacity="0.6">
+            <path d="M20,150 Q22,145 24,150" stroke="#2E5C1E" strokeWidth="1.5" fill="none" />
+            <path d="M40,160 Q42,155 44,160" stroke="#2E5C1E" strokeWidth="1.5" fill="none" />
+            <path d="M65,145 Q67,140 69,145" stroke="#2E5C1E" strokeWidth="1.5" fill="none" />
+            <path d="M85,170 Q87,165 89,170" stroke="#2E5C1E" strokeWidth="1.5" fill="none" />
+            <path d="M30,190 Q32,185 34,190" stroke="#2E5C1E" strokeWidth="1.5" fill="none" />
+          </g>
 
-          {/* Right bank (earth) — drawn on top of river */}
+          {/* Right bank with texture */}
           <path
             d="M285,135 Q345,115 400,120 L400,250 L285,250 Z"
-            fill="#5D8C3E"
+            fill="url(#grassGradient)"
+            style={{ filter: 'drop-shadow(-2px 0px 3px rgba(0,0,0,0.2))' }}
           />
           <path
             d="M288,140 Q345,123 400,128 L400,250 L288,250 Z"
             fill="#4A7A2E"
+            opacity="0.7"
           />
+          {/* Grass tufts on right bank */}
+          <g opacity="0.6">
+            <path d="M310,150 Q312,145 314,150" stroke="#2E5C1E" strokeWidth="1.5" fill="none" />
+            <path d="M340,160 Q342,155 344,160" stroke="#2E5C1E" strokeWidth="1.5" fill="none" />
+            <path d="M365,145 Q367,140 369,145" stroke="#2E5C1E" strokeWidth="1.5" fill="none" />
+            <path d="M325,170 Q327,165 329,170" stroke="#2E5C1E" strokeWidth="1.5" fill="none" />
+            <path d="M370,190 Q372,185 374,190" stroke="#2E5C1E" strokeWidth="1.5" fill="none" />
+          </g>
 
-          {/* River waves */}
+          {/* Enhanced river waves */}
           <motion.path
             d="M115,160 Q145,153 175,160 Q205,167 235,160 Q265,153 285,160"
             fill="none"
-            stroke="#64B5F6"
-            strokeWidth="2"
-            opacity="0.5"
+            stroke="#90CAF9"
+            strokeWidth="2.5"
+            opacity="0.6"
             animate={{ x: [0, 10, 0] }}
             transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
           />
@@ -336,8 +365,8 @@ const Level5 = ({ onComplete }) => {
             d="M115,180 Q145,173 175,180 Q205,187 235,180 Q265,173 285,180"
             fill="none"
             stroke="#64B5F6"
-            strokeWidth="1.5"
-            opacity="0.4"
+            strokeWidth="2"
+            opacity="0.5"
             animate={{ x: [0, -8, 0] }}
             transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
           />
@@ -345,27 +374,36 @@ const Level5 = ({ onComplete }) => {
             d="M115,200 Q145,193 175,200 Q205,207 235,200 Q265,193 285,200"
             fill="none"
             stroke="#90CAF9"
-            strokeWidth="1"
-            opacity="0.3"
+            strokeWidth="1.5"
+            opacity="0.4"
             animate={{ x: [0, 6, 0] }}
             transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
           />
+          <motion.path
+            d="M115,220 Q145,213 175,220 Q205,227 235,220 Q265,213 285,220"
+            fill="none"
+            stroke="#64B5F6"
+            strokeWidth="1"
+            opacity="0.3"
+            animate={{ x: [0, -5, 0] }}
+            transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+          />
 
-          {/* Bank labels */}
-          <text x="55" y="170" textAnchor="middle" fontSize="11" fill="#2E7D32" fontWeight="bold">
+          {/* Bank labels with better styling */}
+          <text x="55" y="168" textAnchor="middle" fontSize="12" fill="#F9DC34" fontWeight="bold" style={{ filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.4))' }}>
             LEFT
           </text>
-          <text x="55" y="182" textAnchor="middle" fontSize="11" fill="#2E7D32" fontWeight="bold">
+          <text x="55" y="182" textAnchor="middle" fontSize="12" fill="#F9DC34" fontWeight="bold" style={{ filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.4))' }}>
             BANK
           </text>
-          <text x="345" y="170" textAnchor="middle" fontSize="11" fill="#2E7D32" fontWeight="bold">
+          <text x="345" y="168" textAnchor="middle" fontSize="12" fill="#F9DC34" fontWeight="bold" style={{ filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.4))' }}>
             RIGHT
           </text>
-          <text x="345" y="182" textAnchor="middle" fontSize="11" fill="#2E7D32" fontWeight="bold">
+          <text x="345" y="182" textAnchor="middle" fontSize="12" fill="#F9DC34" fontWeight="bold" style={{ filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.4))' }}>
             BANK
           </text>
 
-          {/* Boat */}
+          {/* Boat with enhanced design */}
           <motion.g
             animate={{ x: crossing ? (playerSide === "left" ? 110 : -110) : 0 }}
             transition={{ type: "tween", duration: 0.8, ease: "easeInOut" }}
@@ -374,113 +412,140 @@ const Level5 = ({ onComplete }) => {
               animate={{ x: playerSide === "left" ? 0 : 110 }}
               transition={{ duration: 0 }}
             >
-              {/* Boat body */}
+              {/* Boat shadow */}
+              <ellipse
+                cx="150"
+                cy="239"
+                rx="32"
+                ry="8"
+                fill="black"
+                opacity="0.2"
+              />
+              {/* Boat body - darker wood */}
               <path
                 d={`M${120},220 L${125},235 L${175},235 L${180},220 Z`}
-                fill="#8D6E63"
-                stroke="#5D4037"
-                strokeWidth="1.5"
+                fill="#6D4C41"
+                stroke="#4E342E"
+                strokeWidth="2"
               />
-              {/* Boat interior */}
+              {/* Boat interior - lighter wood */}
               <path
                 d={`M${125},220 L${128},232 L${172},232 L${175},220 Z`}
-                fill="#A1887F"
+                fill="#8D6E63"
               />
-              {/* Player in boat */}
-              <text x="143" y="218" fontSize="22" className="select-none">
+              {/* Boat highlight */}
+              <path
+                d={`M${125},220 L${128},225 L${172},225 L${175},220 Z`}
+                fill="#A1887F"
+                opacity="0.5"
+              />
+              {/* Boat rim */}
+              <line x1="125" y1="220" x2="175" y2="220" stroke="#4E342E" strokeWidth="2" />
+              
+              {/* Player in boat with shadow */}
+              <text x="143" y="218" fontSize="24" className="select-none" style={{ filter: 'drop-shadow(2px 2px 3px rgba(0,0,0,0.3))' }}>
                 🧑
               </text>
-              {/* Item in boat during crossing */}
+              {/* Item in boat during crossing with shadow */}
               {crossing && boatItem && (
-                <text x="158" y="218" fontSize="18" className="select-none">
+                <text x="160" y="218" fontSize="20" className="select-none" style={{ filter: 'drop-shadow(2px 2px 3px rgba(0,0,0,0.3))' }}>
                   {ITEMS[boatItem].emoji}
                 </text>
               )}
             </motion.g>
           </motion.g>
 
-          {/* Items on banks */}
+          {/* Items on banks with shadows */}
           <AnimatePresence>
             {renderBankItems(leftBank, "left")}
             {renderBankItems(rightBank, "right")}
           </AnimatePresence>
 
-          {/* Failure overlay */}
+          {/* Failure overlay with better design */}
           {isFailed && (
             <g>
-              <rect x="0" y="0" width="400" height="250" fill="red" opacity="0.15" />
+              <rect x="0" y="0" width="400" height="250" fill="rgba(200, 0, 0, 0.3)" />
+              <rect x="80" y="50" width="240" height="110" rx="15" fill="rgba(139, 0, 0, 0.9)" />
+              <rect x="85" y="55" width="230" height="100" rx="12" fill="rgba(220, 20, 60, 0.8)" />
               <text
                 x="200"
-                y="70"
+                y="85"
                 textAnchor="middle"
-                fontSize="14"
-                fill="#FF4444"
+                fontSize="18"
+                fill="#FFFFFF"
                 fontWeight="bold"
+                style={{ filter: 'drop-shadow(2px 2px 3px rgba(0,0,0,0.5))' }}
               >
-                GAME OVER
-              </text>
-              <text
-                x="200"
-                y="90"
-                textAnchor="middle"
-                fontSize="11"
-                fill="#FF6666"
-              >
-                {failMessage}
+                GAME OVER! 💀
               </text>
               <text
                 x="200"
                 y="110"
                 textAnchor="middle"
-                fontSize="10"
-                fill="#FF8888"
+                fontSize="13"
+                fill="#FFE5E5"
+              >
+                {failMessage}
+              </text>
+              <text
+                x="200"
+                y="135"
+                textAnchor="middle"
+                fontSize="11"
+                fill="#F9DC34"
+                fontWeight="bold"
               >
                 Type /reset to try again
               </text>
             </g>
           )}
 
-          {/* Status */}
+          {/* Status with better visibility */}
           {!isFailed && (
-            <text
-              x="200"
-              y="20"
-              textAnchor="middle"
-              fontSize="11"
-              fill="#FFFFFF"
-              fontWeight="bold"
-              opacity="0.8"
-            >
-              You are on the {playerSide} bank • Moves: {moveCount}
-            </text>
+            <g>
+              <rect x="120" y="8" width="160" height="20" rx="10" fill="rgba(0,0,0,0.5)" />
+              <text
+                x="200"
+                y="21"
+                textAnchor="middle"
+                fontSize="11"
+                fill="#F9DC34"
+                fontWeight="bold"
+              >
+                {playerSide.toUpperCase()} BANK • Moves: {moveCount}
+              </text>
+            </g>
           )}
         </svg>
       </motion.div>
 
-      {/* Item status bar */}
+      {/* Item status bar with enhanced design */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.4 }}
-        className="w-full max-w-md mt-3 flex justify-between px-2"
+        className="w-full max-w-md mt-4 flex justify-center gap-3 px-2"
       >
-        <div className="flex gap-2">
-          {Object.entries(ITEMS).map(([key, item]) => {
-            const onLeft = leftBank.includes(key);
-            const onRight = rightBank.includes(key);
-            return (
-              <div
-                key={key}
-                className={`text-xs px-2 py-1 rounded-full border ${onRight
-                  ? "bg-green-500/20 text-green-400 border-green-500/40"
-                  : "bg-purple-900/30 text-purple-300 border-purple-500/30"
-                  }`}
-              >
-                {item.emoji} {onLeft ? "Left" : onRight ? "Right ✓" : "???"}
-              </div>
-            );
-          })}
-        </div>
+        {Object.entries(ITEMS).map(([key, item]) => {
+          const onLeft = leftBank.includes(key);
+          const onRight = rightBank.includes(key);
+          return (
+            <motion.div
+              key={key}
+              whileHover={{ scale: 1.05 }}
+              className={`text-sm px-3 py-2 rounded-lg border-2 shadow-md transition-all ${
+                onRight
+                  ? "bg-green-500/30 text-green-100 border-green-400/60 shadow-green-400/30"
+                  : "bg-purple-900/40 text-purple-200 border-purple-500/40"
+              }`}
+            >
+              <span className="text-lg">{item.emoji}</span>
+              <span className="ml-1.5 font-medium text-xs">
+                {onLeft ? "Left" : onRight ? "Right ✓" : "???"}
+              </span>
+            </motion.div>
+          );
+        })}
       </motion.div>
 
       {/* Help prompt */}

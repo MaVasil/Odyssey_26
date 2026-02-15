@@ -31,8 +31,7 @@ const TimekeepersLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
       toast({
         title: "Level Completed!",
         description: "You've reset the ancient clock to 10:58!",
-        variant: "success",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        variant: "success"
       });
       
       setTimeout(() => {
@@ -47,9 +46,8 @@ const TimekeepersLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
     toast({
       title: "Level Reset",
       description: "The clock has been reset to 8:46",
-      variant: "default",
-      className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-    });
+      variant: "default"
+      });
   };
 
   const allowedMoves = [
@@ -83,8 +81,7 @@ const TimekeepersLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
       toast({
         title: "Theme Changed",
         description: `Theme set to ${newTheme} mode`,
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else if (moveMatch) {
       const move = moveMatch[1];
@@ -93,9 +90,8 @@ const TimekeepersLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
         toast({
           title: "Invalid Move",
           description: "This move is not allowed. Check /help for valid moves.",
-          variant: "destructive",
-          className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-        });
+          variant: "destructive"
+      });
         setInputValue("");
         return;
       }
@@ -112,15 +108,13 @@ const TimekeepersLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
       toast({
         title: "Time Moved",
         description: `Moved by ${move}. Current time: ${minutesToTime(finalMinutes)}`,
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        variant: "default"
       });
     } else {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
-        variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        variant: "destructive"
       });
     }
     

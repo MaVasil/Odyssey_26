@@ -172,7 +172,7 @@ const CommandSnake = ({ levelNumber, onComplete, nextLevelNumber }) => {
       toast({
         title: "Unknown Command",
         description: "Type /help for available commands",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
 
