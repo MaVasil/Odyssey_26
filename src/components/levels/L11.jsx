@@ -1,213 +1,200 @@
-import React, { useState, useEffect } from 'react';
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
-import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { HelpCircle, ArrowRight } from "lucide-react";
 import { useToast } from "../ui/use-toast";
 
-const ChessKnightLevel = ({ levelNumber, onComplete, nextLevelNumber }) => {
-  const BOARD_SIZE = 5;
-  const BOARD_LETTERS = ['A', 'B', 'C', 'D', 'E'];
+// Fan directions: "center" (at player), "left" (toward paper), "right" (away)
+const FAN_DIRS = ["left", "center", "right"];
+const HIDDEN_CODE = "ODYSSEY";
 
-  const initialState = {
-    board: [
-      ['♞', '🟩', '🟩', '🔴', '🟩'],
-      ['🟩', '🟩', '🔴', '🟩', '🟩'],
-      ['🟩', '🟩', '🏁', '🔴', '🟩'],
-      ['🟩', '🟩', '🔴', '🟩', '🟩'],
-      ['🟩', '🟩', '🟩', '🟩', '🟩']
-    ],
-    knightPosition: { x: 0, y: 0 },
-    moves: 0,
-    visitedSquares: [{ x: 0, y: 0 }]
-  };
-
+const Level11 = ({ onComplete }) => {
   const [inputValue, setInputValue] = useState("");
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
-  const [gameState, setGameState] = useState(initialState);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [message, setMessage] = useState("Move the knight to the exit in exactly 4 moves!");
-  
-  const { theme, setTheme } = useTheme();
+  const [fanDir, setFanDir] = useState("center"); // starts facing the player
+  const [fanOn, setFanOn] = useState(false);
+  const [dustCleared, setDustCleared] = useState(false);
+  const [fanRotation, setFanRotation] = useState(0); // for blade spin animation
   const { toast } = useToast();
-
-  const knightMoves = [
-    { dx: 2, dy: 1 }, { dx: 2, dy: -1 },
-    { dx: -2, dy: 1 }, { dx: -2, dy: -1 },
-    { dx: 1, dy: 2 }, { dx: 1, dy: -2 },
-    { dx: -1, dy: 2 }, { dx: -1, dy: -2 }
-  ];
 
   useEffect(() => {
     if (isSuccess) {
       toast({
-        title: "Level Completed!",
-        description: "You've successfully moved the knight to the exit!",
+        title: "Paper Revealed! 📄✨",
+        description: `The code was "${HIDDEN_CODE}". Door unlocked!`,
         variant: "success",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white opacity-100 border-0 shadow-lg",
       });
-      
       setTimeout(() => {
-        onComplete(nextLevelNumber);
+        onComplete(4);
       }, 2000);
     }
-  }, [isSuccess, nextLevelNumber, onComplete, toast]);
+  }, [isSuccess, onComplete, toast]);
 
-  const isValidMove = (newX, newY) => {
-    if (newX < 0 || newX >= BOARD_SIZE || newY < 0 || newY >= BOARD_SIZE) {
-      return false;
+  // Blade spin animation
+  useEffect(() => {
+    let interval;
+    if (fanOn) {
+      interval = setInterval(() => {
+        setFanRotation((r) => r + 30);
+      }, 50);
     }
-
-    if (gameState.board[newY][newX] === '🔴') {
-      return false;
-    }
-
-    const dx = Math.abs(newX - gameState.knightPosition.x);
-    const dy = Math.abs(newY - gameState.knightPosition.y);
-    const isKnightMove = (dx === 2 && dy === 1) || (dx === 1 && dy === 2);
-
-    return isKnightMove;
-  };
-
-  const parseChessNotation = (notation) => {
-    const letter = notation[0].toUpperCase();
-    const number = parseInt(notation[1]);
-    
-    const x = BOARD_LETTERS.indexOf(letter);
-    const y = 5 - number;
-
-    return { x, y };
-  };
-
-  const moveKnight = (newPosition) => {
-    const { x, y } = newPosition;
-
-    if (!isValidMove(x, y)) {
-      toast({
-        title: "Invalid Move",
-        description: "That move is not allowed for a knight!",
-        variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-      });
-      return;
-    }
-
-    const newBoard = gameState.board.map(row => [...row]);
-    newBoard[gameState.knightPosition.y][gameState.knightPosition.x] = '🟩';
-    newBoard[y][x] = '♞';
-
-    console.log('Current Position:', { x, y });
-console.log('Exit Position:', gameState.board.findIndex(row => row.includes('🏁')));
-
-
-    const isExit = newBoard[2][2] === '♞';
-    const updatedMoves = gameState.moves + 1;
-
-    console.log('Is Exit:', isExit);
-console.log('Moves:', updatedMoves);
-
-    const newState = {
-      ...gameState,
-      board: newBoard,
-      knightPosition: { x, y },
-      moves: updatedMoves,
-      visitedSquares: [...gameState.visitedSquares, { x, y }]
-    };
-
-    setGameState(newState);
-
-    if (isExit && updatedMoves === 4) {
-      setIsSuccess(true);
-      setMessage("Congratulations! You solved the puzzle!");
-    } else if (updatedMoves > 4) {
-      toast({
-        title: "Too Many Moves",
-        description: "You've exceeded the 4-move limit!",
-        variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
-      });
-      resetGame();
-    }
-  };
-
-  const resetGame = () => {
-    setGameState(initialState);
-    setMessage("Move the knight to the exit in exactly 4 moves!");
-    setIsSuccess(false);
-  };
+    return () => clearInterval(interval);
+  }, [fanOn]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
 
-  const handleKeyPress = (e) => {
+  const handleEnter = (e) => {
     if (e.key === "Enter") {
       handleCommandSubmit();
     }
   };
 
   const handleCommandSubmit = () => {
-    const resetMatch = inputValue.match(/^\/reset$/i);
-    const helpMatch = inputValue.match(/^\/help$/i);
-    const themeMatch = inputValue.match(/^\/theme\s+(dark|light)$/i);
-    const moveMatch = inputValue.match(/^\/move\s+([A-Ea-e][1-5])$/i);
+    const cmd = inputValue.trim().toLowerCase();
 
-    if (resetMatch) {
-      resetGame();
+    const turnMatch = cmd.match(/^\/turn\s+fan\s+(left|right)$/i);
+    const powerMatch = cmd.match(/^\/power\s+(on|off)$/i);
+    const enterMatch = cmd.match(/^\/enter\s+(.+)$/i);
+    const resetMatch = cmd.match(/^\/reset$/i);
+    const helpMatch = cmd.match(/^\/help$/i);
+
+    if (turnMatch) {
+      const dir = turnMatch[1].toLowerCase();
+      if (fanOn) {
+        toast({
+          title: "Turn off the fan first!",
+          description: "You can't rotate the fan while it's running.",
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+      } else {
+        setFanDir(dir);
+        toast({
+          title: `Fan turned ${dir}`,
+          description: `The fan now faces ${dir === "left" ? "toward the paper" : "away from the paper"}.`,
+          variant: "default",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        });
+      }
+    } else if (powerMatch) {
+      const state = powerMatch[1].toLowerCase();
+      if (state === "on") {
+        setFanOn(true);
+        if (fanDir === "left" && !dustCleared) {
+          // Blow dust away!
+          setTimeout(() => {
+            setDustCleared(true);
+            toast({
+              title: "💨 Dust blown away!",
+              description: `A code is revealed on the paper: "${HIDDEN_CODE}". Use /enter to submit it!`,
+              variant: "default",
+              className:
+                "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+            });
+          }, 1200);
+          toast({
+            title: "Fan powered on! 💨",
+            description: "The fan is blowing toward the paper...",
+            variant: "default",
+            className:
+              "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+          });
+        } else if (fanDir === "center") {
+          toast({
+            title: "Fan powered on! 💨",
+            description: "The fan is blowing in your face... not very useful.",
+            variant: "default",
+            className:
+              "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+          });
+        } else {
+          toast({
+            title: "Fan powered on! 💨",
+            description: "The fan is blowing to the right... away from the paper.",
+            variant: "default",
+            className:
+              "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+          });
+        }
+      } else {
+        setFanOn(false);
+        toast({
+          title: "Fan powered off",
+          description: "The fan stops spinning.",
+          variant: "default",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        });
+      }
+    } else if (enterMatch) {
+      const guess = enterMatch[1].trim().toUpperCase();
+      if (!dustCleared) {
+        toast({
+          title: "No code visible",
+          description: "The paper is still covered in dust. Blow it away first!",
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+      } else if (guess === HIDDEN_CODE) {
+        setIsSuccess(true);
+      } else {
+        toast({
+          title: "Wrong code ❌",
+          description: `"${guess}" is not what the paper says. Look carefully!`,
+          variant: "destructive",
+          className:
+            "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        });
+      }
+    } else if (resetMatch) {
+      setFanDir("center");
+      setFanOn(false);
+      setDustCleared(false);
+      setIsSuccess(false);
+      setFanRotation(0);
       toast({
         title: "Level Reset",
-        description: "The game has been reset to its initial state",
+        description: "Everything restored. The paper is dusty again.",
         variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
       });
     } else if (helpMatch) {
       setHelpModalOpen(true);
-    } else if (themeMatch) {
-      const newTheme = themeMatch[1];
-      setTheme(newTheme);
-      toast({
-        title: "Theme Changed",
-        description: `Theme set to ${newTheme} mode`,
-        variant: "default",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-[#2D1B4B] opacity-100 shadow-lg",
-      });
-    } else if (moveMatch) {
-      const target = parseChessNotation(moveMatch[1]);
-      moveKnight(target);
     } else {
       toast({
         title: "Unknown Command",
         description: "Type /help to see available commands",
         variant: "destructive",
-        className: "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
+        className:
+          "fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white opacity-100 shadow-lg",
       });
     }
-    
+
     setInputValue("");
   };
 
-  const renderBoard = () => {
-    return gameState.board.map((row, y) => (
-      <div key={y} className="flex">
-        {row.map((cell, x) => (
-          <div 
-            key={`${x}-${y}`} 
-            className={`w-12 h-12 flex items-center justify-center border ${
-              gameState.knightPosition.x === x && gameState.knightPosition.y === y 
-                ? 'border-purple-500' 
-                : 'border-gray-200 dark:border-gray-700'
-            }`}
-          >
-            {cell}
-          </div>
-        ))}
-      </div>
-    ));
+  const closeHelpModal = () => {
+    setHelpModalOpen(false);
   };
+
+  // Fan angle for SVG rotation
+  const fanAngle = fanDir === "left" ? -45 : fanDir === "right" ? 45 : 0;
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
-      <motion.h1 
+      {/* Level title badge */}
+      <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -215,30 +202,219 @@ console.log('Moves:', updatedMoves);
       >
         Level 11
       </motion.h1>
-      
-      <motion.p 
+
+      {/* Question */}
+      <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
-        {message}
+        The Directional Fan — Reveal the hidden code.
       </motion.p>
 
+      {/* Scene */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.3 }}
-        className="bg-white dark:bg-[#2D1B4B]/40 rounded-2xl p-6 shadow-lg backdrop-blur-sm border border-purple-200 dark:border-purple-700/30 w-full max-w-md"
+        className="bg-[#0a0a1a] dark:bg-[#0a0a1a] rounded-2xl p-4 shadow-lg border border-purple-700/30 w-full max-w-md relative overflow-hidden"
       >
-        <div className="flex flex-col items-center">
-          <div className="text-xs text-gray-500 mb-2">Current Moves: {gameState.moves}/4</div>
-          <div className="border border-gray-300 dark:border-gray-700">
-            {renderBoard()}
-          </div>
+        <svg viewBox="0 0 380 240" className="w-full">
+          {/* Room background */}
+          <rect x="0" y="0" width="380" height="240" fill="#0d0d1a" />
+
+          {/* Wall pattern */}
+          {[...Array(10)].map((_, i) => (
+            <line key={`w${i}`} x1={0} y1={i * 25} x2={380} y2={i * 25} stroke="#141428" strokeWidth="0.5" />
+          ))}
+
+          {/* Desk surface */}
+          <rect x="30" y="150" width="320" height="12" rx="3" fill="#5D4037" stroke="#4E342E" strokeWidth="1" />
+          {/* Desk front */}
+          <rect x="35" y="162" width="310" height="55" rx="4" fill="#4E342E" stroke="#3E2723" strokeWidth="1" />
+          {/* Desk drawer lines */}
+          <line x1="190" y1="165" x2="190" y2="215" stroke="#3E2723" strokeWidth="1" />
+          <circle cx="130" cy="190" r="3" fill="#795548" />
+          <circle cx="250" cy="190" r="3" fill="#795548" />
+
+          {/* === PAPER (left side of desk) === */}
+          <g>
+            {/* Paper */}
+            <rect x="55" y="115" width="100" height="38" rx="2" fill="#F5F5DC" stroke="#DDD" strokeWidth="0.5" />
+            {/* Paper lines (the hidden code) */}
+            {dustCleared && (
+              <motion.g
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <text x="105" y="140" textAnchor="middle" fontSize="16" fill="#1a1a2e" fontWeight="bold" fontFamily="monospace">
+                  {HIDDEN_CODE}
+                </text>
+              </motion.g>
+            )}
+            {/* Dust overlay */}
+            <AnimatePresence>
+              {!dustCleared && (
+                <motion.g
+                  exit={{ opacity: 0, x: fanDir === "left" ? -80 : 0 }}
+                  transition={{ duration: 1 }}
+                >
+                  {/* Dust particles */}
+                  <rect x="55" y="115" width="100" height="38" rx="2" fill="#888888" opacity="0.7" />
+                  <rect x="58" y="118" width="94" height="32" rx="2" fill="#999999" opacity="0.5" />
+                  {/* Dust texture dots */}
+                  {[...Array(20)].map((_, i) => (
+                    <circle
+                      key={`dust${i}`}
+                      cx={60 + Math.random() * 88}
+                      cy={118 + Math.random() * 28}
+                      r={1 + Math.random() * 2}
+                      fill="#AAAAAA"
+                      opacity={0.3 + Math.random() * 0.4}
+                    />
+                  ))}
+                  <text x="105" y="138" textAnchor="middle" fontSize="9" fill="#666" fontStyle="italic">
+                    ~ dusty ~
+                  </text>
+                </motion.g>
+              )}
+            </AnimatePresence>
+            {/* Paper label */}
+            <text x="105" y="112" textAnchor="middle" fontSize="9" fill="#8888AA">
+              📄 PAPER
+            </text>
+          </g>
+
+          {/* Wind lines when fan is on and pointing left */}
+          {fanOn && fanDir === "left" && (
+            <motion.g
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.6, 0] }}
+              transition={{ repeat: Infinity, duration: 0.8 }}
+            >
+              <line x1="240" y1="125" x2="160" y2="125" stroke="#88BBFF" strokeWidth="1" strokeDasharray="4 6" />
+              <line x1="250" y1="135" x2="160" y2="135" stroke="#88BBFF" strokeWidth="1.5" strokeDasharray="6 4" />
+              <line x1="240" y1="145" x2="160" y2="145" stroke="#88BBFF" strokeWidth="1" strokeDasharray="3 5" />
+            </motion.g>
+          )}
+
+          {/* Wind lines when fan is on and pointing center (at player) */}
+          {fanOn && fanDir === "center" && (
+            <motion.g
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.4, 0] }}
+              transition={{ repeat: Infinity, duration: 0.8 }}
+            >
+              <circle cx="280" cy="115" r="8" fill="none" stroke="#88BBFF" strokeWidth="0.5" opacity="0.3" />
+              <circle cx="280" cy="115" r="16" fill="none" stroke="#88BBFF" strokeWidth="0.5" opacity="0.2" />
+              <circle cx="280" cy="115" r="24" fill="none" stroke="#88BBFF" strokeWidth="0.5" opacity="0.1" />
+            </motion.g>
+          )}
+
+          {/* Wind lines when fan is on and pointing right */}
+          {fanOn && fanDir === "right" && (
+            <motion.g
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.6, 0] }}
+              transition={{ repeat: Infinity, duration: 0.8 }}
+            >
+              <line x1="300" y1="125" x2="370" y2="125" stroke="#88BBFF" strokeWidth="1" strokeDasharray="4 6" />
+              <line x1="290" y1="135" x2="370" y2="135" stroke="#88BBFF" strokeWidth="1.5" strokeDasharray="6 4" />
+              <line x1="300" y1="145" x2="370" y2="145" stroke="#88BBFF" strokeWidth="1" strokeDasharray="3 5" />
+            </motion.g>
+          )}
+
+          {/* === FAN (right side of desk) === */}
+          <g>
+            {/* Fan base */}
+            <rect x="262" y="140" width="36" height="12" rx="3" fill="#37474F" stroke="#263238" strokeWidth="1" />
+            {/* Fan stem */}
+            <rect x="277" y="105" width="6" height="38" rx="2" fill="#455A64" />
+
+            {/* Fan head (rotates based on direction) */}
+            <motion.g
+              animate={{ rotate: fanAngle }}
+              transition={{ type: "spring", stiffness: 200, damping: 20 }}
+              style={{ originX: "280px", originY: "100px" }}
+            >
+              {/* Fan cage circle */}
+              <circle cx="280" cy="100" r="22" fill="#263238" stroke="#37474F" strokeWidth="2" />
+              {/* Fan blades */}
+              <motion.g
+                animate={{ rotate: fanOn ? fanRotation : 0 }}
+                style={{ originX: "280px", originY: "100px" }}
+              >
+                <line x1="280" y1="82" x2="280" y2="118" stroke="#78909C" strokeWidth="3" strokeLinecap="round" />
+                <line x1="262" y1="100" x2="298" y2="100" stroke="#78909C" strokeWidth="3" strokeLinecap="round" />
+                <line x1="267" y1="87" x2="293" y2="113" stroke="#78909C" strokeWidth="2.5" strokeLinecap="round" />
+                <line x1="293" y1="87" x2="267" y2="113" stroke="#78909C" strokeWidth="2.5" strokeLinecap="round" />
+              </motion.g>
+              {/* Center hub */}
+              <circle cx="280" cy="100" r="4" fill="#546E7A" />
+            </motion.g>
+
+            {/* Direction indicator */}
+            <text x="280" y="92" textAnchor="middle" fontSize="7" fill="#90A4AE" fontWeight="bold">
+            </text>
+            {/* Fan label */}
+            <text x="280" y="165" textAnchor="middle" fontSize="9" fill="#8888AA">
+              🌀 FAN
+            </text>
+          </g>
+
+          {/* Fan direction indicator */}
+          <text x="280" y="75" textAnchor="middle" fontSize="9" fill="#90A4AE">
+            {fanDir === "left" ? "← facing paper" : fanDir === "right" ? "facing right →" : "↑ facing you"}
+          </text>
+
+          {/* Power status */}
+          <g>
+            <circle cx="330" cy="80" r="6" fill={fanOn ? "#22c55e" : "#333"} stroke="#555" strokeWidth="1" />
+            <text x="345" y="84" fontSize="9" fill={fanOn ? "#22c55e" : "#666"}>
+              {fanOn ? "ON" : "OFF"}
+            </text>
+          </g>
+
+          {/* Floor */}
+          <rect x="0" y="220" width="380" height="20" fill="#111122" />
+
+          {/* Scene title */}
+          <text x="190" y="18" textAnchor="middle" fontSize="10" fill="#555577" fontWeight="bold">
+            THE DIRECTIONAL FAN
+          </text>
+        </svg>
+      </motion.div>
+
+      {/* Status bar */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        className="w-full max-w-md mt-3 flex justify-center gap-3"
+      >
+        <div className={`text-xs px-3 py-1 rounded-full border ${fanDir === "left"
+            ? "bg-green-500/20 text-green-400 border-green-500/40"
+            : "bg-purple-500/20 text-purple-300 border-purple-500/40"
+          }`}>
+          Fan: {fanDir === "left" ? "→ Paper" : fanDir === "right" ? "→ Right" : "→ You"}
+        </div>
+        <div className={`text-xs px-3 py-1 rounded-full border ${fanOn
+            ? "bg-green-500/20 text-green-400 border-green-500/40"
+            : "bg-gray-500/20 text-gray-400 border-gray-500/40"
+          }`}>
+          Power: {fanOn ? "ON" : "OFF"}
+        </div>
+        <div className={`text-xs px-3 py-1 rounded-full border ${dustCleared
+            ? "bg-green-500/20 text-green-400 border-green-500/40"
+            : "bg-yellow-500/20 text-yellow-400 border-yellow-500/40"
+          }`}>
+          Paper: {dustCleared ? "✅ Revealed" : "🟡 Dusty"}
         </div>
       </motion.div>
-      
+
+      {/* Help prompt */}
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -246,10 +422,15 @@ console.log('Moves:', updatedMoves);
         className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
         onClick={() => setHelpModalOpen(true)}
       >
-        Type <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">/help</span> to get commands and hints
+        Type{" "}
+        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+          /help
+        </span>{" "}
+        to get commands and hints
       </motion.span>
 
-      <motion.div 
+      {/* Command input */}
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.6 }}
@@ -259,89 +440,115 @@ console.log('Moves:', updatedMoves);
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
-          placeholder="Enter move (e.g., /move B3)"
+          onKeyPress={handleEnter}
+          placeholder="Enter command..."
           className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
         />
-        <button 
+        <button
           onClick={handleCommandSubmit}
           className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
         >
-          <div className="w-6 h-6 flex items-center justify-center">
-            <ArrowRight className="w-5 h-5 text-purple-900" />
-          </div>
+          <Image
+            src="/runcode.png"
+            alt="Run"
+            height={20}
+            width={20}
+            className="rounded-sm"
+          />
         </button>
       </motion.div>
 
-      <AnimatePresence>
-        {isHelpModalOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
+      {/* Help Modal */}
+      {isHelpModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4"
           >
-            <motion.div 
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="bg-white dark:bg-[#2D1B4B] rounded-xl overflow-hidden shadow-2xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col"
-            >
-              <div className="p-6 overflow-y-auto flex-grow">
-                <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">Help</h2>
-                <div className="space-y-4">
-                  
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2 text-purple-700 dark:text-purple-300">Commands:</h3>
-                    <div className="space-y-2">
-                      <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                        <span className="font-bold text-purple-700 dark:text-purple-300">/move [Square]</span>
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4 text-purple-800 dark:text-[#F9DC34]">
+                Available Commands:
+              </h2>
+              <div className="space-y-1 mb-6">
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /turn fan
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-300">[left/right]</span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Turn the fan to face left (toward paper) or right (away).
+                  </p>
+                </div>
 
-                        <p className="mt-1 text-gray-600 dark:text-gray-300">Move the knight to a specific square (e.g., /move B3)</p>
-                      </div>
-                      
-                      <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                        <span className="font-bold text-purple-700 dark:text-purple-300">/reset</span>
-                        <p className="mt-1 text-gray-600 dark:text-gray-300">Reset the game to the initial state</p>
-                      </div>
-                      
-                      <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                        <span className="font-bold text-purple-700 dark:text-purple-300">/theme</span>{" "}
-                        <span className="text-blue-600 dark:text-blue-300">[dark|light]</span>
-                        <p className="mt-1 text-gray-600 dark:text-gray-300">Change the theme to dark or light</p>
-                      </div>
-                      
-                      <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
-                        <span className="font-bold text-purple-700 dark:text-purple-300">/help</span>
-                        <p className="mt-1 text-gray-600 dark:text-gray-300">Show this help menu</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2 text-purple-700 dark:text-purple-300">Hint:</h3>
-                    <p className="text-gray-600 dark:text-gray-300 italic">
-                      Carefully plan your L-shaped moves. Remember, you must reach the exit in exactly 4 moves!
-                    </p>
-                  </div>
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /power
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-300">[on/off]</span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Turn the fan on or off.
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /enter
+                  </span>{" "}
+                  <span className="text-blue-600 dark:text-blue-300">[code]</span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Enter the code revealed on the paper.
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /reset
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Reset the level.
+                  </p>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
+                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                    /help
+                  </span>
+                  <p className="mt-1 text-gray-600 dark:text-gray-300">
+                    Show commands and hints.
+                  </p>
                 </div>
               </div>
-              
-              <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
-                <button
-                  onClick={() => setHelpModalOpen(false)}
-                  className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
-                >
-                  Close
-                </button>
+
+              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
+                Setup:
+              </h3>
+              <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 text-sm">
+                <p>• A piece of paper with a code is on the desk, covered in heavy gray dust.</p>
+                <p>• There is a desk fan currently pointing at your face.</p>
               </div>
-            </motion.div>
+
+              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
+                Hint:
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 italic">
+                Blow the dust away to see what's underneath.
+              </p>
+            </div>
+
+            <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center">
+              <button
+                onClick={closeHelpModal}
+                className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] px-6 py-2 rounded-lg text-purple-900 font-medium shadow-md transition-transform hover:scale-105"
+              >
+                Close
+              </button>
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };
 
-export default ChessKnightLevel;
+export default Level11;
