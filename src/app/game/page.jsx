@@ -63,18 +63,47 @@ export default function Game() {
     return (
       <div className="fixed inset-0 z-[60] bg-gradient-to-b from-[#2D1B4B] to-[#1A0F2E] overflow-y-auto">
         <div className="sticky top-0 z-50 backdrop-blur-md bg-gradient-to-r from-[#2D1B4B]/90 to-[#3D2060]/90 border-b border-purple-400/20 shadow-lg">
-          <div className="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto">
+          <div className="flex items-center justify-between px-3 sm:px-4 py-3 max-w-7xl mx-auto">
             <button
-              className="px-5 py-2.5 rounded-lg font-bold text-purple-900 bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] transition-all shadow-lg"
+              className="px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-purple-900 bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] transition-all shadow-lg text-sm sm:text-base"
               onClick={() => setCurrentLevelIndex(null)}
             >
               ← Back
             </button>
-            <h1 className="px-6 py-2 text-xl font-bold text-[#2D1B4B] dark:text-[#1A0F2E] bg-gradient-to-r from-[#F9DC34] to-[#F5A623] rounded-full shadow-lg">
-              Level {currentLevelIndex + 1}
-            </h1>
+
+            {/* Level navigation: Prev / Badge / Next */}
+            <div className="flex items-center gap-1 sm:gap-2">
+              <button
+                onClick={() => setCurrentLevelIndex((prev) => Math.max(0, prev - 1))}
+                disabled={currentLevelIndex === 0}
+                className={`p-2 rounded-lg font-bold text-sm transition-all ${
+                  currentLevelIndex === 0
+                    ? "text-purple-500/30 cursor-not-allowed"
+                    : "text-[#F9DC34] hover:bg-purple-700/50 hover:text-[#FFE55C] cursor-pointer"
+                }`}
+                title="Previous Level"
+              >
+                ◀
+              </button>
+              <h1 className="px-4 sm:px-6 py-1.5 sm:py-2 text-base sm:text-xl font-bold text-[#2D1B4B] dark:text-[#1A0F2E] bg-gradient-to-r from-[#F9DC34] to-[#F5A623] rounded-full shadow-lg whitespace-nowrap">
+                Level {currentLevelIndex + 1}
+              </h1>
+              <button
+                onClick={() => setCurrentLevelIndex((prev) => Math.min(levels.length - 1, prev + 1))}
+                disabled={currentLevelIndex === levels.length - 1}
+                className={`p-2 rounded-lg font-bold text-sm transition-all ${
+                  currentLevelIndex === levels.length - 1
+                    ? "text-purple-500/30 cursor-not-allowed"
+                    : "text-[#F9DC34] hover:bg-purple-700/50 hover:text-[#FFE55C] cursor-pointer"
+                }`}
+                title="Next Level"
+              >
+                ▶
+              </button>
+            </div>
+
             <Link href="/" className="flex items-center">
-              <span className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#F9DC34] to-[#F5A623]">
+              <span className="text-xl sm:text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#F9DC34] to-[#F5A623]">
                 Odyssey
               </span>
             </Link>
