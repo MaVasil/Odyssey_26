@@ -22,7 +22,7 @@ const Level2 = ({ onComplete }) => {
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [hasObserved, setHasObserved] = useState(false);
-  const [isDarkScene, setIsDarkScene] = useState(false);
+  const [isDarkScene, setIsDarkScene] = useState(true);
   const [sunAnimating, setSunAnimating] = useState(false);
   const { toast } = useToast();
   const sunControls = useAnimation();
@@ -43,6 +43,14 @@ const Level2 = ({ onComplete }) => {
       }, 2000);
     }
   }, [isSuccess, onComplete, toast]);
+
+  // Start in dark state: sun hidden, sunflower closed
+  useEffect(() => {
+    sunControls.set({ y: 160, opacity: 0 });
+    sunflowerControls.set({ rotate: 45 });
+    petalControls.set({ scale: 0.2 });
+    stemControls.set({ d: "M185,155 Q175,125 170,100" });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleThemeChange = async (mode) => {
     if (sunAnimating) return;
@@ -130,8 +138,13 @@ const Level2 = ({ onComplete }) => {
     if (themeMatch) {
       handleThemeChange(themeMatch[1].toLowerCase());
     } else if (enterMatch) {
-      const answer = enterMatch[1].trim().toLowerCase();
-      if (answer === "sunflower") {
+      if (isDarkScene) {
+        toast({
+          title: "Too Dark! 🌙",
+          description: "You can't see the flowers clearly. Try changing the theme first!",
+          variant: "destructive"
+        });
+      } else if (enterMatch[1].trim().toLowerCase() === "sunflower") {
         setIsSuccess(true);
       } else {
         toast({
@@ -326,7 +339,7 @@ const Level2 = ({ onComplete }) => {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mt-8 text-lg font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
-        Name the flower.
+        Which flower reacts to sunlight? Change the scene to find out.
       </motion.p>
 
       {/* Garden Scene */}

@@ -226,7 +226,7 @@ const Level8 = ({ onComplete }) => {
   };
 
   const tiltAngle =
-    scaleState === "left-lighter" ? -8 : scaleState === "right-lighter" ? 8 : 0;
+    scaleState === "left-lighter" ? 8 : scaleState === "right-lighter" ? -8 : 0;
 
   // Determine where each coin should be rendered
   const getCoinPosition = (coinNum) => {

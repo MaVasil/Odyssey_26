@@ -16,6 +16,7 @@ const Level3 = ({ onComplete }) => {
   const [hasFired, setHasFired] = useState(false);
   const [fireResult, setFireResult] = useState(null); // "hit" | "miss" | null
   const [laserAnimating, setLaserAnimating] = useState(false);
+  const [attempts, setAttempts] = useState(0);
   const { toast } = useToast();
 
   // SVG coordinates
@@ -123,6 +124,7 @@ const Level3 = ({ onComplete }) => {
     if (laserAnimating) return;
     setLaserAnimating(true);
     setHasFired(true);
+    setAttempts((prev) => prev + 1);
 
     if (mirrorAngle === 45) {
       setFireResult("hit");
@@ -139,14 +141,14 @@ const Level3 = ({ onComplete }) => {
           description:
             mirrorAngle === 90
               ? "The laser bounced straight back! The mirror is vertical."
-              : "The beam didn't reach the target. Adjust the mirror angle.",
+              : `Attempt ${attempts + 1}: The beam didn't reach the target. Adjust the mirror angle.`,
           variant: "destructive"
         });
-        // Reset fire state after showing miss
+        // Auto-reset fire state so player can try again
         setTimeout(() => {
           setFireResult(null);
           setHasFired(false);
-        }, 1000);
+        }, 800);
       }, 1200);
     }
   };
@@ -162,7 +164,7 @@ const Level3 = ({ onComplete }) => {
 
     if (rotateMatch) {
       const angle = parseInt(rotateMatch[1]);
-      if (angle >= 0 && angle <= 180) {
+      if (angle >= 0 && angle <= 360) {
         setMirrorAngle(angle);
         setFireResult(null);
         setHasFired(false);
@@ -174,7 +176,7 @@ const Level3 = ({ onComplete }) => {
       } else {
         toast({
           title: "Invalid Angle",
-          description: "The mirror angle must be between 0° and 180°.",
+          description: "The mirror angle must be between 0° and 360°.",
           variant: "destructive",
         });
       }
@@ -185,6 +187,7 @@ const Level3 = ({ onComplete }) => {
       setFireResult(null);
       setHasFired(false);
       setIsSuccess(false);
+      setAttempts(0);
       toast({
         title: "Level Reset",
         description: "Mirror reset to 0° (vertical). Laser ready.",

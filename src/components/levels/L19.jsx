@@ -137,20 +137,18 @@ const Level19 = ({ onComplete }) => {
         </g>
     );
 
-    // Traffic light rendering helper
+    // Traffic light rendering helper (compact, for central controller)
     const renderLight = (x, y, state, label) => (
         <g>
-            <rect x={x - 7} y={y - 18} width="14" height="36" rx="3" fill="#222" stroke="#444" strokeWidth="1" />
+            <rect x={x - 10} y={y - 8} width="20" height="16" rx="3" fill="#222" stroke="#444" strokeWidth="0.5" />
             {/* Red */}
-            <circle cx={x} cy={y - 11} r="4" fill={state === "red" ? "#ef4444" : "#331111"} />
-            {state === "red" && <circle cx={x} cy={y - 11} r="7" fill="#ef4444" opacity="0.2" />}
-            {/* Yellow */}
-            <circle cx={x} cy={y} r="4" fill="#332200" />
+            <circle cx={x - 4} cy={y} r="4" fill={state === "red" ? "#ef4444" : "#331111"} />
+            {state === "red" && <circle cx={x - 4} cy={y} r="6" fill="#ef4444" opacity="0.15" />}
             {/* Green */}
-            <circle cx={x} cy={y + 11} r="4" fill={state === "green" ? "#22c55e" : "#003311"} />
-            {state === "green" && <circle cx={x} cy={y + 11} r="7" fill="#22c55e" opacity="0.2" />}
+            <circle cx={x + 4} cy={y} r="4" fill={state === "green" ? "#22c55e" : "#003311"} />
+            {state === "green" && <circle cx={x + 4} cy={y} r="6" fill="#22c55e" opacity="0.15" />}
             {/* Label */}
-            <text x={x} y={y + 28} textAnchor="middle" fontSize="7" fill="#AAA" fontWeight="bold">
+            <text x={x} y={y + 14} textAnchor="middle" fontSize="6" fill="#AAA" fontWeight="bold">
                 {label}
             </text>
         </g>
@@ -244,11 +242,20 @@ const Level19 = ({ onComplete }) => {
                         {renderCar(155, 260, 0, "#FF7043")}
                         {renderCar(180, 290, 0, "#5C6BC0")}
 
-                        {/* ========== TRAFFIC LIGHTS ========== */}
-                        {renderLight(125, 115, signals.top, "TOP")}
-                        {renderLight(215, 225, signals.bottom, "BOTTOM")}
-                        {renderLight(115, 215, signals.left, "LEFT")}
-                        {renderLight(225, 115, signals.right, "RIGHT")}
+                        {/* ========== CENTRAL TRAFFIC CONTROLLER ========== */}
+                        <g>
+                            {/* Controller housing */}
+                            <rect x="142" y="137" width="56" height="66" rx="5" fill="#111" stroke="#555" strokeWidth="1.5" />
+                            <rect x="145" y="140" width="50" height="60" rx="4" fill="#1a1a2e" />
+                            {/* Title */}
+                            <text x="170" y="150" textAnchor="middle" fontSize="5" fill="#888" fontWeight="bold">
+                                SIGNAL CONTROL
+                            </text>
+                            {/* 4 direction lights stacked */}
+                            {renderLight(170, 160, signals.top, "TOP")}
+                            {renderLight(170, 175, signals.right, "RIGHT")}
+                            {renderLight(170, 190, signals.left, "LEFT")}
+                        </g>
 
                         {/* ========== LABELS ========== */}
                         {/* Top label — empty */}
@@ -308,49 +315,53 @@ const Level19 = ({ onComplete }) => {
 
 
 
-            {/* Help prompt */}
-            <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
-                onClick={() => setHelpModalOpen(true)}
-            >
-                Type{" "}
-                <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-                    /help
-                </span>{" "}
-                to get commands and hints
-            </motion.span>
+            {/* Sticky Command Panel */}
+            <div className="sticky bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/95 to-transparent backdrop-blur-sm border-t border-purple-500/20 py-4 mt-8">
+                <div className="flex flex-col items-center gap-3 max-w-4xl mx-auto px-4">
+                    <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 0.5 }}
+                        className="text-sm text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
+                        onClick={() => setHelpModalOpen(true)}
+                    >
+                        Type{" "}
+                        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+                            /help
+                        </span>{" "}
+                        to get commands and hints
+                    </motion.span>
 
-            {/* Command input */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                className="flex gap-2 w-full max-w-md"
-            >
-                <Input
-                    type="text"
-                    value={inputValue}
-                    onChange={handleInputChange}
-                    onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
-                    placeholder="Enter command..."
-                    className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-                />
-                <button
-                    onClick={handleCommandSubmit}
-                    className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-                >
-                    <Image
-                        src="/runcode.png"
-                        alt="Run"
-                        height={20}
-                        width={20}
-                        className="rounded-sm"
-                    />
-                </button>
-            </motion.div>
+                    {/* Command input */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.6 }}
+                        className="flex gap-2 w-full max-w-md"
+                    >
+                        <Input
+                            type="text"
+                            value={inputValue}
+                            onChange={handleInputChange}
+                            onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
+                            placeholder="Enter command..."
+                            className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
+                        />
+                        <button
+                            onClick={handleCommandSubmit}
+                            className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
+                        >
+                            <Image
+                                src="/runcode.png"
+                                alt="Run"
+                                height={20}
+                                width={20}
+                                className="rounded-sm"
+                            />
+                        </button>
+                    </motion.div>
+                </div>
+            </div>
 
             {/* Help Modal */}
             {isHelpModalOpen && (

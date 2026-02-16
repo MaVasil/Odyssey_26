@@ -18,24 +18,21 @@ const Level7 = ({ onComplete }) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [jug5, setJug5] = useState(0);
   const [jug3, setJug3] = useState(0);
-  const [scaleValue, setScaleValue] = useState(null); // which jug is on scale, null = none
   const [moveCount, setMoveCount] = useState(0);
   const { toast } = useToast();
 
   // Auto-detect win: either jug reaches exactly TARGET liters
   useEffect(() => {
-    if ((jug5 === TARGET || jug3 === TARGET) && !isSuccess) {
-      const whichJug = jug5 === TARGET ? "5L" : "3L";
-      setScaleValue(TARGET);
+    if (jug5 === TARGET && !isSuccess) {
       setIsSuccess(true);
     }
-  }, [jug5, jug3, isSuccess]);
+  }, [jug5, isSuccess]);
 
   useEffect(() => {
     if (isSuccess) {
       toast({
-        title: "Door Unlocked! ⚖️",
-        description: `Exactly 4 liters on the scale in ${moveCount} moves!`,
+        title: "Level Complete! ⚗️",
+        description: `Exactly 4 liters in the 5L jug in ${moveCount} moves!`,
         variant: "success"
       });
       setTimeout(() => {
@@ -322,7 +319,7 @@ const Level7 = ({ onComplete }) => {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mt-8 text-lg font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
       >
-        Place exactly 4 Liters on the scale.
+        Measure exactly 4 Liters in the 5L jug.
       </motion.p>
 
       {/* Scene */}
@@ -357,77 +354,18 @@ const Level7 = ({ onComplete }) => {
             />
           ))}
 
-          {/* Water tap (top left) */}
-          <g>
-            <rect x="20" y="10" width="40" height="12" rx="3" fill="#78909C" />
-            <rect x="50" y="10" width="10" height="30" rx="2" fill="#607D8B" />
-            <text x="55" y="55" textAnchor="middle" fontSize="9" fill="#90A4AE">
-              TAP 🚰
-            </text>
-          </g>
-
-          {/* Drain (bottom left) */}
-          <g>
-            <circle cx="40" cy="235" r="12" fill="none" stroke="#5D4037" strokeWidth="2" />
-            <circle cx="40" cy="235" r="5" fill="#3E2723" />
-            <text x="40" y="255" textAnchor="middle" fontSize="9" fill="#8D6E63">
-              DRAIN
-            </text>
-          </g>
-
           {/* 5L Jug */}
-          {renderJug(90, "5L JUG", JUG_5_MAX, jug5, "#F9DC34")}
+          {renderJug(110, "5L JUG", JUG_5_MAX, jug5, "#F9DC34")}
 
           {/* 3L Jug */}
-          {renderJug(190, "3L JUG", JUG_3_MAX, jug3, "#A78BFA")}
+          {renderJug(220, "3L JUG", JUG_3_MAX, jug3, "#A78BFA")}
 
           {/* Pour arrow between jugs */}
           <g opacity="0.3">
-            <line x1="155" y1="140" x2="185" y2="140" stroke="#F9DC34" strokeWidth="1.5" />
-            <polygon points="183,136 190,140 183,144" fill="#F9DC34" />
-            <line x1="185" y1="155" x2="155" y2="155" stroke="#A78BFA" strokeWidth="1.5" />
-            <polygon points="157,151 150,155 157,159" fill="#A78BFA" />
-          </g>
-
-          {/* Scale */}
-          <g>
-            {/* Scale base */}
-            <rect x="280" y="210" width="80" height="8" rx="3" fill="#5D4037" />
-            <rect x="315" y="195" width="10" height="18" fill="#795548" />
-            {/* Scale platform */}
-            <rect
-              x="285"
-              y="185"
-              width="70"
-              height="12"
-              rx="3"
-              fill={isSuccess ? "#22c55e" : "#8D6E63"}
-              stroke={isSuccess ? "#16a34a" : "#6D4C41"}
-              strokeWidth="1.5"
-            />
-            {/* Scale display */}
-            <rect x="295" y="135" width="50" height="35" rx="5" fill="#1a1a2e" stroke="#6D4C41" strokeWidth="1.5" />
-            <text
-              x="320"
-              y="158"
-              textAnchor="middle"
-              fontSize="16"
-              fill={isSuccess ? "#22c55e" : "#FF6B6B"}
-              fontWeight="bold"
-            >
-              {scaleValue !== null ? `${scaleValue}kg` : "—"}
-            </text>
-            <text
-              x="320"
-              y="130"
-              textAnchor="middle"
-              fontSize="10"
-              fill="#8D6E63"
-              fontWeight="bold"
-            >
-              SCALE ⚖️
-            </text>
-
+            <line x1="175" y1="140" x2="215" y2="140" stroke="#F9DC34" strokeWidth="1.5" />
+            <polygon points="213,136 220,140 213,144" fill="#F9DC34" />
+            <line x1="215" y1="155" x2="175" y2="155" stroke="#A78BFA" strokeWidth="1.5" />
+            <polygon points="177,151 170,155 177,159" fill="#A78BFA" />
           </g>
 
 

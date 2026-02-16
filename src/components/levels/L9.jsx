@@ -165,18 +165,7 @@ const Level9 = ({ onComplete }) => {
           ))
         )}
 
-        {/* Connecting line to next row */}
-        {rowIndex < SEQUENCE.length && (
-          <line
-            x1="190"
-            y1={y + 6}
-            x2="190"
-            y2={y + 26}
-            stroke="#333355"
-            strokeWidth="1"
-            strokeDasharray="2 3"
-          />
-        )}
+
       </motion.g>
     );
   };
@@ -244,24 +233,9 @@ const Level9 = ({ onComplete }) => {
             {/* Question mark row */}
             {renderRow("?", SEQUENCE.length, true)}
 
-            {/* Blinking cursor */}
-            <motion.rect
-              x="202"
-              y={50 + SEQUENCE.length * 40 - 18}
-              width="12"
-              height="2"
-              fill="#F9DC34"
-              animate={{ opacity: [1, 0, 1] }}
-              transition={{ repeat: Infinity, duration: 1 }}
-            />
 
-            {/* Decorative binary data in corners */}
-            <text x="10" y="290" fontSize="8" fill="#222244" fontFamily="monospace">
-              01001100 01101111 01101111
-            </text>
-            <text x="250" y="290" fontSize="8" fill="#222244" fontFamily="monospace">
-              01101011 00100000 01010011
-            </text>
+
+
 
 
           </svg>
