@@ -328,62 +328,6 @@ const Level15 = ({ onComplete }) => {
             </g>
           </g>
 
-          {/* === HINT AREA (right side) === */}
-          <g>
-            {/* Arrow from sticky note */}
-            <line x1="105" y1="60" x2="130" y2="76" stroke="#F9DC34" strokeWidth="1" strokeDasharray="3 2" opacity="0.4" />
-
-            {/* Info panel */}
-            <rect x="262" y="60" width="105" height="100" rx="6" fill="#1a1a2e" stroke="#333" strokeWidth="1" />
-            <text x="314" y="78" textAnchor="middle" fontSize="8" fill="#8888AA" fontWeight="bold">
-              LED STATUS
-            </text>
-            <line x1="272" y1="83" x2="357" y2="83" stroke="#333" strokeWidth="0.5" />
-
-            {/* Num Lock status */}
-            <circle cx="280" cy="97" r="3" fill={numLock ? "#22c55e" : "#333"} />
-            <text x="288" y="100" fontSize="8" fill={numLock ? "#22c55e" : "#666"}>
-              Num Lock: {numLock ? "ON" : "OFF"}
-            </text>
-
-            {/* Caps Lock status */}
-            <circle cx="280" cy="115" r="3" fill="#333" />
-            <text x="288" y="118" fontSize="8" fill="#666">
-              Caps Lock: OFF
-            </text>
-
-            {/* Scroll Lock status */}
-            <circle cx="280" cy="133" r="3" fill="#333" />
-            <text x="288" y="136" fontSize="8" fill="#666">
-              Scroll Lock: OFF
-            </text>
-
-            {/* Hint if num lock is off */}
-
-          </g>
-
-          {/* Digits entered indicator */}
-          <g>
-            <text x="314" y="190" textAnchor="middle" fontSize="8" fill="#8888AA">
-              Digits: {enteredDigits.length}/4
-            </text>
-            <g>
-              {[0, 1, 2, 3].map((i) => (
-                <rect
-                  key={`di${i}`}
-                  x={290 + i * 14}
-                  y="196"
-                  width="10"
-                  height="10"
-                  rx="2"
-                  fill={i < enteredDigits.length ? "#22c55e" : "#1a1a2e"}
-                  stroke={i < enteredDigits.length ? "#22c55e" : "#333"}
-                  strokeWidth="1"
-                />
-              ))}
-            </g>
-          </g>
-
           {/* Floor */}
           <rect x="0" y="268" width="380" height="12" fill="#111122" />
         </svg>
@@ -391,49 +335,53 @@ const Level15 = ({ onComplete }) => {
 
 
 
-      {/* Help prompt */}
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.5 }}
-        className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
-        onClick={() => setHelpModalOpen(true)}
-      >
-        Type{" "}
-        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-          /help
-        </span>{" "}
-        to get commands and hints
-      </motion.span>
+      {/* Sticky Command Panel */}
+      <div className="sticky bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/95 to-transparent backdrop-blur-sm border-t border-purple-500/20 py-4 mt-8">
+        <div className="flex flex-col items-center gap-3 max-w-4xl mx-auto px-4">
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-sm text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
+            onClick={() => setHelpModalOpen(true)}
+          >
+            Type{" "}
+            <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+              /help
+            </span>{" "}
+            to get commands and hints
+          </motion.span>
 
-      {/* Command input */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="flex gap-2 w-full max-w-md"
-      >
-        <Input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
-          placeholder="Enter command..."
-          className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-        />
-        <button
-          onClick={handleCommandSubmit}
-          className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-        >
-          <Image
-            src="/runcode.png"
-            alt="Run"
-            height={20}
-            width={20}
-            className="rounded-sm"
-          />
-        </button>
-      </motion.div>
+          {/* Command input */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex gap-2 w-full max-w-md"
+          >
+            <Input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
+              placeholder="Enter command..."
+              className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
+            />
+            <button
+              onClick={handleCommandSubmit}
+              className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
+            >
+              <Image
+                src="/runcode.png"
+                alt="Run"
+                height={20}
+                width={20}
+                className="rounded-sm"
+              />
+            </button>
+          </motion.div>
+        </div>
+      </div>
 
       {/* Help Modal */}
       {isHelpModalOpen && (

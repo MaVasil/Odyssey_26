@@ -130,26 +130,22 @@ const Level12 = ({ onComplete }) => {
             THE LOCKED DRAWER
           </text>
 
-          {/* === TABLE SURFACE === */}
-          <rect x="20" y="155" width="340" height="10" rx="2" fill="#6D4C41" stroke="#5D4037" strokeWidth="1" />
-          <rect x="25" y="165" width="330" height="3" fill="#5D4037" />
-
-          {/* === DESK CALENDAR (left side) === */}
+          {/* === DESK CALENDAR (left side, on table) === */}
           <motion.g
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
             {/* Calendar base/stand */}
-            <rect x="30" y="140" width="130" height="4" rx="2" fill="#8D6E63" />
+            <rect x="30" y="195" width="130" height="4" rx="2" fill="#8D6E63" />
             {/* Calendar back page (shadow) */}
-            <rect x="37" y="30" width="120" height="112" rx="3" fill="#E8E0D0" stroke="#CCC" strokeWidth="0.5" />
+            <rect x="37" y="85" width="120" height="112" rx="3" fill="#E8E0D0" stroke="#CCC" strokeWidth="0.5" />
             {/* Calendar front page */}
-            <rect x="34" y="32" width="120" height="112" rx="3" fill="#FFF8E1" stroke="#DDD" strokeWidth="1" />
+            <rect x="34" y="87" width="120" height="112" rx="3" fill="#FFF8E1" stroke="#DDD" strokeWidth="1" />
 
             {/* Month header band */}
-            <rect x="34" y="32" width="120" height="16" rx="3" fill="#e53935" />
-            <text x="94" y="44" textAnchor="middle" fontSize="10" fill="white" fontWeight="bold" letterSpacing="2">
+            <rect x="34" y="87" width="120" height="16" rx="3" fill="#e53935" />
+            <text x="94" y="99" textAnchor="middle" fontSize="10" fill="white" fontWeight="bold" letterSpacing="2">
               JULY
             </text>
 
@@ -158,7 +154,7 @@ const Level12 = ({ onComplete }) => {
               <text
                 key={`dh${i}`}
                 x={42 + i * 16}
-                y={58}
+                y={113}
                 textAnchor="middle"
                 fontSize="6"
                 fill="#999"
@@ -171,11 +167,11 @@ const Level12 = ({ onComplete }) => {
             {/* Day number grid — July 1 = Tuesday (col index 2) */}
             {Array.from({ length: 31 }, (_, i) => {
               const day = i + 1;
-              const cellIndex = i + 2; // offset: day 1 is at col 2
+              const cellIndex = i + 2;
               const row = Math.floor(cellIndex / 7);
               const col = cellIndex % 7;
               const cx = 42 + col * 16;
-              const cy = 68 + row * 13;
+              const cy = 123 + row * 13;
               const isMarked = day === 20;
 
               return (
@@ -198,74 +194,73 @@ const Level12 = ({ onComplete }) => {
             })}
 
             {/* Calendar label */}
-            <text x="94" y="155" textAnchor="middle" fontSize="8" fill="#8888AA">
+            <text x="94" y="210" textAnchor="middle" fontSize="8" fill="#8888AA">
               📅 DESK CALENDAR
             </text>
           </motion.g>
 
-          {/* === STICKY NOTE (center) === */}
+          {/* === STICKY NOTE (center, on wall above table) === */}
           <motion.g
             initial={{ opacity: 0, rotate: -5 }}
             animate={{ opacity: 1, rotate: 0 }}
             transition={{ duration: 0.5, delay: 0.7 }}
           >
-            {/* Sticky note */}
-            <rect x="170" y="95" width="90" height="55" rx="1" fill="#FFEE58" />
-            {/* Folded corner */}
-            <polygon points="260,95 260,107 248,95" fill="#FDD835" />
-            {/* Shadow edge */}
-            <line x1="170" y1="150" x2="260" y2="150" stroke="#F9A825" strokeWidth="0.5" />
-
-            {/* Note text */}
-            <text x="215" y="113" textAnchor="middle" fontSize="8" fill="#5D4037" fontStyle="italic">
+            <rect x="170" y="35" width="55" height="40" rx="1" fill="#FFEE58" />
+            <polygon points="225,35 225,45 215,35" fill="#FDD835" />
+            <text x="197" y="50" textAnchor="middle" fontSize="7" fill="#5D4037" fontStyle="italic">
               "Don't forget
             </text>
-            <text x="215" y="125" textAnchor="middle" fontSize="8" fill="#5D4037" fontStyle="italic">
+            <text x="197" y="60" textAnchor="middle" fontSize="7" fill="#5D4037" fontStyle="italic">
               the big day."
             </text>
-            <text x="215" y="142" textAnchor="middle" fontSize="7" fill="#8D6E63">
+            <text x="197" y="70" textAnchor="middle" fontSize="6" fill="#8D6E63">
               — CC
             </text>
           </motion.g>
 
-          {/* === DRAWER WITH KEYPAD (right side) === */}
+          {/* === TABLE SURFACE === */}
+          <rect x="20" y="200" width="340" height="10" rx="2" fill="#6D4C41" stroke="#5D4037" strokeWidth="1" />
+          <rect x="25" y="210" width="330" height="3" fill="#5D4037" />
+          {/* Table legs */}
+          <rect x="40" y="213" width="8" height="47" fill="#5D4037" rx="1" />
+          <rect x="332" y="213" width="8" height="47" fill="#5D4037" rx="1" />
+
+          {/* === KEYPAD LOCKER (ON TOP OF TABLE) === */}
           <motion.g
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            {/* Drawer body */}
-            <rect x="260" y="170" width="100" height="70" rx="4" fill="#37474F" stroke="#263238" strokeWidth="1.5" />
-            {/* Drawer face detail */}
-            <rect x="265" y="175" width="90" height="60" rx="3" fill="#455A64" stroke="#37474F" strokeWidth="1" />
+            {/* Locker body */}
+            <rect x="235" y="80" width="120" height="118" rx="6" fill="#37474F" stroke="#263238" strokeWidth="2" />
+            <rect x="241" y="86" width="108" height="106" rx="4" fill="#455A64" stroke="#37474F" strokeWidth="1" />
 
-            {/* Drawer handle */}
-            <rect x="295" y="220" width="30" height="6" rx="3" fill="#78909C" stroke="#90A4AE" strokeWidth="0.5" />
-
-            {/* Keypad area */}
-            <rect x="275" y="178" width="50" height="38" rx="3" fill="#1a1a2e" stroke="#333" strokeWidth="1" />
+            {/* Lock / unlock indicator */}
+            <text x="295" y="102" textAnchor="middle" fontSize="14" fill={isSuccess ? "#22c55e" : "#FF6B6B"}>
+              {isSuccess ? "🔓" : "🔒"}
+            </text>
 
             {/* PIN display */}
             <motion.rect
-              x="279"
-              y="181"
-              width="42"
-              height="12"
-              rx="2"
+              x="254"
+              y="108"
+              width="82"
+              height="22"
+              rx="3"
               fill="#0a0a15"
               stroke={isSuccess ? "#22c55e" : shake ? "#ef4444" : "#333"}
-              strokeWidth="1"
-              animate={shake ? { x: [279, 282, 276, 281, 277, 279] } : {}}
+              strokeWidth="1.5"
+              animate={shake ? { x: [254, 258, 250, 257, 251, 254] } : {}}
               transition={{ duration: 0.4 }}
             />
 
             {/* PIN dots or text */}
             {isSuccess ? (
-              <text x="300" y="191" textAnchor="middle" fontSize="8" fill="#22c55e" fontFamily="monospace" fontWeight="bold">
+              <text x="295" y="124" textAnchor="middle" fontSize="14" fill="#22c55e" fontFamily="monospace" fontWeight="bold">
                 0720
               </text>
             ) : (
-              <text x="300" y="191" textAnchor="middle" fontSize="9" fill="#444" fontFamily="monospace">
+              <text x="295" y="124" textAnchor="middle" fontSize="14" fill="#444" fontFamily="monospace">
                 ----
               </text>
             )}
@@ -277,21 +272,22 @@ const Level12 = ({ onComplete }) => {
               return (
                 <g key={n}>
                   <rect
-                    x={280 + col * 14}
-                    y={196 + row * 7}
-                    width="12"
-                    height="5.5"
-                    rx="1"
+                    x={254 + col * 28}
+                    y={136 + row * 16}
+                    width="24"
+                    height="13"
+                    rx="2"
                     fill="#263238"
                     stroke="#37474F"
                     strokeWidth="0.5"
                   />
                   <text
-                    x={286 + col * 14}
-                    y={200.5 + row * 7}
+                    x={266 + col * 28}
+                    y={146 + row * 16}
                     textAnchor="middle"
-                    fontSize="4"
+                    fontSize="8"
                     fill="#90A4AE"
+                    fontWeight="bold"
                   >
                     {n}
                   </text>
@@ -299,17 +295,12 @@ const Level12 = ({ onComplete }) => {
               );
             })}
             {/* Zero button */}
-            <rect x="294" y="217" width="12" height="5.5" rx="1" fill="#263238" stroke="#37474F" strokeWidth="0.5" />
-            <text x="300" y="221.5" textAnchor="middle" fontSize="4" fill="#90A4AE">0</text>
+            <rect x="282" y="184" width="24" height="13" rx="2" fill="#263238" stroke="#37474F" strokeWidth="0.5" />
+            <text x="294" y="194" textAnchor="middle" fontSize="8" fill="#90A4AE" fontWeight="bold">0</text>
 
-            {/* Lock / unlock indicator */}
-            <text x="310" y="243" textAnchor="middle" fontSize="9" fill={isSuccess ? "#22c55e" : "#FF6B6B"}>
-              {isSuccess ? "🔓" : "🔒"}
-            </text>
-
-            {/* Drawer label */}
-            <text x="310" y="258" textAnchor="middle" fontSize="8" fill="#8888AA">
-              KEYPAD DRAWER
+            {/* Locker label */}
+            <text x="295" y="76" textAnchor="middle" fontSize="8" fill="#8888AA">
+              KEYPAD LOCKER
             </text>
           </motion.g>
 
@@ -336,49 +327,53 @@ const Level12 = ({ onComplete }) => {
         </motion.div>
       )}
 
-      {/* Help prompt */}
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.5 }}
-        className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
-        onClick={() => setHelpModalOpen(true)}
-      >
-        Type{" "}
-        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-          /help
-        </span>{" "}
-        to get commands and hints
-      </motion.span>
+      {/* Sticky Command Panel */}
+      <div className="sticky bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/95 to-transparent backdrop-blur-sm border-t border-purple-500/20 py-4 mt-8">
+        <div className="flex flex-col items-center gap-3 max-w-4xl mx-auto px-4">
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-sm text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
+            onClick={() => setHelpModalOpen(true)}
+          >
+            Type{" "}
+            <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+              /help
+            </span>{" "}
+            to get commands and hints
+          </motion.span>
 
-      {/* Command input */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="flex gap-2 w-full max-w-md"
-      >
-        <Input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
-          placeholder="Enter command..."
-          className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-        />
-        <button
-          onClick={handleCommandSubmit}
-          className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-        >
-          <Image
-            src="/runcode.png"
-            alt="Run"
-            height={20}
-            width={20}
-            className="rounded-sm"
-          />
-        </button>
-      </motion.div>
+          {/* Command input */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex gap-2 w-full max-w-md"
+          >
+            <Input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
+              placeholder="Enter command..."
+              className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
+            />
+            <button
+              onClick={handleCommandSubmit}
+              className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
+            >
+              <Image
+                src="/runcode.png"
+                alt="Run"
+                height={20}
+                width={20}
+                className="rounded-sm"
+              />
+            </button>
+          </motion.div>
+        </div>
+      </div>
 
       {/* Help Modal */}
       {isHelpModalOpen && (

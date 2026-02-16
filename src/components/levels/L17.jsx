@@ -18,7 +18,20 @@ const Level17 = ({ onComplete }) => {
     const [detailsViewed, setDetailsViewed] = useState(false);
     const [progress, setProgress] = useState(0);
     const progressRef = useRef(null);
+    const audioRef = useRef(null);
     const { toast } = useToast();
+
+    // Initialize audio on mount
+    useEffect(() => {
+        audioRef.current = new Audio("/rickroll.webm");
+        audioRef.current.loop = true;
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
+        };
+    }, []);
 
     useEffect(() => {
         if (isSuccess) {
@@ -67,7 +80,7 @@ const Level17 = ({ onComplete }) => {
         const cmd = inputValue.trim().toLowerCase();
 
         const playMatch = cmd.match(/^\/play$/i);
-        const pauseMatch = cmd.match(/^\/pause$/i);
+        const stopMatch = cmd.match(/^\/stop$/i);
         const viewMatch = cmd.match(/^\/view\s+details$/i);
         const enterMatch = cmd.match(/^\/enter\s+(.+)$/i);
         const resetMatch = cmd.match(/^\/reset$/i);
@@ -82,24 +95,32 @@ const Level17 = ({ onComplete }) => {
                 });
             } else {
                 setIsPlaying(true);
+                if (audioRef.current) {
+                    audioRef.current.play().catch(() => { });
+                }
                 toast({
                     title: "▶ Now Playing",
                     description: "♪ Never Gonna Give You Up ♪",
                     variant: "default"
                 });
             }
-        } else if (pauseMatch) {
+        } else if (stopMatch) {
             if (!isPlaying) {
                 toast({
-                    title: "Already paused ⏸",
-                    description: "The music is already paused.",
+                    title: "Already stopped ⏹",
+                    description: "The music is not playing.",
                     variant: "default"
                 });
             } else {
                 setIsPlaying(false);
+                setProgress(0);
+                if (audioRef.current) {
+                    audioRef.current.pause();
+                    audioRef.current.currentTime = 0;
+                }
                 toast({
-                    title: "⏸ Paused",
-                    description: "Music paused.",
+                    title: "⏹ Stopped",
+                    description: "Music stopped.",
                     variant: "default"
                 });
             }
@@ -126,6 +147,10 @@ const Level17 = ({ onComplete }) => {
             setDetailsViewed(false);
             setProgress(0);
             setIsSuccess(false);
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
             toast({
                 title: "Level Reset",
                 description: "Music player restored.",
@@ -192,13 +217,13 @@ const Level17 = ({ onComplete }) => {
                                 <circle cx="60" cy="60" r="18" fill="#e53935" />
                                 <circle cx="60" cy="60" r="16" fill="#c62828" />
                                 <text x="60" y="56" textAnchor="middle" fontSize="5" fill="white" fontWeight="bold">
-                                    R. ASTLEY
+                                    {detailsViewed ? "R. ASTLEY" : "???"}
                                 </text>
                                 <text x="60" y="63" textAnchor="middle" fontSize="4" fill="#FFCDD2">
-                                    Never Gonna
+                                    {detailsViewed ? "Never Gonna" : "Track 01"}
                                 </text>
                                 <text x="60" y="69" textAnchor="middle" fontSize="4" fill="#FFCDD2">
-                                    Give You Up
+                                    {detailsViewed ? "Give You Up" : ""}
                                 </text>
                                 {/* Center hole */}
                                 <circle cx="60" cy="60" r="3" fill="#0d0d1a" />
@@ -206,17 +231,19 @@ const Level17 = ({ onComplete }) => {
                         </motion.div>
                     </div>
 
-                    {/* Track info */}
+                    {/* Track info — only shown after /view details */}
                     <div className="text-center mb-3">
                         <h3 className="text-white text-lg font-bold tracking-wide">
-                            Never Gonna Give You Up
+                            {detailsViewed ? "Never Gonna Give You Up" : "Unknown Track"}
                         </h3>
                         <p className="text-purple-300 text-sm mt-1">
-                            Artist: <span className="text-[#F9DC34] font-semibold">R. Astley</span>
+                            Artist: <span className="text-[#F9DC34] font-semibold">{detailsViewed ? "R. Astley" : "???"}</span>
                         </p>
-                        <p className="text-gray-500 text-xs mt-0.5">
-                            1987 • Whenever You Need Somebody
-                        </p>
+                        {detailsViewed && (
+                            <p className="text-gray-500 text-xs mt-0.5">
+                                1987 • Whenever You Need Somebody
+                            </p>
+                        )}
                     </div>
 
                     {/* Progress bar */}
@@ -294,49 +321,53 @@ const Level17 = ({ onComplete }) => {
                 "Enter the artist's full name."
             </motion.p>
 
-            {/* Help prompt */}
-            <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
-                onClick={() => setHelpModalOpen(true)}
-            >
-                Type{" "}
-                <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-                    /help
-                </span>{" "}
-                to get commands and hints
-            </motion.span>
+            {/* Sticky Command Panel */}
+            <div className="sticky bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/95 to-transparent backdrop-blur-sm border-t border-purple-500/20 py-4 mt-8">
+                <div className="flex flex-col items-center gap-3 max-w-4xl mx-auto px-4">
+                    <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 0.5 }}
+                        className="text-sm text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
+                        onClick={() => setHelpModalOpen(true)}
+                    >
+                        Type{" "}
+                        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+                            /help
+                        </span>{" "}
+                        to get commands and hints
+                    </motion.span>
 
-            {/* Command input */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                className="flex gap-2 w-full max-w-md"
-            >
-                <Input
-                    type="text"
-                    value={inputValue}
-                    onChange={handleInputChange}
-                    onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
-                    placeholder="Enter command..."
-                    className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-                />
-                <button
-                    onClick={handleCommandSubmit}
-                    className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-                >
-                    <Image
-                        src="/runcode.png"
-                        alt="Run"
-                        height={20}
-                        width={20}
-                        className="rounded-sm"
-                    />
-                </button>
-            </motion.div>
+                    {/* Command input */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.6 }}
+                        className="flex gap-2 w-full max-w-md"
+                    >
+                        <Input
+                            type="text"
+                            value={inputValue}
+                            onChange={handleInputChange}
+                            onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
+                            placeholder="Enter command..."
+                            className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
+                        />
+                        <button
+                            onClick={handleCommandSubmit}
+                            className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
+                        >
+                            <Image
+                                src="/runcode.png"
+                                alt="Run"
+                                height={20}
+                                width={20}
+                                className="rounded-sm"
+                            />
+                        </button>
+                    </motion.div>
+                </div>
+            </div>
 
             {/* Help Modal */}
             {isHelpModalOpen && (

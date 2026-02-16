@@ -45,19 +45,30 @@ const Level18 = ({ onComplete }) => {
         pushCommand(inputValue);
         const cmd = inputValue.trim().toLowerCase();
 
-        const locateMatch = cmd.match(/^\/locate$/i);
+        const locateMatch = cmd.match(/^\/locate\s+([\d.\-]+)\s+([\d.\-]+)$/i);
         const submitMatch = cmd.match(/^\/submit\s+(.+)$/i);
         const hintMatch = cmd.match(/^\/hint$/i);
         const resetMatch = cmd.match(/^\/reset$/i);
         const helpMatch = cmd.match(/^\/help$/i);
 
         if (locateMatch) {
-            setLocated(true);
-            toast({
-                title: "📍 Location traced!",
-                description: "Visual data recovered. An image has appeared on screen.",
-                variant: "default"
-            });
+            const lat = parseFloat(locateMatch[1]);
+            const lon = parseFloat(locateMatch[2]);
+            // Accept if within ~0.01 degree of the Hollywood Sign coordinates
+            if (Math.abs(lat - 34.1341) < 0.01 && Math.abs(Math.abs(lon) - 118.3215) < 0.01) {
+                setLocated(true);
+                toast({
+                    title: "📍 Location traced!",
+                    description: "Coordinates match! Visual data recovered.",
+                    variant: "default"
+                });
+            } else {
+                toast({
+                    title: "❌ No match",
+                    description: "Those coordinates don't match the signal. Try different values.",
+                    variant: "destructive"
+                });
+            }
         } else if (submitMatch) {
             const guess = submitMatch[1].trim().toLowerCase();
             if (CORRECT_ANSWERS.includes(guess)) {
@@ -113,7 +124,7 @@ const Level18 = ({ onComplete }) => {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="mt-8 text-xl font-semibold mb-4 text-center text-purple-900 dark:text-[#F9DC34]"
             >
-                The Landmark Trace — Identify the landmark.
+                The Landmark Trace — I wonder where this leads...
             </motion.p>
 
             {/* Terminal / GPS Display */}
@@ -147,7 +158,7 @@ const Level18 = ({ onComplete }) => {
                                 <span className="text-gray-500 text-xs">Signal Status: DECODED</span>
                             </div>
 
-                            {/* Coordinates */}
+                            {/* Mysterious hint text instead of coordinates */}
                             <div className="space-y-2">
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-gray-500 text-xs w-10">LAT:</span>
@@ -157,7 +168,7 @@ const Level18 = ({ onComplete }) => {
                                         transition={{ duration: 0.5, delay: 0.6 }}
                                         className="text-[#F9DC34] text-lg font-bold tracking-wider"
                                     >
-                                        34.1341° N
+                                        ??.????° ?
                                     </motion.span>
                                 </div>
                                 <div className="flex items-baseline gap-2">
@@ -168,7 +179,7 @@ const Level18 = ({ onComplete }) => {
                                         transition={{ duration: 0.5, delay: 0.8 }}
                                         className="text-[#F9DC34] text-lg font-bold tracking-wider"
                                     >
-                                        118.3215° W
+                                        ???.????° ?
                                     </motion.span>
                                 </div>
                             </div>
@@ -177,7 +188,7 @@ const Level18 = ({ onComplete }) => {
                         {/* Locate instruction */}
                         {!located && (
                             <p className="text-gray-500 text-xs">
-                                Use <span className="text-purple-400">/locate</span> to trace the signal and retrieve visual data.
+                                Use <span className="text-purple-400">/locate [latitude] [longitude]</span> to trace the signal.
                             </p>
                         )}
 
@@ -268,49 +279,53 @@ const Level18 = ({ onComplete }) => {
 
 
 
-            {/* Help prompt */}
-            <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="mx-10 my-6 text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
-                onClick={() => setHelpModalOpen(true)}
-            >
-                Type{" "}
-                <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-                    /help
-                </span>{" "}
-                to get commands and hints
-            </motion.span>
+            {/* Sticky Command Panel */}
+            <div className="sticky bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/95 to-transparent backdrop-blur-sm border-t border-purple-500/20 py-4 mt-8">
+                <div className="flex flex-col items-center gap-3 max-w-4xl mx-auto px-4">
+                    <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 0.5 }}
+                        className="text-sm text-center cursor-pointer text-purple-700 dark:text-purple-300 hover:text-[#F5A623] dark:hover:text-[#F9DC34] transition-colors"
+                        onClick={() => setHelpModalOpen(true)}
+                    >
+                        Type{" "}
+                        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+                            /help
+                        </span>{" "}
+                        to get commands and hints
+                    </motion.span>
 
-            {/* Command input */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                className="flex gap-2 w-full max-w-md"
-            >
-                <Input
-                    type="text"
-                    value={inputValue}
-                    onChange={handleInputChange}
-                    onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
-                    placeholder="Enter command..."
-                    className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-                />
-                <button
-                    onClick={handleCommandSubmit}
-                    className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-                >
-                    <Image
-                        src="/runcode.png"
-                        alt="Run"
-                        height={20}
-                        width={20}
-                        className="rounded-sm"
-                    />
-                </button>
-            </motion.div>
+                    {/* Command input */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.6 }}
+                        className="flex gap-2 w-full max-w-md"
+                    >
+                        <Input
+                            type="text"
+                            value={inputValue}
+                            onChange={handleInputChange}
+                            onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
+                            placeholder="Enter command..."
+                            className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
+                        />
+                        <button
+                            onClick={handleCommandSubmit}
+                            className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
+                        >
+                            <Image
+                                src="/runcode.png"
+                                alt="Run"
+                                height={20}
+                                width={20}
+                                className="rounded-sm"
+                            />
+                        </button>
+                    </motion.div>
+                </div>
+            </div>
 
             {/* Help Modal */}
             {isHelpModalOpen && (

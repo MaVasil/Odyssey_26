@@ -16,6 +16,7 @@ const Level3 = ({ onComplete }) => {
   const [hasFired, setHasFired] = useState(false);
   const [fireResult, setFireResult] = useState(null); // "hit" | "miss" | null
   const [laserAnimating, setLaserAnimating] = useState(false);
+  const [attempts, setAttempts] = useState(0);
   const { toast } = useToast();
 
   // SVG coordinates
@@ -123,6 +124,7 @@ const Level3 = ({ onComplete }) => {
     if (laserAnimating) return;
     setLaserAnimating(true);
     setHasFired(true);
+    setAttempts((prev) => prev + 1);
 
     // determine hit based on physics instead of hardcoded angle
     const hit = checkHit();
@@ -142,11 +144,11 @@ const Level3 = ({ onComplete }) => {
             "The beam didn't reach the target. Adjust the mirror angle.",
           variant: "destructive"
         });
-        // Reset fire state after showing miss
+        // Auto-reset fire state so player can try again
         setTimeout(() => {
           setFireResult(null);
           setHasFired(false);
-        }, 1000);
+        }, 800);
       }, 1200);
     }
   };
@@ -187,6 +189,7 @@ const Level3 = ({ onComplete }) => {
       setFireResult(null);
       setHasFired(false);
       setIsSuccess(false);
+      setAttempts(0);
       toast({
         title: "Level Reset",
         description: "Mirror reset to 0° (vertical). Laser ready.",
