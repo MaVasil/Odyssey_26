@@ -12,7 +12,7 @@ const Level3 = ({ onComplete }) => {
   const { pushCommand, handleKeyDown: handleHistoryKeys } = useCommandHistory(setInputValue);
   const [isHelpModalOpen, setHelpModalOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [mirrorAngle, setMirrorAngle] = useState(0); // 0° = vertical, 45° = tilted right to hit target
+  const [mirrorAngle, setMirrorAngle] = useState(0); // 0° = vertical. rotations accumulate and are normalized modulo 360° (clockwise positive)
   const [hasFired, setHasFired] = useState(false);
   const [fireResult, setFireResult] = useState(null); // "hit" | "miss" | null
   const [laserAnimating, setLaserAnimating] = useState(false);
@@ -30,10 +30,10 @@ const Level3 = ({ onComplete }) => {
   const SVG_H = 325;
   const HIT_RADIUS = 22;
 
-  // Mirror visual rotation: 0° = vertical (no rotation), 45° = tilted 45° clockwise
+  // Mirror visual rotation: 0° = vertical (no rotation); mirrorAngle may span 0–360°
   const mirrorRotation = -mirrorAngle;
 
-  // Reflected beam physics (0° = vertical mirror → beam bounces back)
+  // Reflected beam physics (0° = vertical mirror → beam bounces back). works for any mirrorAngle in [0,360).
   const thetaRad = (mirrorAngle * Math.PI) / 180;
   const reflectDx = -Math.cos(2 * thetaRad);
   const reflectDy = Math.sin(2 * thetaRad);
@@ -124,7 +124,9 @@ const Level3 = ({ onComplete }) => {
     setLaserAnimating(true);
     setHasFired(true);
 
-    if (mirrorAngle === 45) {
+    // determine hit based on physics instead of hardcoded angle
+    const hit = checkHit();
+    if (hit) {
       setFireResult("hit");
       setTimeout(() => {
         setIsSuccess(true);
@@ -137,9 +139,7 @@ const Level3 = ({ onComplete }) => {
         toast({
           title: "Missed! 💥",
           description:
-            mirrorAngle === 90
-              ? "The laser bounced straight back! The mirror is vertical."
-              : "The beam didn't reach the target. Adjust the mirror angle.",
+            "The beam didn't reach the target. Adjust the mirror angle.",
           variant: "destructive"
         });
         // Reset fire state after showing miss
@@ -161,20 +161,22 @@ const Level3 = ({ onComplete }) => {
     const helpMatch = cmd.match(/^\/help$/i);
 
     if (rotateMatch) {
-      const angle = parseInt(rotateMatch[1]);
-      if (angle >= 0 && angle <= 180) {
-        setMirrorAngle(angle);
+      const angle = parseInt(rotateMatch[1], 10);
+      if (!isNaN(angle) && angle >= 0 && angle <= 360) {
+        // accumulate rotation and normalize
+        const newAngle = (mirrorAngle + angle) % 360;
+        setMirrorAngle(newAngle);
         setFireResult(null);
         setHasFired(false);
         toast({
           title: "Mirror Rotated",
-          description: `Mirror set to ${angle}°`,
+          description: `Added ${angle}°. Mirror now at ${newAngle}°`,
           variant: "default",
         });
       } else {
         toast({
           title: "Invalid Angle",
-          description: "The mirror angle must be between 0° and 180°.",
+          description: "Rotation increment must be 0°–360°.",
           variant: "destructive",
         });
       }
@@ -550,9 +552,10 @@ const Level3 = ({ onComplete }) => {
                   </span>{" "}
                   <span className="text-blue-600 dark:text-blue-300">[angle]</span>
                   <p className="mt-1 text-gray-600 dark:text-gray-300">
-                    Set the mirror angle (0–180 degrees).
+                    Rotate the mirror by a given amount (0–360 degrees per command).
                     <br />
-                    e.g., <code>/rotate mirror 45</code>
+                    <br />
+                    e.g., <code>/rotate mirror 45</code> (tilts 45° clockwise)
                   </p>
                 </div>
 
