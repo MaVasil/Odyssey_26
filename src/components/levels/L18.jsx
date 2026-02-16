@@ -24,7 +24,7 @@ const Level18 = ({ onComplete }) => {
                 title: "Landmark Identified! 🏔️",
                 description: "The Hollywood Sign — Los Angeles, California!",
                 variant: "success"
-      });
+            });
             setTimeout(() => {
                 onComplete(4);
             }, 2000);
@@ -57,7 +57,7 @@ const Level18 = ({ onComplete }) => {
                 title: "📍 Location traced!",
                 description: "Visual data recovered. An image has appeared on screen.",
                 variant: "default"
-      });
+            });
         } else if (submitMatch) {
             const guess = submitMatch[1].trim().toLowerCase();
             if (CORRECT_ANSWERS.includes(guess)) {
@@ -67,7 +67,7 @@ const Level18 = ({ onComplete }) => {
                     title: "Incorrect ❌",
                     description: `"${submitMatch[1].trim()}" is not the landmark. Use the coordinates and image.`,
                     variant: "destructive"
-      });
+                });
             }
         } else if (hintMatch) {
             setHintUsed(true);
@@ -75,7 +75,7 @@ const Level18 = ({ onComplete }) => {
                 title: "Hint 💡",
                 description: "This famous landmark sits on a hillside in Los Angeles and is made of giant white letters.",
                 variant: "default"
-      });
+            });
         } else if (resetMatch) {
             setLocated(false);
             setHintUsed(false);
@@ -84,7 +84,7 @@ const Level18 = ({ onComplete }) => {
                 title: "Level Reset",
                 description: "Transmission data restored.",
                 variant: "default"
-      });
+            });
         } else if (helpMatch) {
             setHelpModalOpen(true);
         } else {
@@ -92,7 +92,7 @@ const Level18 = ({ onComplete }) => {
                 title: "Unknown Command",
                 description: "Type /help to see available commands",
                 variant: "destructive"
-      });
+            });
         }
 
         setInputValue("");
@@ -266,23 +266,7 @@ const Level18 = ({ onComplete }) => {
                 </div>
             </motion.div>
 
-            {/* Status bar */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="w-full max-w-md mt-3 flex justify-center gap-3"
-            >
-                <div className="text-xs px-3 py-1 rounded-full border bg-green-500/20 text-green-400 border-green-500/40">
-                    📡 Signal Decoded
-                </div>
-                <div className={`text-xs px-3 py-1 rounded-full border ${located
-                        ? "bg-green-500/20 text-green-400 border-green-500/40"
-                        : "bg-gray-500/20 text-gray-400 border-gray-500/40"
-                    }`}>
-                    📸 {located ? "Image Retrieved" : "No Image"}
-                </div>
-            </motion.div>
+
 
             {/* Help prompt */}
             <motion.span
@@ -388,21 +372,13 @@ const Level18 = ({ onComplete }) => {
                                 </div>
                             </div>
 
-                            <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                                Setup:
-                            </h3>
-                            <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                                <p>• A recovered GPS transmission shows coordinates.</p>
-                                <p>• Use external tools or your knowledge to investigate.</p>
-                                <p>• Use <strong>/locate</strong> to retrieve a satellite image.</p>
-                                <p>• Identify the landmark and <strong>/submit</strong> its name.</p>
-                            </div>
+
 
                             <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
                                 Hint:
                             </h3>
                             <p className="text-gray-600 dark:text-gray-300 italic">
-                                The coordinates point to a famous location in Los Angeles, California.
+                                The map leads to the city of angels; look for the white letters on the hill.
                             </p>
                         </div>
 

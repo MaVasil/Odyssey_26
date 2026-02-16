@@ -1,0 +1,216 @@
+﻿
+> odyssey0@0.1.0 dev
+> next dev
+
+node.exe : ΓÜá Warning: 
+Next.js inferred your 
+workspace root, but it may 
+not be correct.
+At C:\Program 
+Files\nodejs\npm.ps1:29 
+char:3
++   & $NODE_EXE $NPM_CLI_JS 
+$args
++   ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo          
+    : NotSpecified: (ΓÜá W  
+  arning: Ne...not be cor   
+ rect.:String) [], Remot    
+eException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+ We detected multiple 
+lockfiles and selected the 
+directory of C:\Users\Ananth
+\Documents\GitHub\package-lo
+ck.json as the root 
+directory.
+ To silence this warning, 
+set `turbopack.root` in 
+your Next.js config, or 
+consider removing one of 
+the lockfiles if it's not 
+needed.
+   See https://nextjs.org/do
+cs/app/api-reference/config/
+next-config-js/turbopack#roo
+t-directory for more 
+information.
+ Detected additional 
+lockfiles: 
+   * C:\Users\Ananth\Documen
+ts\GitHub\Antigrav\Odyssey_2
+6\package-lock.json
+   * C:\Users\Ananth\Documen
+ts\GitHub\Antigrav\package-l
+ock.json
+
+Γû▓ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://26.107.120.160:3000
+
+Γ£ô Starting...
+Γ£ô Ready in 958ms
+ GET /game 200 in 823ms (compile: 375ms, render: 448ms)
+Γ¿» ./Antigrav/Odyssey_26/sr
+c/app/api/auth/[...nextauth]
+/route.js:4:1
+Export auth doesn't exist 
+in target module
+[0m [90m 2 |[39m 
+[36mimport[39m [33mCreden
+tialsProvider[39m 
+[36mfrom[39m [32m"next-au
+th/providers/credentials"[3
+9m[33m;[39m
+ [90m 3 |[39m 
+[36mimport[39m { 
+signInWithEmailAndPassword 
+} [36mfrom[39m [32m"fireb
+ase/auth"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 
+|[39m [36mimport[39m { 
+auth } [36mfrom[39m [32m"
+../../../../../firebase"[39
+m[33m;[39m
+ [90m   |[39m [31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m
+[39m
+ [90m 5 |[39m
+ [90m 6 |[39m 
+[36mconst[39m handler 
+[33m=[39m 
+[33mNextAuth[39m({
+ [90m 7 |[39m   
+pages[33m:[39m {[0m
+
+The export auth was not 
+found in module [project]/An
+tigrav/Odyssey_26/firebase.j
+s [app-route] (ecmascript).
+The module has no exports 
+at all.
+All exports of the module 
+are statically known (It 
+doesn't have dynamic 
+exports). So it's known 
+statically that the 
+requested export doesn't 
+exist.
+
+
+ GET /api/auth/session 500 in 410ms (compile: 252ms, render: 158ms)
+Γ¿» ./Antigrav/Odyssey_26/sr
+c/app/api/auth/[...nextauth]
+/route.js:4:1
+Export auth doesn't exist 
+in target module
+[0m [90m 2 |[39m 
+[36mimport[39m [33mCreden
+tialsProvider[39m 
+[36mfrom[39m [32m"next-au
+th/providers/credentials"[3
+9m[33m;[39m
+ [90m 3 |[39m 
+[36mimport[39m { 
+signInWithEmailAndPassword 
+} [36mfrom[39m [32m"fireb
+ase/auth"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 
+|[39m [36mimport[39m { 
+auth } [36mfrom[39m [32m"
+../../../../../firebase"[39
+m[33m;[39m
+ [90m   |[39m [31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m
+[39m
+ [90m 5 |[39m
+ [90m 6 |[39m 
+[36mconst[39m handler 
+[33m=[39m 
+[33mNextAuth[39m({
+ [90m 7 |[39m   
+pages[33m:[39m {[0m
+
+The export auth was not 
+found in module [project]/An
+tigrav/Odyssey_26/firebase.j
+s [app-route] (ecmascript).
+The module has no exports 
+at all.
+All exports of the module 
+are statically known (It 
+doesn't have dynamic 
+exports). So it's known 
+statically that the 
+requested export doesn't 
+exist.
+
+
+ POST /api/auth/_log 500 in 43ms (compile: 29ms, render: 14ms)

@@ -45,7 +45,7 @@ const Level19 = ({ onComplete }) => {
                 title: "Traffic Fixed! 🚦✅",
                 description: "The jammed road now has green. Traffic is flowing!",
                 variant: "success"
-      });
+            });
             setTimeout(() => {
                 onComplete(4);
             }, 2000);
@@ -78,14 +78,14 @@ const Level19 = ({ onComplete }) => {
                     title: `${dir.charAt(0).toUpperCase() + dir.slice(1)} is already red`,
                     description: "No change needed.",
                     variant: "default"
-      });
+                });
             } else {
                 setSignals((prev) => ({ ...prev, [dir]: "red" }));
                 toast({
                     title: `🔴 ${dir.charAt(0).toUpperCase() + dir.slice(1)} → RED`,
                     description: `${dir.charAt(0).toUpperCase() + dir.slice(1)} road signal set to red.`,
                     variant: "default"
-      });
+                });
             }
         } else if (greenMatch) {
             const dir = greenMatch[1].toLowerCase();
@@ -94,14 +94,14 @@ const Level19 = ({ onComplete }) => {
                     title: `${dir.charAt(0).toUpperCase() + dir.slice(1)} is already green`,
                     description: "No change needed.",
                     variant: "default"
-      });
+                });
             } else {
                 setSignals((prev) => ({ ...prev, [dir]: "green" }));
                 toast({
                     title: `🟢 ${dir.charAt(0).toUpperCase() + dir.slice(1)} → GREEN`,
                     description: `${dir.charAt(0).toUpperCase() + dir.slice(1)} road signal set to green.`,
                     variant: "default"
-      });
+                });
             }
         } else if (resetMatch) {
             setSignals({ top: "green", right: "red", bottom: "red", left: "red" });
@@ -110,7 +110,7 @@ const Level19 = ({ onComplete }) => {
                 title: "Level Reset",
                 description: "Signals restored to initial state.",
                 variant: "default"
-      });
+            });
         } else if (helpMatch) {
             setHelpModalOpen(true);
         } else {
@@ -118,7 +118,7 @@ const Level19 = ({ onComplete }) => {
                 title: "Unknown Command",
                 description: "Type /help to see available commands",
                 variant: "destructive"
-      });
+            });
         }
 
         setInputValue("");
@@ -283,23 +283,7 @@ const Level19 = ({ onComplete }) => {
                             </text>
                         </g>
 
-                        {/* Warning indicator for wrong green */}
-                        {signals.top === "green" && signals.right === "red" && (
-                            <g>
-                                <motion.text
-                                    x="170"
-                                    y="175"
-                                    textAnchor="middle"
-                                    fontSize="9"
-                                    fill="#F9DC34"
-                                    fontWeight="bold"
-                                    animate={{ opacity: [1, 0.3] }}
-                                    transition={{ repeat: Infinity, duration: 1 }}
-                                >
-                                    ⚠ INEFFICIENT
-                                </motion.text>
-                            </g>
-                        )}
+
 
                         {/* Success indicator */}
                         {isSuccess && (
@@ -322,25 +306,7 @@ const Level19 = ({ onComplete }) => {
                 </div>
             </motion.div>
 
-            {/* Signal status bar */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="w-full max-w-md mt-3 grid grid-cols-4 gap-2"
-            >
-                {["top", "right", "bottom", "left"].map((dir) => (
-                    <div
-                        key={dir}
-                        className={`text-xs px-2 py-1 rounded-full border text-center ${signals[dir] === "green"
-                                ? "bg-green-500/20 text-green-400 border-green-500/40"
-                                : "bg-red-500/20 text-red-400 border-red-500/40"
-                            }`}
-                    >
-                        {dir.charAt(0).toUpperCase() + dir.slice(1)}: {signals[dir] === "green" ? "🟢" : "🔴"}
-                    </div>
-                ))}
-            </motion.div>
+
 
             {/* Help prompt */}
             <motion.span
@@ -438,21 +404,13 @@ const Level19 = ({ onComplete }) => {
                                 </div>
                             </div>
 
-                            <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                                Setup:
-                            </h3>
-                            <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                                <p>• A 4-way intersection with traffic lights.</p>
-                                <p>• The <strong>top road</strong> has green but is <strong>almost empty</strong>.</p>
-                                <p>• The <strong>right road</strong> is <strong>fully jammed</strong> but stuck on red.</p>
-                                <p>• The other roads have normal traffic.</p>
-                            </div>
+
 
                             <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
                                 Hint:
                             </h3>
                             <p className="text-gray-600 dark:text-gray-300 italic">
-                                The empty road keeps getting green while the crowded road stays stuck. Fix the signal so traffic actually moves!
+                                The river is blocked where the waters gather. Divert the stream to clear the way.
                             </p>
                         </div>
 

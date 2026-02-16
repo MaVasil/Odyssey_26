@@ -62,20 +62,20 @@ const Level15 = ({ onComplete }) => {
           title: "Nothing happened",
           description: "You press the key but the display doesn't change...",
           variant: "default"
-      });
+        });
       } else if (enteredDigits.length >= 4) {
         toast({
           title: "Display full",
           description: "Already 4 digits entered. Use /submit or /reset.",
           variant: "default"
-      });
+        });
       } else {
         setEnteredDigits((prev) => [...prev, digit]);
         toast({
           title: `Digit entered: ${digit}`,
           description: `Display: ${[...enteredDigits, digit].join("")}${"–".repeat(4 - enteredDigits.length - 1)}`,
           variant: "default"
-      });
+        });
       }
     } else if (toggleMatch) {
       setNumLock((prev) => !prev);
@@ -92,7 +92,7 @@ const Level15 = ({ onComplete }) => {
           title: "Not enough digits",
           description: `Only ${enteredDigits.length}/4 digits entered.`,
           variant: "destructive"
-      });
+        });
       } else {
         const pin = enteredDigits.join("");
         if (pin === CORRECT_PIN) {
@@ -105,7 +105,7 @@ const Level15 = ({ onComplete }) => {
             title: "Wrong PIN ❌",
             description: `"${pin}" is incorrect. Display cleared.`,
             variant: "destructive"
-      });
+          });
         }
       }
     } else if (lookMatch) {
@@ -115,13 +115,13 @@ const Level15 = ({ onComplete }) => {
           title: "You examine the keypad... 👀",
           description: "Three LEDs at the top. Num Lock is OFF. The display shows \"----\". There's a sticky note on the wall: \"PIN: 2580\"",
           variant: "default"
-      });
+        });
       } else {
         toast({
           title: "You examine the keypad... 👀",
           description: `Num Lock is ON. Display: ${enteredDigits.length > 0 ? enteredDigits.join("") : "----"}. Sticky note: \"PIN: 2580\"`,
           variant: "default"
-      });
+        });
       }
     } else if (resetMatch) {
       setNumLock(false);
@@ -359,11 +359,7 @@ const Level15 = ({ onComplete }) => {
             </text>
 
             {/* Hint if num lock is off */}
-            {!numLock && (
-              <text x="314" y="152" textAnchor="middle" fontSize="6" fill="#F9DC34" opacity="0.6">
-                ⚠ Num Lock is off...
-              </text>
-            )}
+
           </g>
 
           {/* Digits entered indicator */}
@@ -393,26 +389,7 @@ const Level15 = ({ onComplete }) => {
         </svg>
       </motion.div>
 
-      {/* Status bar */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-        className="w-full max-w-md mt-3 flex justify-center gap-3"
-      >
-        <div className={`text-xs px-3 py-1 rounded-full border ${numLock
-            ? "bg-green-500/20 text-green-400 border-green-500/40"
-            : "bg-red-500/20 text-red-400 border-red-500/40"
-          }`}>
-          Num Lock: {numLock ? "🟢 ON" : "🔴 OFF"}
-        </div>
-        <div className={`text-xs px-3 py-1 rounded-full border ${enteredDigits.length === 4
-            ? "bg-green-500/20 text-green-400 border-green-500/40"
-            : "bg-purple-500/20 text-purple-300 border-purple-500/40"
-          }`}>
-          PIN: {enteredDigits.length}/4 digits
-        </div>
-      </motion.div>
+
 
       {/* Help prompt */}
       <motion.span
@@ -527,21 +504,13 @@ const Level15 = ({ onComplete }) => {
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Setup:
-              </h3>
-              <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                <p>• A keypad lock with digits 0–9 and an Enter key.</p>
-                <p>• Three LED indicators: <strong>Num Lock</strong>, Caps Lock, Scroll Lock.</p>
-                <p>• The PIN is written on a sticky note nearby.</p>
-                <p>• When you press number keys, nothing appears on the display...</p>
-              </div>
+
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
                 Hint:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                You're pressing the numbers… but nothing is appearing.
+                The keys are silent until the lock is broken. Find the spark to wake them.
               </p>
             </div>
 

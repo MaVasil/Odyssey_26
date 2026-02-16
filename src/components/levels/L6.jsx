@@ -58,7 +58,7 @@ const Level6 = ({ onComplete }) => {
           title: "Incorrect ❌",
           description: `"${guess}" is not correct.`,
           variant: "destructive"
-      });
+        });
       }
     } else if (resetMatch) {
       setBits(generateRandomBits());
@@ -138,19 +138,7 @@ const Level6 = ({ onComplete }) => {
         </svg>
       </motion.div>
 
-      {/* Attempts */}
-      {attempts.length > 0 && (
-        <div className="w-full max-w-md mt-3 flex flex-wrap gap-2 justify-center">
-          {attempts.slice(-5).map((attempt, i) => (
-            <span
-              key={i}
-              className="text-xs px-3 py-1 rounded-full border bg-red-500/20 text-red-400 border-red-500/40 line-through"
-            >
-              {attempt}
-            </span>
-          ))}
-        </div>
-      )}
+
 
       {/* Sticky Command Panel */}
       <div className="sticky bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/95 to-transparent backdrop-blur-sm border-t border-purple-500/20 py-4 mt-8">
@@ -235,22 +223,10 @@ const Level6 = ({ onComplete }) => {
               </div>
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Rules:
-              </h3>
-
-              <div className="space-y-2 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                <p>• Analyze the circuit carefully</p>
-                <p>• Convert the sequence into its numeric form</p>
-                <p>• Submit the final number</p>
-
-              </div>
-
-              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
                 Hint:
               </h3>
-
               <p className="text-gray-600 dark:text-gray-300 italic">
-              Compute its integer representation
+                Power flows where the bits align. Sum the values of the lit paths.
               </p>
             </div>
 

@@ -80,7 +80,7 @@ const Level7 = ({ onComplete }) => {
           title: "Filled 5L Jug 💧",
           description: "The 5-liter jug is now full.",
           variant: "default"
-      });
+        });
       } else if (jug === 3) {
         setJug3(JUG_3_MAX);
         setMoveCount((p) => p + 1);
@@ -88,13 +88,13 @@ const Level7 = ({ onComplete }) => {
           title: "Filled 3L Jug 💧",
           description: "The 3-liter jug is now full.",
           variant: "default"
-      });
+        });
       } else {
         toast({
           title: "Invalid Jug",
           description: "Specify 5L or 3L.",
           variant: "destructive"
-      });
+        });
       }
     } else if (emptyMatch) {
       const jug = parseJug(emptyMatch[1]);
@@ -105,7 +105,7 @@ const Level7 = ({ onComplete }) => {
           title: "Emptied 5L Jug",
           description: "The 5-liter jug is now empty.",
           variant: "default"
-      });
+        });
       } else if (jug === 3) {
         setJug3(0);
         setMoveCount((p) => p + 1);
@@ -113,13 +113,13 @@ const Level7 = ({ onComplete }) => {
           title: "Emptied 3L Jug",
           description: "The 3-liter jug is now empty.",
           variant: "default"
-      });
+        });
       } else {
         toast({
           title: "Invalid Jug",
           description: "Specify 5L or 3L.",
           variant: "destructive"
-      });
+        });
       }
     } else if (pourMatch) {
       const from = parseJug(pourMatch[1]);
@@ -130,7 +130,7 @@ const Level7 = ({ onComplete }) => {
           title: "Invalid Pour",
           description: "Use /pour 5L 3L or /pour 3L 5L",
           variant: "destructive"
-      });
+        });
       } else if (from === 5 && to === 3) {
         const space = JUG_3_MAX - jug3;
         const poured = Math.min(jug5, space);
@@ -141,7 +141,7 @@ const Level7 = ({ onComplete }) => {
           title: `Poured ${poured}L → 3L Jug`,
           description: `5L: ${jug5 - poured}L | 3L: ${jug3 + poured}L`,
           variant: "default"
-      });
+        });
       } else if (from === 3 && to === 5) {
         const space = JUG_5_MAX - jug5;
         const poured = Math.min(jug3, space);
@@ -152,7 +152,7 @@ const Level7 = ({ onComplete }) => {
           title: `Poured ${poured}L → 5L Jug`,
           description: `5L: ${jug5 + poured}L | 3L: ${jug3 - poured}L`,
           variant: "default"
-      });
+        });
       }
     } else if (resetMatch) {
       setJug5(0);
@@ -235,7 +235,8 @@ const Level7 = ({ onComplete }) => {
             initial={false}
             animate={{
               height: waterHeight,
-              y: jugY + jugHeight - innerPad - waterHeight}}
+              y: jugY + jugHeight - innerPad - waterHeight
+            }}
             transition={{ type: "tween", duration: 0.4, ease: "easeOut" }}
             opacity="0.8"
           />
@@ -250,7 +251,8 @@ const Level7 = ({ onComplete }) => {
               initial={false}
               animate={{
                 y1: jugY + jugHeight - innerPad - waterHeight + 2,
-                y2: jugY + jugHeight - innerPad - waterHeight + 2}}
+                y2: jugY + jugHeight - innerPad - waterHeight + 2
+              }}
               transition={{ type: "tween", duration: 0.4, ease: "easeOut" }}
             />
           )}
@@ -425,58 +427,16 @@ const Level7 = ({ onComplete }) => {
             >
               SCALE ⚖️
             </text>
-            {/* Target indicator */}
-            <text
-              x="320"
-              y="245"
-              textAnchor="middle"
-              fontSize="10"
-              fill={isSuccess ? "#22c55e" : "#FF6B6B"}
-              fontWeight="bold"
-            >
-              Need: {TARGET}kg
-            </text>
+
           </g>
 
-          {/* Title */}
-          <text
-            x="190"
-            y="22"
-            textAnchor="middle"
-            fontSize="12"
-            fill="#8888BB"
-            fontWeight="bold"
-          >
-            WATER JUG PUZZLE
-          </text>
 
-          {/* Move counter */}
-          <text
-            x="190"
-            y="252"
-            textAnchor="middle"
-            fontSize="10"
-            fill="#8888BB"
-          >
-            Moves: {moveCount}
-          </text>
+
+
         </svg>
       </motion.div>
 
-      {/* Jug status bar */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-        className="w-full max-w-md mt-3 flex justify-center gap-4"
-      >
-        <div className="text-xs px-3 py-1 rounded-full border bg-[#F9DC34]/20 text-[#F9DC34] border-[#F9DC34]/40">
-          5L Jug: {jug5}/{JUG_5_MAX}L
-        </div>
-        <div className="text-xs px-3 py-1 rounded-full border bg-[#A78BFA]/20 text-[#A78BFA] border-[#A78BFA]/40">
-          3L Jug: {jug3}/{JUG_3_MAX}L
-        </div>
-      </motion.div>
+
 
       {/* Help prompt */}
       {/* Sticky Command Panel */}
@@ -503,27 +463,27 @@ const Level7 = ({ onComplete }) => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex gap-2 w-full max-w-md"
           >
-        <Input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
-          placeholder="Enter command..."
-          className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-        />
-        <button
-          onClick={handleCommandSubmit}
-          className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-        >
-          <Image
-            src="/runcode.png"
-            alt="Run"
-            height={20}
-            width={20}
-            className="rounded-sm"
-          />
-        </button>
-      </motion.div>
+            <Input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
+              placeholder="Enter command..."
+              className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
+            />
+            <button
+              onClick={handleCommandSubmit}
+              className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
+            >
+              <Image
+                src="/runcode.png"
+                alt="Run"
+                height={20}
+                width={20}
+                className="rounded-sm"
+              />
+            </button>
+          </motion.div>
         </div>
       </div>
 
@@ -590,13 +550,10 @@ const Level7 = ({ onComplete }) => {
               </div>
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Goal:
+                Hint:
               </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-2">
-                Get exactly 4 liters in either the 5L or 3L jug.
-              </p>
               <p className="text-gray-600 dark:text-gray-300 italic text-sm">
-                Hint: Fill one jug, pour it into the other, and repeat strategically!
+                Three and five make eight, but four is the middle path you must forge.
               </p>
             </div>
 

@@ -35,18 +35,18 @@ const Level8 = ({ onComplete }) => {
   useEffect(() => {
     if (isSuccess) {
       const weighingsUsed = MAX_WEIGHINGS - weighingsLeft;
-      
+
       // Bluff detection
       if (weighingsUsed < 3) {
         toast({
           title: "Wait... That's a Bluff! 🤔",
           description: "You can't identify the fake coin in less than 3 weighings without seeing the results!",
           variant: "destructive"
-      });
+        });
         setIsSuccess(false);
         return;
       }
-      
+
       toast({
         title: "Correct! 🪙",
         description: `Coin ${fakeCoin} was the fake! Found in ${weighingsUsed} turn(s).`,
@@ -100,7 +100,7 @@ const Level8 = ({ onComplete }) => {
           title: "No Weighings Left!",
           description: "You've used all 3 weighings. Make your /guess now!",
           variant: "destructive"
-      });
+        });
         setInputValue("");
         return;
       }
@@ -113,7 +113,7 @@ const Level8 = ({ onComplete }) => {
           title: "Invalid Coins",
           description: "Use coin numbers 1-12 separated by commas. e.g., /weigh 1,2,3,4 5,6,7,8",
           variant: "destructive"
-      });
+        });
         setInputValue("");
         return;
       }
@@ -123,7 +123,7 @@ const Level8 = ({ onComplete }) => {
           title: "Uneven Groups",
           description: "Both sides must have the same number of coins.",
           variant: "destructive"
-      });
+        });
         setInputValue("");
         return;
       }
@@ -134,7 +134,7 @@ const Level8 = ({ onComplete }) => {
           title: "Duplicate Coins",
           description: "A coin can't be on both sides of the scale!",
           variant: "destructive"
-      });
+        });
         setInputValue("");
         return;
       }
@@ -157,7 +157,7 @@ const Level8 = ({ onComplete }) => {
       setLeftPan(leftCoins);
       setRightPan(rightCoins);
       setWeighingsLeft((p) => p - 1);
-      
+
       setWeighHistory((prev) => [
         ...prev,
         { left: leftCoins, right: rightCoins, result },
@@ -182,7 +182,7 @@ const Level8 = ({ onComplete }) => {
           title: "Invalid Coin",
           description: "Choose a coin from 1 to 12.",
           variant: "destructive"
-      });
+        });
       } else if (coinNum === fakeCoin) {
         setIsSuccess(true);
       } else {
@@ -191,7 +191,7 @@ const Level8 = ({ onComplete }) => {
           title: "Wrong! 💀",
           description: `Coin ${coinNum} is real. The fake was coin ${fakeCoin}.`,
           variant: "destructive"
-      });
+        });
       }
     } else if (resetMatch) {
       initialized.current = true;
@@ -441,55 +441,13 @@ const Level8 = ({ onComplete }) => {
             );
           })}
 
-          {/* Weighings left */}
-          <text x="190" y="270" textAnchor="middle" fontSize="11" fill="#8888BB">
-            Weighings left:{" "}
-            <tspan fill={weighingsLeft === 0 ? "#ef4444" : "#F9DC34"} fontWeight="bold">
-              {weighingsLeft}
-            </tspan>
-            /3
-          </text>
-          
-          {/* Turns taken */}
-          <text x="190" y="285" textAnchor="middle" fontSize="12" fill="#22c55e" fontWeight="bold">
-            Turns taken: {MAX_WEIGHINGS - weighingsLeft}
-          </text>
+
+
+
         </svg>
       </motion.div>
 
-      {/* Weigh history */}
-      {weighHistory.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="w-full max-w-md mt-3 space-y-1"
-        >
-          {weighHistory.map((w, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between text-xs bg-purple-900/20 border border-purple-700/30 rounded-lg px-3 py-2"
-            >
-              <span className="text-purple-300">
-                #{i + 1}: [{w.left.join(",")}] vs [{w.right.join(",")}]
-              </span>
-              <span
-                className={`font-bold ${w.result === "equal"
-                  ? "text-[#F9DC34]"
-                  : w.result === "left-lighter"
-                    ? "text-blue-400"
-                    : "text-orange-400"
-                  }`}
-              >
-                {w.result === "equal"
-                  ? "⚖️ Equal"
-                  : w.result === "left-lighter"
-                    ? "⬅️ Left lighter"
-                    : "➡️ Right lighter"}
-              </span>
-            </div>
-          ))}
-        </motion.div>
-      )}
+
 
       {/* Help prompt */}
       {/* Sticky Command Panel */}
@@ -516,27 +474,27 @@ const Level8 = ({ onComplete }) => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex gap-2 w-full max-w-md"
           >
-        <Input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
-          placeholder="Enter command..."
-          className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-        />
-        <button
-          onClick={handleCommandSubmit}
-          className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-        >
-          <Image
-            src="/runcode.png"
-            alt="Run"
-            height={20}
-            width={20}
-            className="rounded-sm"
-          />
-        </button>
-      </motion.div>
+            <Input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
+              placeholder="Enter command..."
+              className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
+            />
+            <button
+              onClick={handleCommandSubmit}
+              className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
+            >
+              <Image
+                src="/runcode.png"
+                alt="Run"
+                height={20}
+                width={20}
+                className="rounded-sm"
+              />
+            </button>
+          </motion.div>
         </div>
       </div>
 
@@ -597,20 +555,10 @@ const Level8 = ({ onComplete }) => {
               </div>
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Rules:
-              </h3>
-              <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                <p>• 12 coins, one is fake (lighter).</p>
-                <p>• You have only <strong>3 weighings</strong> on the balance scale.</p>
-                <p>• The lighter side contains the fake coin.</p>
-                <p>• Equal means the fake is in neither group.</p>
-              </div>
-
-              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Goal:
+                Hint:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                Find the fake coin using the balance scale. You have 3 weighings to identify which coin is fake, then make your guess.
+                Balance is truth, but the lighter soul is the liar. Three chances to weigh the world.
               </p>
             </div>
 

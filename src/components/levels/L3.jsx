@@ -141,7 +141,7 @@ const Level3 = ({ onComplete }) => {
               ? "The laser bounced straight back! The mirror is vertical."
               : "The beam didn't reach the target. Adjust the mirror angle.",
           variant: "destructive"
-      });
+        });
         // Reset fire state after showing miss
         setTimeout(() => {
           setFireResult(null);
@@ -375,17 +375,7 @@ const Level3 = ({ onComplete }) => {
                 />
               )}
             </circle>
-            {/* Label */}
-            <text
-              x={LASER_X + 10}
-              y={LASER_Y + 30}
-              textAnchor="middle"
-              fontSize="10"
-              fill="#8888BB"
-              fontWeight="bold"
-            >
-              LASER
-            </text>
+
           </g>
 
           {/* Dotted guide line showing laser path (before firing) */}
@@ -447,17 +437,7 @@ const Level3 = ({ onComplete }) => {
             />
           </motion.g>
 
-          {/* Mirror label */}
-          <text
-            x={MIRROR_CX}
-            y={MIRROR_CY + MIRROR_LEN + 20}
-            textAnchor="middle"
-            fontSize="10"
-            fill="#8888BB"
-            fontWeight="bold"
-          >
-            MIRROR ({mirrorAngle}°)
-          </text>
+
 
           {/* Target (bottom center) */}
           <g>
@@ -493,37 +473,13 @@ const Level3 = ({ onComplete }) => {
               r="3"
               fill={fireResult === "hit" ? "#00FF00" : "#FF4444"}
             />
-            {/* Label */}
-            <text
-              x={TARGET_CX}
-              y={TARGET_CY + 35}
-              textAnchor="middle"
-              fontSize="10"
-              fill="#FF6666"
-              fontWeight="bold"
-            >
-              TARGET 🎯
-            </text>
+
           </g>
 
           {/* Laser beam */}
           {renderLaserBeam()}
 
-          {/* Status text */}
-          <text
-            x="200"
-            y="20"
-            textAnchor="middle"
-            fontSize="11"
-            fill={fireResult === "hit" ? "#22c55e" : fireResult === "miss" ? "#ef4444" : "#8888BB"}
-            fontWeight="bold"
-          >
-            {fireResult === "hit"
-              ? "✅ TARGET HIT!"
-              : fireResult === "miss"
-                ? "❌ MISSED — Adjust the mirror!"
-                : "Rotate the mirror, then fire."}
-          </text>
+
         </svg>
       </motion.div>
 
@@ -552,27 +508,27 @@ const Level3 = ({ onComplete }) => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex gap-2 w-full max-w-md"
           >
-        <Input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
-          placeholder="Enter command..."
-          className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-        />
-        <button
-          onClick={handleCommandSubmit}
-          className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-        >
-          <Image
-            src="/runcode.png"
-            alt="Run"
-            height={20}
-            width={20}
-            className="rounded-sm"
-          />
-        </button>
-      </motion.div>
+            <Input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
+              placeholder="Enter command..."
+              className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
+            />
+            <button
+              onClick={handleCommandSubmit}
+              className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
+            >
+              <Image
+                src="/runcode.png"
+                alt="Run"
+                height={20}
+                width={20}
+                className="rounded-sm"
+              />
+            </button>
+          </motion.div>
         </div>
       </div>
 
@@ -633,7 +589,7 @@ const Level3 = ({ onComplete }) => {
                 Hint:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                Angle of incidence equals angle of reflection. You need a slope.
+                Equality is found in the bounce; seek the perfect tilt.
               </p>
             </div>
 

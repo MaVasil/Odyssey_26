@@ -25,7 +25,7 @@ const Level16 = ({ onComplete }) => {
                 title: "Correct! 🖼️✨",
                 description: `The hidden word was "${HIDDEN_WORD}"!`,
                 variant: "success"
-      });
+            });
             setTimeout(() => {
                 onComplete(4);
             }, 2000);
@@ -60,13 +60,13 @@ const Level16 = ({ onComplete }) => {
                     title: "Inspecting the image... 🔍",
                     description: "A plain brick wall. Nothing visible... but the texture looks slightly uneven in places. Something might be hidden.",
                     variant: "default"
-      });
+                });
             } else {
                 toast({
                     title: "Inspecting the inverted image... 🔍",
                     description: "With colors inverted, you can clearly see letters formed in the wall pattern!",
                     variant: "default"
-      });
+                });
             }
         } else if (invertMatch) {
             setInverted((prev) => !prev);
@@ -76,21 +76,21 @@ const Level16 = ({ onComplete }) => {
                     ? "The image flips to negative. New details appear..."
                     : "Back to the original image.",
                 variant: "default"
-      });
+            });
         } else if (readMatch) {
             if (!inverted) {
                 toast({
                     title: "No message visible",
                     description: "You squint at the wall but can't make out any text...",
                     variant: "destructive"
-      });
+                });
             } else {
                 setMessageRead(true);
                 toast({
                     title: "Message Revealed! 👁️",
                     description: `The inverted image reveals the word: "${HIDDEN_WORD}"`,
                     variant: "default"
-      });
+                });
             }
         } else if (enterMatch) {
             const guess = enterMatch[1].trim().toUpperCase();
@@ -101,7 +101,7 @@ const Level16 = ({ onComplete }) => {
                     title: "Wrong word ❌",
                     description: `"${guess}" is not correct. Look at the image more carefully.`,
                     variant: "destructive"
-      });
+                });
             }
         } else if (resetMatch) {
             setInverted(false);
@@ -112,7 +112,7 @@ const Level16 = ({ onComplete }) => {
                 title: "Level Reset",
                 description: "Image restored to original.",
                 variant: "default"
-      });
+            });
         } else if (helpMatch) {
             setHelpModalOpen(true);
         } else {
@@ -120,7 +120,7 @@ const Level16 = ({ onComplete }) => {
                 title: "Unknown Command",
                 description: "Type /help to see available commands",
                 variant: "destructive"
-      });
+            });
         }
 
         setInputValue("");
@@ -255,32 +255,7 @@ const Level16 = ({ onComplete }) => {
                 </div>
             </motion.div>
 
-            {/* Status bar */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="w-full max-w-md mt-3 flex justify-center gap-3"
-            >
-                <div className={`text-xs px-3 py-1 rounded-full border ${inverted
-                        ? "bg-purple-500/20 text-purple-300 border-purple-500/40"
-                        : "bg-gray-500/20 text-gray-400 border-gray-500/40"
-                    }`}>
-                    🎨 {inverted ? "Inverted" : "Normal"}
-                </div>
-                <div className={`text-xs px-3 py-1 rounded-full border ${inspected
-                        ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/40"
-                        : "bg-gray-500/20 text-gray-400 border-gray-500/40"
-                    }`}>
-                    🔍 {inspected ? "Inspected" : "Not inspected"}
-                </div>
-                <div className={`text-xs px-3 py-1 rounded-full border ${messageRead
-                        ? "bg-green-500/20 text-green-400 border-green-500/40"
-                        : "bg-gray-500/20 text-gray-400 border-gray-500/40"
-                    }`}>
-                    💬 {messageRead ? "Message found" : "No message"}
-                </div>
-            </motion.div>
+
 
             {/* Help prompt */}
             <motion.span
@@ -395,20 +370,13 @@ const Level16 = ({ onComplete }) => {
                                 </div>
                             </div>
 
-                            <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                                Setup:
-                            </h3>
-                            <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                                <p>• An image of a brick wall is displayed.</p>
-                                <p>• Nothing special is visible at first glance.</p>
-                                <p>• But a <strong>hidden message</strong> is embedded in the image using negative colors.</p>
-                            </div>
+
 
                             <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
                                 Hint:
                             </h3>
                             <p className="text-gray-600 dark:text-gray-300 italic">
-                                What you see isn't always what's there. Try looking at things from the opposite perspective.
+                                Reality is a reflection; flip the world to see what's written.
                             </p>
                         </div>
 

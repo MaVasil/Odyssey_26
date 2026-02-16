@@ -67,7 +67,7 @@ const Level9 = ({ onComplete }) => {
           title: "Incorrect ❌",
           description: `"${guess}" is not the next number. Look at the pattern more carefully.`,
           variant: "destructive"
-      });
+        });
       }
     } else if (resetMatch) {
       setAttempts([]);
@@ -263,41 +263,12 @@ const Level9 = ({ onComplete }) => {
               01101011 00100000 01010011
             </text>
 
-            {/* Bottom prompt */}
-            <text
-              x="190"
-              y="305"
-              textAnchor="middle"
-              fontSize="10"
-              fill="#555577"
-              fontFamily="monospace"
-            >
-              Use /enter [number] to submit your answer
-            </text>
+
           </svg>
         </div>
       </motion.div>
 
-      {/* Attempts display */}
-      {attempts.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="w-full max-w-md mt-3 flex flex-wrap gap-2 justify-center"
-        >
-          {attempts.slice(-5).map((attempt, i) => (
-            <span
-              key={i}
-              className={`text-xs px-3 py-1 rounded-full border font-mono ${attempt === ANSWER
-                  ? "bg-green-500/20 text-green-400 border-green-500/40"
-                  : "bg-red-500/20 text-red-400 border-red-500/40 line-through"
-                }`}
-            >
-              {attempt}
-            </span>
-          ))}
-        </motion.div>
-      )}
+
 
       {/* Help prompt */}
       {/* Sticky Command Panel */}
@@ -324,27 +295,27 @@ const Level9 = ({ onComplete }) => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex gap-2 w-full max-w-md"
           >
-        <Input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
-          placeholder="Enter command..."
-          className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-        />
-        <button
-          onClick={handleCommandSubmit}
-          className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-        >
-          <Image
-            src="/runcode.png"
-            alt="Run"
-            height={20}
-            width={20}
-            className="rounded-sm"
-          />
-        </button>
-      </motion.div>
+            <Input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
+              placeholder="Enter command..."
+              className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
+            />
+            <button
+              onClick={handleCommandSubmit}
+              className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
+            >
+              <Image
+                src="/runcode.png"
+                alt="Run"
+                height={20}
+                width={20}
+                className="rounded-sm"
+              />
+            </button>
+          </motion.div>
         </div>
       </div>
 
@@ -390,9 +361,6 @@ const Level9 = ({ onComplete }) => {
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                The Sequence:
-              </h3>
               <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 font-mono text-center text-lg">
                 {SEQUENCE.map((row, i) => (
                   <p key={i}>
@@ -406,7 +374,7 @@ const Level9 = ({ onComplete }) => {
                 Hint:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                Read the previous number out loud. (e.g., "One 1" → 11, "Two 1s" → 21). This is the "Look-and-Say" sequence.
+                Speak what you see to find what follows.
               </p>
             </div>
 

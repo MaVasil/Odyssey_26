@@ -13,8 +13,8 @@ const EMOJI_GOAT = String.fromCodePoint(0x1F411);    // Sheep (fluffy & cute)
 const EMOJI_CABBAGE = String.fromCodePoint(0x1F33F); // Herb/seedling
 
 const ITEMS = {
-  wolf:    { label: "Wolf",    emoji: EMOJI_WOLF },
-  goat:    { label: "Sheep",   emoji: EMOJI_GOAT },
+  wolf: { label: "Wolf", emoji: EMOJI_WOLF },
+  goat: { label: "Sheep", emoji: EMOJI_GOAT },
   cabbage: { label: "Cabbage", emoji: EMOJI_CABBAGE },
 };
 
@@ -133,7 +133,7 @@ const Level5 = ({ onComplete }) => {
           title: "Game Over! 💀",
           description: danger,
           variant: "destructive"
-      });
+        });
         return;
       }
 
@@ -186,7 +186,7 @@ const Level5 = ({ onComplete }) => {
           title: "Item Not Here",
           description: `The ${ITEMS[item].label} is not on the ${playerSide} bank.`,
           variant: "destructive"
-      });
+        });
       } else {
         setBoatItem(item);
         performCrossing(item);
@@ -440,7 +440,7 @@ const Level5 = ({ onComplete }) => {
               />
               {/* Boat rim */}
               <line x1="125" y1="220" x2="175" y2="220" stroke="#4E342E" strokeWidth="2" />
-              
+
               {/* Player in boat with shadow */}
               <text x="143" y="218" fontSize="24" className="select-none" style={{ filter: 'drop-shadow(2px 2px 3px rgba(0,0,0,0.3))' }}>
                 🧑
@@ -501,53 +501,11 @@ const Level5 = ({ onComplete }) => {
             </g>
           )}
 
-          {/* Status with better visibility */}
-          {!isFailed && (
-            <g>
-              <rect x="120" y="8" width="160" height="20" rx="10" fill="rgba(0,0,0,0.5)" />
-              <text
-                x="200"
-                y="21"
-                textAnchor="middle"
-                fontSize="11"
-                fill="#F9DC34"
-                fontWeight="bold"
-              >
-                {playerSide.toUpperCase()} BANK • Moves: {moveCount}
-              </text>
-            </g>
-          )}
+
         </svg>
       </motion.div>
 
-      {/* Item status bar with enhanced design */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-        className="w-full max-w-md mt-4 flex flex-wrap justify-center gap-2 sm:gap-3 px-2"
-      >
-        {Object.entries(ITEMS).map(([key, item]) => {
-          const onLeft = leftBank.includes(key);
-          const onRight = rightBank.includes(key);
-          return (
-            <motion.div
-              key={key}
-              whileHover={{ scale: 1.05 }}
-              className={`text-sm px-3 py-2 rounded-lg border-2 shadow-md transition-all ${
-                onRight
-                  ? "bg-green-500/30 text-green-100 border-green-400/60 shadow-green-400/30"
-                  : "bg-purple-900/40 text-purple-200 border-purple-500/40"
-              }`}
-            >
-              <span className="text-lg">{item.emoji}</span>
-              <span className="ml-1.5 font-medium text-xs">
-                {item.label} {onRight ? "✓" : ""}
-              </span>
-            </motion.div>
-          );
-        })}
-      </motion.div>
+
 
       {/* Help prompt */}
       {/* Sticky Command Panel */}
@@ -574,27 +532,27 @@ const Level5 = ({ onComplete }) => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex gap-2 w-full max-w-md"
           >
-        <Input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
-          placeholder="Enter command..."
-          className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-        />
-        <button
-          onClick={handleCommandSubmit}
-          className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-        >
-          <Image
-            src="/runcode.png"
-            alt="Run"
-            height={20}
-            width={20}
-            className="rounded-sm"
-          />
-        </button>
-      </motion.div>
+            <Input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
+              placeholder="Enter command..."
+              className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
+            />
+            <button
+              onClick={handleCommandSubmit}
+              className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
+            >
+              <Image
+                src="/runcode.png"
+                alt="Run"
+                height={20}
+                width={20}
+                className="rounded-sm"
+              />
+            </button>
+          </motion.div>
         </div>
       </div>
 
@@ -652,23 +610,10 @@ const Level5 = ({ onComplete }) => {
               </div>
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Rules:
-              </h3>
-              <div className="space-y-2 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                <p>• The boat can carry you and <strong>one</strong> item.</p>
-                <p>
-                  • <strong>Wolf + Sheep</strong> left alone = Wolf eats Sheep
-                </p>
-                <p>
-                  • <strong>Sheep + Cabbage</strong> left alone = Sheep eats Cabbage
-                </p>
-              </div>
-
-              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
                 Hint:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                Sometimes you have to bring something back to make progress.
+                A cycle of three, but only one can sail. A return journey may clear the path.
               </p>
             </div>
 

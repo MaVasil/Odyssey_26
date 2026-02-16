@@ -87,7 +87,7 @@ const Level4 = ({ onComplete }) => {
       setIsSuccess(true);
       setMessage(
         String.fromCodePoint(0x1f389) +
-          " All squares visited! The knight conquered the board!"
+        " All squares visited! The knight conquered the board!"
       );
     }
   }, [visitedCount, totalSquares, isSuccess]);
@@ -245,21 +245,7 @@ const Level4 = ({ onComplete }) => {
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
-      {/* Message */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className={`mt-8 text-sm sm:text-base font-semibold mb-4 text-center ${
-          isStuck
-            ? "text-red-500 dark:text-red-400"
-            : isSuccess
-            ? "text-green-600 dark:text-green-400"
-            : "text-purple-900 dark:text-[#F9DC34]"
-        }`}
-      >
-        {message}
-      </motion.p>
+
 
       {/* Board */}
       <motion.div
@@ -458,36 +444,7 @@ const Level4 = ({ onComplete }) => {
           </AnimatePresence>
         </svg>
 
-        {/* Progress bar */}
-        <div className="mt-2 px-2">
-          <div className="flex justify-between text-xs text-purple-300 mb-1">
-            <span>
-              Squares:{" "}
-              <span className="text-[#F9DC34] font-bold">
-                {visitedCount}/{totalSquares}
-              </span>
-            </span>
-            <span>
-              Moves:{" "}
-              <span className="text-[#F9DC34] font-bold">{moveCount}</span>
-            </span>
-            <span>
-              At:{" "}
-              <span className="text-[#F9DC34] font-bold">
-                {toNotation(knightPos.x, knightPos.y)}
-              </span>
-            </span>
-          </div>
-          <div className="w-full bg-purple-900/40 rounded-full h-2">
-            <motion.div
-              className="h-2 rounded-full bg-gradient-to-r from-[#4CAF50] to-[#7C3AED]"
-              animate={{
-                width: `${(visitedCount / totalSquares) * 100}%`,
-              }}
-              transition={{ type: "spring", stiffness: 100 }}
-            />
-          </div>
-        </div>
+
       </motion.div>
 
       {/* Sticky Command Panel */}
@@ -591,38 +548,10 @@ const Level4 = ({ onComplete }) => {
               </div>
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Rules:
-              </h3>
-              <div className="space-y-1 text-gray-600 dark:text-gray-300 text-sm mb-4">
-                <p>
-                  &#8226; The knight starts at a random{" "}
-                  <strong className="text-green-500">green castle</strong>.
-                </p>
-                <p>
-                  &#8226; Move in an <strong>L-shape</strong>: 2 squares + 1
-                  square perpendicular.
-                </p>
-                <p>
-                  &#8226; Squares <strong>vanish</strong> after the knight
-                  leaves &mdash; no going back!
-                </p>
-                <p>
-                  &#8226; Visit <strong>all 25 squares</strong> on the 5&times;5
-                  board to win.
-                </p>
-                <p>
-                  &#8226;{" "}
-                  <span className="text-[#F9DC34]">&#9679;</span> Yellow
-                  dots show valid moves.
-                </p>
-              </div>
-
-              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
                 Hint:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                Use Warnsdorf&apos;s rule: always move to the square with the
-                fewest onward moves. Try to stay near the edges first!
+                The path narrows as the squares crumble. Corners hold the key before the center devours all.
               </p>
             </div>
 

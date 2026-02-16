@@ -26,7 +26,7 @@ const Level17 = ({ onComplete }) => {
                 title: "Correct! 🎵",
                 description: "Never gonna give you up! — Rick Astley, 1987",
                 variant: "success"
-      });
+            });
             setTimeout(() => {
                 onComplete(4);
             }, 2000);
@@ -79,14 +79,14 @@ const Level17 = ({ onComplete }) => {
                     title: "Already playing 🎶",
                     description: "The music is already playing...",
                     variant: "default"
-      });
+                });
             } else {
                 setIsPlaying(true);
                 toast({
                     title: "▶ Now Playing",
                     description: "♪ Never Gonna Give You Up ♪",
                     variant: "default"
-      });
+                });
             }
         } else if (pauseMatch) {
             if (!isPlaying) {
@@ -94,14 +94,14 @@ const Level17 = ({ onComplete }) => {
                     title: "Already paused ⏸",
                     description: "The music is already paused.",
                     variant: "default"
-      });
+                });
             } else {
                 setIsPlaying(false);
                 toast({
                     title: "⏸ Paused",
                     description: "Music paused.",
                     variant: "default"
-      });
+                });
             }
         } else if (viewMatch) {
             setDetailsViewed(true);
@@ -109,7 +109,7 @@ const Level17 = ({ onComplete }) => {
                 title: "Track Details 📋",
                 description: "Title: Never Gonna Give You Up\nArtist: R. Astley\nAlbum: Whenever You Need Somebody\nYear: 1987\nGenre: Pop/Dance",
                 variant: "default"
-      });
+            });
         } else if (enterMatch) {
             const guess = enterMatch[1].trim().toLowerCase();
             if (guess === CORRECT_NAME) {
@@ -119,7 +119,7 @@ const Level17 = ({ onComplete }) => {
                     title: "Wrong name ❌",
                     description: `"${enterMatch[1].trim()}" is not correct. Check the artist info.`,
                     variant: "destructive"
-      });
+                });
             }
         } else if (resetMatch) {
             setIsPlaying(false);
@@ -130,7 +130,7 @@ const Level17 = ({ onComplete }) => {
                 title: "Level Reset",
                 description: "Music player restored.",
                 variant: "default"
-      });
+            });
         } else if (helpMatch) {
             setHelpModalOpen(true);
         } else {
@@ -138,7 +138,7 @@ const Level17 = ({ onComplete }) => {
                 title: "Unknown Command",
                 description: "Type /help to see available commands",
                 variant: "destructive"
-      });
+            });
         }
 
         setInputValue("");
@@ -247,15 +247,7 @@ const Level17 = ({ onComplete }) => {
                         <span className="text-gray-500 text-lg cursor-default">⏭</span>
                     </div>
 
-                    {/* Status indicator */}
-                    <div className="flex justify-center">
-                        <span className={`text-xs px-3 py-1 rounded-full ${isPlaying
-                                ? "bg-green-500/20 text-green-400 border border-green-500/40"
-                                : "bg-gray-500/20 text-gray-400 border border-gray-500/40"
-                            }`}>
-                            {isPlaying ? "♪ Playing" : "⏸ Paused"}
-                        </span>
-                    </div>
+
 
                     {/* Details panel (shown after /view details) */}
                     {detailsViewed && (
@@ -415,20 +407,13 @@ const Level17 = ({ onComplete }) => {
                                 </div>
                             </div>
 
-                            <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                                Setup:
-                            </h3>
-                            <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                                <p>• A music player shows a track by <strong>R. Astley</strong> from <strong>1987</strong>.</p>
-                                <p>• Status: <strong>Paused</strong></p>
-                                <p>• You need to enter the artist's <strong>full name</strong>.</p>
-                            </div>
+
 
                             <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
                                 Hint:
                             </h3>
                             <p className="text-gray-600 dark:text-gray-300 italic">
-                                Check the artist info, not the song.
+                                The song is a legacy; seek the labels to find the voice.
                             </p>
                         </div>
 

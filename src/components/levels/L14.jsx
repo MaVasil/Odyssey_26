@@ -59,7 +59,7 @@ const Level14 = ({ onComplete }) => {
           title: "Max brightness!",
           description: "The screen is already at full brightness.",
           variant: "default"
-      });
+        });
       } else {
         setBrightness((b) => b + 1);
         setHasLooked(false);
@@ -67,7 +67,7 @@ const Level14 = ({ onComplete }) => {
           title: `Brightness: ${brightness + 1}/${MAX_BRIGHTNESS} ☀️`,
           description: brightness + 1 >= 3 ? "The screen is getting readable..." : "Still quite dim...",
           variant: "default"
-      });
+        });
       }
     } else if (decreaseBright) {
       if (brightness <= 0) {
@@ -75,7 +75,7 @@ const Level14 = ({ onComplete }) => {
           title: "Already off!",
           description: "The screen can't get any darker.",
           variant: "default"
-      });
+        });
       } else {
         setBrightness((b) => b - 1);
         setHasLooked(false);
@@ -83,7 +83,7 @@ const Level14 = ({ onComplete }) => {
           title: `Brightness: ${brightness - 1}/${MAX_BRIGHTNESS}`,
           description: "The screen dims...",
           variant: "default"
-      });
+        });
       }
     } else if (lookMatch) {
       setHasLooked(true);
@@ -92,19 +92,19 @@ const Level14 = ({ onComplete }) => {
           title: "Too dark! 🌑",
           description: "You can't see anything. The screen is completely black.",
           variant: "destructive"
-      });
+        });
       } else if (brightness <= 2) {
         toast({
           title: "Barely visible... 👀",
           description: "You can make out a faint message but can't read it clearly.",
           variant: "default"
-      });
+        });
       } else {
         toast({
           title: "You can see the password! 👁️",
           description: "The screen reads: \"unlock\"",
           variant: "default"
-      });
+        });
       }
     } else if (enterMatch) {
       const guess = enterMatch[1].trim().toLowerCase();
@@ -117,7 +117,7 @@ const Level14 = ({ onComplete }) => {
             ? "Can you even read what's on screen?"
             : `"${guess}" is incorrect. Look at the screen carefully.`,
           variant: "destructive"
-      });
+        });
       }
     } else if (resetMatch) {
       setBrightness(0);
@@ -192,14 +192,7 @@ const Level14 = ({ onComplete }) => {
             {/* Screen content */}
             <div className="relative z-0 flex flex-col items-center justify-center h-full p-6" style={{ minHeight: 220 }}>
               {/* Faint hint message (always very faintly visible at bottom) */}
-              <motion.p
-                animate={{ opacity: 0.03 + screenOpacity * 0.3 }}
-                transition={{ duration: 0.5 }}
-                className="text-xs text-center mb-6 font-mono"
-                style={{ color: `rgba(200, 200, 200, ${0.05 + screenOpacity * 0.6})` }}
-              >
-                Password visible on screen.
-              </motion.p>
+
 
               {/* Password display area */}
               <div className="relative mb-4">
@@ -297,26 +290,7 @@ const Level14 = ({ onComplete }) => {
       </motion.div>
 
       {/* Brightness bar */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-        className="w-full max-w-md mt-4 flex items-center justify-center gap-3"
-      >
-        <span className="text-sm text-gray-400">🌑</span>
-        <div className="flex-1 h-2 bg-[#1a1a2e] rounded-full overflow-hidden border border-purple-700/30">
-          <motion.div
-            animate={{ width: `${(brightness / MAX_BRIGHTNESS) * 100}%` }}
-            transition={{ duration: 0.4 }}
-            className="h-full rounded-full"
-            style={{
-              background: "linear-gradient(to right, #F5A623, #F9DC34)",
-            }}
-          />
-        </div>
-        <span className="text-sm text-gray-400">☀️</span>
-        <span className="text-xs text-gray-500 font-mono w-10 text-right">{brightness}/{MAX_BRIGHTNESS}</span>
-      </motion.div>
+
 
       {/* Help prompt */}
       <motion.span
@@ -431,20 +405,13 @@ const Level14 = ({ onComplete }) => {
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Setup:
-              </h3>
-              <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                <p>• The monitor is completely <strong>black</strong>.</p>
-                <p>• A message faintly says: <em>"Password visible on screen."</em></p>
-                <p>• You can barely see anything.</p>
-              </div>
+
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
                 Hint:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                If you can't see the password… the problem isn't the password.
+                The darkness is a lie; summon the sun to reveal the truth.
               </p>
             </div>
 

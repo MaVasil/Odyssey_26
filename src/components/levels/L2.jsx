@@ -138,7 +138,7 @@ const Level2 = ({ onComplete }) => {
           title: "Incorrect",
           description: `"${enterMatch[1].trim()}" is not the right flower. Look more carefully!`,
           variant: "destructive"
-      });
+        });
       }
     } else if (resetMatch) {
       setHasObserved(false);
@@ -421,20 +421,7 @@ const Level2 = ({ onComplete }) => {
             )}
           </AnimatePresence>
 
-          {/* Instruction overlay if not observed yet */}
-          {!hasObserved && (
-            <text
-              x="200"
-              y="188"
-              textAnchor="middle"
-              fontSize="11"
-              fill="white"
-              opacity="0.8"
-              fontWeight="bold"
-            >
-              Use /theme dark or /theme light
-            </text>
-          )}
+
         </svg>
       </motion.div>
 
@@ -463,27 +450,27 @@ const Level2 = ({ onComplete }) => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex gap-2 w-full max-w-md"
           >
-        <Input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
-          placeholder="Enter command..."
-          className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-        />
-        <button
-          onClick={handleCommandSubmit}
-          className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-        >
-          <Image
-            src="/runcode.png"
-            alt="Run"
-            height={20}
-            width={20}
-            className="rounded-sm"
-          />
-        </button>
-      </motion.div>
+            <Input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
+              placeholder="Enter command..."
+              className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
+            />
+            <button
+              onClick={handleCommandSubmit}
+              className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
+            >
+              <Image
+                src="/runcode.png"
+                alt="Run"
+                height={20}
+                width={20}
+                className="rounded-sm"
+              />
+            </button>
+          </motion.div>
         </div>
       </div>
 
@@ -543,7 +530,7 @@ const Level2 = ({ onComplete }) => {
                 Hint:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                Toggle themes and observe — one flower follows the light.
+                It seeks the eye that burns in the sky.
               </p>
             </div>
 

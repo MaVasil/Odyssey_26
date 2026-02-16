@@ -73,14 +73,14 @@ const Level11 = ({ onComplete }) => {
           title: "Turn off the fan first!",
           description: "You can't rotate the fan while it's running.",
           variant: "destructive"
-      });
+        });
       } else {
         setFanDir(dir);
         toast({
           title: `Fan turned ${dir}`,
           description: `The fan now faces ${dir === "left" ? "toward the paper" : "away from the paper"}.`,
           variant: "default"
-      });
+        });
       }
     } else if (powerMatch) {
       const state = powerMatch[1].toLowerCase();
@@ -94,25 +94,25 @@ const Level11 = ({ onComplete }) => {
               title: "💨 Dust blown away!",
               description: `A code is revealed on the paper: "${HIDDEN_CODE}". Use /enter to submit it!`,
               variant: "default"
-      });
+            });
           }, 1200);
           toast({
             title: "Fan powered on! 💨",
             description: "The fan is blowing toward the paper...",
             variant: "default"
-      });
+          });
         } else if (fanDir === "center") {
           toast({
             title: "Fan powered on! 💨",
             description: "The fan is blowing in your face... not very useful.",
             variant: "default"
-      });
+          });
         } else {
           toast({
             title: "Fan powered on! 💨",
             description: "The fan is blowing to the right... away from the paper.",
             variant: "default"
-      });
+          });
         }
       } else {
         setFanOn(false);
@@ -120,7 +120,7 @@ const Level11 = ({ onComplete }) => {
           title: "Fan powered off",
           description: "The fan stops spinning.",
           variant: "default"
-      });
+        });
       }
     } else if (enterMatch) {
       const guess = enterMatch[1].trim().toUpperCase();
@@ -129,7 +129,7 @@ const Level11 = ({ onComplete }) => {
           title: "No code visible",
           description: "The paper is still covered in dust. Blow it away first!",
           variant: "destructive"
-      });
+        });
       } else if (guess === HIDDEN_CODE) {
         setIsSuccess(true);
       } else {
@@ -137,7 +137,7 @@ const Level11 = ({ onComplete }) => {
           title: "Wrong code ❌",
           description: `"${guess}" is not what the paper says. Look carefully!`,
           variant: "destructive"
-      });
+        });
       }
     } else if (resetMatch) {
       setFanDir("center");
@@ -358,32 +358,7 @@ const Level11 = ({ onComplete }) => {
         </svg>
       </motion.div>
 
-      {/* Status bar */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-        className="w-full max-w-md mt-3 flex justify-center gap-3"
-      >
-        <div className={`text-xs px-3 py-1 rounded-full border ${fanDir === "left"
-            ? "bg-green-500/20 text-green-400 border-green-500/40"
-            : "bg-purple-500/20 text-purple-300 border-purple-500/40"
-          }`}>
-          Fan: {fanDir === "left" ? "→ Paper" : fanDir === "right" ? "→ Right" : "→ You"}
-        </div>
-        <div className={`text-xs px-3 py-1 rounded-full border ${fanOn
-            ? "bg-green-500/20 text-green-400 border-green-500/40"
-            : "bg-gray-500/20 text-gray-400 border-gray-500/40"
-          }`}>
-          Power: {fanOn ? "ON" : "OFF"}
-        </div>
-        <div className={`text-xs px-3 py-1 rounded-full border ${dustCleared
-            ? "bg-green-500/20 text-green-400 border-green-500/40"
-            : "bg-yellow-500/20 text-yellow-400 border-yellow-500/40"
-          }`}>
-          Paper: {dustCleared ? "✅ Revealed" : "🟡 Dusty"}
-        </div>
-      </motion.div>
+
 
       {/* Help prompt */}
       <motion.span
@@ -491,19 +466,13 @@ const Level11 = ({ onComplete }) => {
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Setup:
-              </h3>
-              <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                <p>• A piece of paper with a code is on the desk, covered in heavy gray dust.</p>
-                <p>• There is a desk fan currently pointing at your face.</p>
-              </div>
+
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
                 Hint:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                Blow the dust away to see what's underneath.
+                Breath reveals what the earth has hidden.
               </p>
             </div>
 

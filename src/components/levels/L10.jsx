@@ -77,7 +77,8 @@ const Level10 = ({ onComplete }) => {
     "top-left": 0, "tl": 0, "1": 0,
     "top-right": 1, "tr": 1, "2": 1,
     "bottom-left": 2, "bl": 2, "3": 2,
-    "bottom-right": 3, "br": 3, "4": 3};
+    "bottom-right": 3, "br": 3, "4": 3
+  };
 
   const POS_LABELS = ["Top-Left", "Top-Right", "Bottom-Left", "Bottom-Right"];
 
@@ -104,13 +105,13 @@ const Level10 = ({ onComplete }) => {
           title: "Invalid Position",
           description: "Use: TL (Top-Left), TR (Top-Right), BL (Bottom-Left), BR (Bottom-Right), or 1-4.",
           variant: "destructive"
-      });
+        });
       } else if (pos1 === pos2) {
         toast({
           title: "Same Position",
           description: "Pick two different tiles to swap.",
           variant: "destructive"
-      });
+        });
       } else {
         const newGrid = [...grid];
         [newGrid[pos1], newGrid[pos2]] = [newGrid[pos2], newGrid[pos1]];
@@ -121,7 +122,7 @@ const Level10 = ({ onComplete }) => {
           title: `Swapped ${POS_LABELS[pos1]} ↔ ${POS_LABELS[pos2]}`,
           description: `Moves: ${moveCount + 1}`,
           variant: "default"
-      });
+        });
       }
     } else if (resetMatch) {
       setGrid(createInitialGrid());
@@ -216,21 +217,7 @@ const Level10 = ({ onComplete }) => {
           {POS_LABELS[gridIndex]}
         </text>
 
-        {/* Correct indicator */}
-        {isCorrect && (
-          <g>
-            <circle cx={x + TILE_SIZE - 16} cy={y + 16} r="8" fill="#22c55e" opacity="0.9" />
-            <text
-              x={x + TILE_SIZE - 16}
-              y={y + 20}
-              textAnchor="middle"
-              fontSize="10"
-              fill="white"
-            >
-              ✓
-            </text>
-          </g>
-        )}
+
       </motion.g>
     );
   };
@@ -249,16 +236,7 @@ const Level10 = ({ onComplete }) => {
         The COSC Scramble — Restore the logo.
       </motion.p>
 
-      {/* Reference logo */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.25 }}
-        className="mb-3 flex items-center gap-3"
-      >
-        <Image src="/LogoCOSC.svg" alt="COSC Logo" width={48} height={48} className="rounded-lg shadow-md" />
-        <span className="text-xs text-purple-400 dark:text-purple-300 italic">Target logo</span>
-      </motion.div>
+
 
       {/* Puzzle grid */}
       <motion.div
@@ -268,49 +246,16 @@ const Level10 = ({ onComplete }) => {
         className="bg-[#0a0a1a] dark:bg-[#0a0a1a] rounded-2xl p-2 shadow-lg border border-purple-700/30 w-full max-w-sm relative overflow-hidden"
       >
         <svg viewBox={`0 0 ${GRID_W} ${GRID_W + 15}`} className="w-full">
-          {/* Title */}
-          <text
-            x={GRID_W / 2}
-            y={18}
-            textAnchor="middle"
-            fontSize="11"
-            fill="#8888BB"
-            fontWeight="bold"
-          >
-            REARRANGE TO FORM THE COSC LOGO
-          </text>
+
 
           {/* Tiles */}
           {[0, 1, 2, 3].map((i) => renderTile(i))}
 
-          {/* Move counter */}
-          <text
-            x={GRID_W / 2}
-            y={GRID_W + 8}
-            textAnchor="middle"
-            fontSize="11"
-            fill="#8888BB"
-          >
-            Swaps: {moveCount} | ✅ {grid.filter((id, i) => id === i).length}/4
-          </text>
+
         </svg>
       </motion.div>
 
-      {/* Gradient hint */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-        className="w-full max-w-sm mt-3 flex items-center justify-center"
-      >
-        <div className="h-4 w-48 rounded-full overflow-hidden flex">
-          <div className="flex-1" style={{ background: "#594D9F" }} />
-          <div className="flex-1" style={{ background: "#714C9C" }} />
-          <div className="flex-1" style={{ background: "#C22C89" }} />
-          <div className="flex-1" style={{ background: "#D72087" }} />
-        </div>
-        <span className="text-xs text-purple-400 ml-2">Purple → Pink</span>
-      </motion.div>
+
 
       {/* Help prompt */}
       {/* Sticky Command Panel */}
@@ -337,27 +282,27 @@ const Level10 = ({ onComplete }) => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex gap-2 w-full max-w-md"
           >
-        <Input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
-          placeholder="Enter command..."
-          className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-        />
-        <button
-          onClick={handleCommandSubmit}
-          className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-        >
-          <Image
-            src="/runcode.png"
-            alt="Run"
-            height={20}
-            width={20}
-            className="rounded-sm"
-          />
-        </button>
-      </motion.div>
+            <Input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
+              placeholder="Enter command..."
+              className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
+            />
+            <button
+              onClick={handleCommandSubmit}
+              className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
+            >
+              <Image
+                src="/runcode.png"
+                alt="Run"
+                height={20}
+                width={20}
+                className="rounded-sm"
+              />
+            </button>
+          </motion.div>
         </div>
       </div>
 
@@ -410,24 +355,10 @@ const Level10 = ({ onComplete }) => {
               </div>
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Goal:
-              </h3>
-              <div className="mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                <p className="mb-2">Arrange the 4 tiles to match the COSC logo:</p>
-                <div className="grid grid-cols-2 gap-1 w-40 mx-auto my-2">
-                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#594D9F" }}>C</div>
-                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#714C9C" }}>O</div>
-                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#C22C89" }}>S</div>
-                  <div className="text-center py-3 rounded-lg font-bold text-white text-xl" style={{ background: "#D72087" }}>C</div>
-                </div>
-                <p>• ✅ Green check = tile is in the correct position</p>
-              </div>
-
-              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
                 Hint:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                Use the color gradient to sort. Deep Purple belongs at the top (C, O); Bright Pink belongs at the bottom (S, C).
+                Colors cascade from the deep violet skies to the rose-lit earth. Find the order in the bloom.
               </p>
             </div>
 

@@ -57,7 +57,7 @@ const Level12 = ({ onComplete }) => {
           title: "Invalid PIN",
           description: "The keypad accepts exactly 4 digits.",
           variant: "destructive"
-      });
+        });
       } else if (pin === CORRECT_PIN) {
         setIsSuccess(true);
       } else {
@@ -68,7 +68,7 @@ const Level12 = ({ onComplete }) => {
           title: "Wrong PIN ❌",
           description: `"${pin}" is incorrect. Think about the date...`,
           variant: "destructive"
-      });
+        });
       }
     } else if (resetMatch) {
       setAttempts([]);
@@ -422,20 +422,13 @@ const Level12 = ({ onComplete }) => {
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Setup:
-              </h3>
-              <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                <p>• A drawer has a keypad requiring a <strong>4-digit PIN</strong>.</p>
-                <p>• On the table is a desk calendar opened to a single marked date.</p>
-                <p>• A sticky note beside it reads: <em>"Don't forget the big day."</em></p>
-              </div>
+
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
                 Hint:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                Important dates are often used as passwords.
+                The calendar holds the key to the 'big day'.
               </p>
             </div>
 

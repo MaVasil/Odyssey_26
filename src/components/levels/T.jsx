@@ -18,9 +18,10 @@ const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
     // score: 0,
     // moveCount: 0,
     // playerPosition: { x: 0, y: 0 },
-    // gameBoard: [...]});
+    // gameBoard: [...]
+  });
   const [isSuccess, setIsSuccess] = useState(false);
-  
+
   // Hooks
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
@@ -33,7 +34,7 @@ const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
         description: "You've successfully completed the level!",
         variant: "success"
       });
-      
+
       setTimeout(() => {
         onComplete(nextLevelNumber);
       }, 2000);
@@ -73,7 +74,7 @@ const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
     const resetMatch = inputValue.match(/^\/reset$/i);
     const helpMatch = inputValue.match(/^\/help$/i);
     const themeMatch = inputValue.match(/^\/theme\s+(dark|light)$/i);
-    
+
     // Add game-specific commands
     // const gameCommandMatch = inputValue.match(/^\/command\s+(.+)$/i);
 
@@ -103,15 +104,15 @@ const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
         variant: "destructive"
       });
     }
-    
+
     setInputValue("");
   };
 
   return (
     <div className="flex flex-col items-center mt-8 max-w-4xl mx-auto px-4">
       {/* Level title badge - now in sticky header */}
-      
-      <motion.p 
+
+      <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
@@ -141,7 +142,7 @@ const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
           </div>
         </div>
       </motion.div>
-      
+
       {/* Sticky Command Panel */}
       <div className="sticky bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#1A0F2E] via-[#1A0F2E]/95 to-transparent backdrop-blur-sm border-t border-purple-500/20 py-4 mt-8">
         <div className="flex flex-col items-center gap-3 max-w-4xl mx-auto px-4">
@@ -157,42 +158,42 @@ const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
           </motion.span>
 
           {/* Input and command button */}
-          <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="flex gap-2 w-full max-w-md"
-      >
-        <Input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={(e) => { handleKeyPress(e); handleHistoryKeys(e); }}
-          placeholder="Enter command..."
-          className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-        />
-        <button 
-          onClick={handleCommandSubmit}
-          className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-        >
-          <div className="w-6 h-6 flex items-center justify-center">
-            <ArrowRight className="w-5 h-5 text-purple-900" />
-          </div>
-        </button>
-      </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex gap-2 w-full max-w-md"
+          >
+            <Input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={(e) => { handleKeyPress(e); handleHistoryKeys(e); }}
+              placeholder="Enter command..."
+              className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
+            />
+            <button
+              onClick={handleCommandSubmit}
+              className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
+            >
+              <div className="w-6 h-6 flex items-center justify-center">
+                <ArrowRight className="w-5 h-5 text-purple-900" />
+              </div>
+            </button>
+          </motion.div>
         </div>
       </div>
 
       {/* Help Modal */}
       <AnimatePresence>
         {isHelpModalOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.9 }}
@@ -206,33 +207,25 @@ const LevelTemplate = ({ levelNumber, onComplete, nextLevelNumber }) => {
                     <span className="font-bold text-purple-700 dark:text-purple-300">/reset</span>
                     <p className="mt-1 text-gray-600 dark:text-gray-300">Reset the level to its initial state.</p>
                   </div>
-                  
+
                   <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
                     <span className="font-bold text-purple-700 dark:text-purple-300">/theme</span>{" "}
                     <span className="text-blue-600 dark:text-blue-300">[dark|light]</span>
                     <p className="mt-1 text-gray-600 dark:text-gray-300">Change the theme to dark or light.</p>
                   </div>
-                  
+
                   <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border-l-4 border-[#F5A623]">
                     <span className="font-bold text-purple-700 dark:text-purple-300">/help</span>
                     <p className="mt-1 text-gray-600 dark:text-gray-300">Show this help menu.</p>
                   </div>
                 </div>
-                
-                <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">How to Play:</h3>
-                <ul className="list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-300">
-                  {/* Add game-specific instructions here */}
-                  <li>Objective: Describe the level's objective</li>
-                  <li>Controls: Explain how to interact with the game</li>
-                  <li>Rules: Explain any specific game rules</li>
-                </ul>
-                
+
                 <h3 className="text-xl font-bold mt-4 mb-2 text-purple-800 dark:text-[#F9DC34]">Hint:</h3>
                 <p className="text-gray-600 dark:text-gray-300 italic">
-                  Add a helpful hint about solving the level here.
+                  Shadows whisper what the eyes cannot see.
                 </p>
               </div>
-              
+
               <div className="bg-purple-50 dark:bg-purple-900/30 px-6 py-4 text-center flex-shrink-0">
                 <button
                   onClick={() => setHelpModalOpen(false)}

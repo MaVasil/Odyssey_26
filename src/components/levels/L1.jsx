@@ -21,7 +21,8 @@ const LIGHT_DEFS = {
       { floorX: 290, hitsDoor: false },
     ],
     startIdx: 3,
-    color: "#FBBF24"},
+    color: "#FBBF24"
+  },
   B: {
     cx: 190,
     positions: [
@@ -32,7 +33,8 @@ const LIGHT_DEFS = {
       { floorX: 310, hitsDoor: false },
     ],
     startIdx: 2,
-    color: "#FCD34D"},
+    color: "#FCD34D"
+  },
   C: {
     cx: 300,
     positions: [
@@ -43,7 +45,9 @@ const LIGHT_DEFS = {
       { floorX: 365, hitsDoor: false },
     ],
     startIdx: 1,
-    color: "#FDE68A"}};
+    color: "#FDE68A"
+  }
+};
 
 const LIGHT_Y = 35;
 const FLOOR_Y = 220;
@@ -61,7 +65,8 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
   const [lightPositions, setLightPositions] = useState({
     A: LIGHT_DEFS.A.startIdx,
     B: LIGHT_DEFS.B.startIdx,
-    C: LIGHT_DEFS.C.startIdx});
+    C: LIGHT_DEFS.C.startIdx
+  });
   const { toast } = useToast();
 
   // Check win: no beam hits the door
@@ -122,26 +127,27 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
           title: `Light ${lightKey} rotated left`,
           description: `Position: ${current - 1 + 1}/5`,
           variant: "default"
-      });
+        });
       } else if (dir === "right" && current < def.positions.length - 1) {
         setLightPositions((p) => ({ ...p, [lightKey]: current + 1 }));
         toast({
           title: `Light ${lightKey} rotated right`,
           description: `Position: ${current + 1 + 1}/5`,
           variant: "default"
-      });
+        });
       } else {
         toast({
           title: "Can't rotate further",
           description: `Light ${lightKey} is already at the ${dir === "left" ? "leftmost" : "rightmost"} position.`,
           variant: "destructive"
-      });
+        });
       }
     } else if (resetMatch) {
       setLightPositions({
         A: LIGHT_DEFS.A.startIdx,
         B: LIGHT_DEFS.B.startIdx,
-        C: LIGHT_DEFS.C.startIdx});
+        C: LIGHT_DEFS.C.startIdx
+      });
       setIsSuccess(false);
       toast({
         title: "Level Reset",
@@ -181,7 +187,8 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
         {/* Beam cone */}
         <motion.polygon
           animate={{
-            points: `${def.cx},${LIGHT_Y + 10} ${floorX - BEAM_HALF_W},${FLOOR_Y} ${floorX + BEAM_HALF_W},${FLOOR_Y}`}}
+            points: `${def.cx},${LIGHT_Y + 10} ${floorX - BEAM_HALF_W},${FLOOR_Y} ${floorX + BEAM_HALF_W},${FLOOR_Y}`
+          }}
           transition={{ type: "tween", duration: 0.4, ease: "easeOut" }}
           fill={def.color}
           opacity={pos.hitsDoor ? "0.25" : "0.15"}
@@ -192,7 +199,8 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
             x1: def.cx,
             y1: LIGHT_Y + 10,
             x2: floorX,
-            y2: FLOOR_Y}}
+            y2: FLOOR_Y
+          }}
           transition={{ type: "tween", duration: 0.4, ease: "easeOut" }}
           stroke={def.color}
           strokeWidth="1"
@@ -292,68 +300,18 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
             r="3"
             fill={isSuccess ? "#22c55e" : "#F9DC34"}
           />
-          {/* Lock indicator */}
-          <text
-            x={DOOR_X + DOOR_W / 2}
-            y={DOOR_Y - 6}
-            textAnchor="middle"
-            fontSize="10"
-            fill={doorHit ? "#FF6B6B" : "#22c55e"}
-            fontWeight="bold"
-          >
-            {isSuccess ? "🔓 OPEN" : doorHit ? "🔒 LOCKED" : "🔓 UNLOCKED"}
-          </text>
 
           {/* Light fixtures (on top of beams) */}
           {["A", "B", "C"].map(renderFixture)}
 
-          {/* Status indicators per light */}
-          {["A", "B", "C"].map((key) => {
-            const def = LIGHT_DEFS[key];
-            const hits = def.positions[lightPositions[key]].hitsDoor;
-            return (
-              <text
-                key={`status-${key}`}
-                x={def.cx}
-                y={FLOOR_Y + 18}
-                textAnchor="middle"
-                fontSize="8"
-                fill={hits ? "#FF6B6B" : "#4ADE80"}
-              >
-                {hits ? "⚡ hitting door" : "✓ clear"}
-              </text>
-            );
-          })}
+
 
           {/* Title */}
-          <text x="330" y="30" textAnchor="middle" fontSize="9" fill="#555577">
-            SHADOW PUZZLE
-          </text>
+
         </svg>
       </motion.div>
 
-      {/* Light status bar */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-        className="w-full max-w-md mt-3 flex flex-wrap justify-center gap-2 sm:gap-3"
-      >
-        {["A", "B", "C"].map((key) => {
-          const hits = LIGHT_DEFS[key].positions[lightPositions[key]].hitsDoor;
-          return (
-            <div
-              key={key}
-              className={`text-xs px-3 py-1 rounded-full border ${hits
-                  ? "bg-red-500/20 text-red-400 border-red-500/40"
-                  : "bg-green-500/20 text-green-400 border-green-500/40"
-                }`}
-            >
-              Light {key}: {hits ? "🔴 Hits Door" : "🟢 Clear"}
-            </div>
-          );
-        })}
-      </motion.div>
+
 
       {/* Help prompt */}
       {/* Sticky Command Panel */}
@@ -380,27 +338,27 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex gap-2 w-full max-w-md"
           >
-        <Input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
-          placeholder="Enter command..."
-          className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
-        />
-        <button
-          onClick={handleCommandSubmit}
-          className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
-        >
-          <Image
-            src="/runcode.png"
-            alt="Run"
-            height={20}
-            width={20}
-            className="rounded-sm"
-          />
-        </button>
-      </motion.div>
+            <Input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={(e) => { handleEnter(e); handleHistoryKeys(e); }}
+              placeholder="Enter command..."
+              className="border-purple-300 dark:border-purple-600/50 bg-white dark:bg-[#1A0F2E]/70 shadow-inner focus:ring-[#F5A623] focus:border-[#F9DC34]"
+            />
+            <button
+              onClick={handleCommandSubmit}
+              className="bg-gradient-to-r from-[#F9DC34] to-[#F5A623] hover:from-[#FFE55C] hover:to-[#FFBD4A] p-2 rounded-lg shadow-md transition-transform hover:scale-105"
+            >
+              <Image
+                src="/runcode.png"
+                alt="Run"
+                height={20}
+                width={20}
+                className="rounded-sm"
+              />
+            </button>
+          </motion.div>
         </div>
       </div>
 
@@ -451,19 +409,10 @@ const Level1 = ({ levelNumber = 1, onComplete, nextLevelNumber = 2 }) => {
               </div>
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Rules:
-              </h3>
-              <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                <p>• 3 lights on the ceiling point in different directions.</p>
-                <p>• If <strong>any</strong> light beam touches the door, it stays <strong>locked</strong>.</p>
-                <p>• Rotate all lights so <strong>none</strong> hit the door to unlock it.</p>
-              </div>
-
-              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
                 Hint:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                Overlap the dark to remove it. When all beams point away, the door is free.
+                Shadows tell no tales, but the light must look elsewhere.
               </p>
             </div>
 

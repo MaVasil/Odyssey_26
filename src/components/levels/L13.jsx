@@ -86,7 +86,7 @@ const Level13 = ({ onComplete }) => {
           title: "Access Denied ❌",
           description: `Current time is ${formatTime(currentHour, currentMin)}. Working hours are 09:00–17:00.`,
           variant: "destructive"
-      });
+        });
       }
     } else if (openSettingsMatch) {
       addLine(`> /open settings`, "#A78BFA");
@@ -108,7 +108,7 @@ const Level13 = ({ onComplete }) => {
           title: "Settings not open",
           description: "Open settings first with /open settings",
           variant: "destructive"
-      });
+        });
       } else if (h < 0 || h > 23 || m < 0 || m > 59) {
         addLine("✗ Invalid time. Use format HH:MM (00:00 – 23:59).", "#ef4444");
       } else {
@@ -126,7 +126,7 @@ const Level13 = ({ onComplete }) => {
             ? "Now within working hours! Try /login"
             : "Still outside working hours.",
           variant: "default"
-      });
+        });
       }
     } else if (resetMatch) {
       setCurrentHour(2);
@@ -240,26 +240,7 @@ const Level13 = ({ onComplete }) => {
         </div>
       </motion.div>
 
-      {/* Status bar */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-        className="w-full max-w-md mt-3 flex justify-center gap-3"
-      >
-        <div className={`text-xs px-3 py-1 rounded-full border ${isWorkingHours(currentHour)
-            ? "bg-green-500/20 text-green-400 border-green-500/40"
-            : "bg-red-500/20 text-red-400 border-red-500/40"
-          }`}>
-          🕐 {formatTime(currentHour, currentMin)} {isWorkingHours(currentHour) ? "(Working)" : "(Off-hours)"}
-        </div>
-        <div className={`text-xs px-3 py-1 rounded-full border ${settingsOpen
-            ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/40"
-            : "bg-gray-500/20 text-gray-400 border-gray-500/40"
-          }`}>
-          ⚙ Settings: {settingsOpen ? "Open" : "Closed"}
-        </div>
-      </motion.div>
+
 
       {/* Help prompt */}
       <motion.span
@@ -367,21 +348,13 @@ const Level13 = ({ onComplete }) => {
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
-                Setup:
-              </h3>
-              <div className="space-y-1 mb-4 text-gray-600 dark:text-gray-300 text-sm">
-                <p>• The terminal says: <em>"Login restricted to working hours."</em></p>
-                <p>• Working Hours: <strong>09:00 – 17:00</strong></p>
-                <p>• Current Time: <strong>02:00</strong> (outside working hours)</p>
-                <p>• A settings option is available on the terminal.</p>
-              </div>
+
 
               <h3 className="text-xl font-bold mb-2 text-purple-800 dark:text-[#F9DC34]">
                 Hint:
               </h3>
               <p className="text-gray-600 dark:text-gray-300 italic">
-                If you cannot wait for morning… change what the computer thinks the time is.
+                Time is a cage; use the gears to shift the sun.
               </p>
             </div>
 
